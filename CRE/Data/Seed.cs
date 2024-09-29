@@ -29,7 +29,7 @@ namespace CRE.Data
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Chairperson', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Secretariat', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Expertise', RESEED, 1);");
-                context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('E_Evaluator', RESEED, 1);");
+                context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('EthicsEvaluator', RESEED, 1);");
 
                 context.Database.EnsureCreated();
 
