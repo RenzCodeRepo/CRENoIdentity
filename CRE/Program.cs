@@ -1,10 +1,31 @@
 using CRE.Data;
+using CRE.Interfaces;
+using CRE.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IChairpersonServices, ChairpersonServices>();
+builder.Services.AddScoped<IChiefServices, ChiefServices>();
+builder.Services.AddScoped<ICompletionCertificateServices, CompletionCertificateServices>();
+builder.Services.AddScoped<ICompletionReportServices, CompletionReportServices>();
+builder.Services.AddScoped<ICoProponentServices, CoProponentServices>();
+builder.Services.AddScoped<IEthicsApplicationFormsServices, EthicsApplicationFormsServices>();
+builder.Services.AddScoped<IEthicsApplicationLogServices, EthicsApplicationLogServices>();
+builder.Services.AddScoped<IEthicsApplicationServices, EthicsApplicationServices>();
+builder.Services.AddScoped<IEthicsClearanceServices, EthicsClearanceServices>();
+builder.Services.AddScoped<IEthicsEvaluationServices, EthicsEvaluationServices>();
+builder.Services.AddScoped<IEthicsEvaluatorServices, EthicsEvaluatorServices>();
+builder.Services.AddScoped<IEthicsEvaluatorExpertiseServices, EthicsEvaluatorExpertiseServices>();
+builder.Services.AddScoped<IExpertiseServices, ExpertiseServices>();
+builder.Services.AddScoped<IInitialReviewServices, InitialReviewServices>();
+builder.Services.AddScoped<INonFundedResearchInfoServices, NonFundedResearchInfoServices>();
+builder.Services.AddScoped<IReceiptInfoServices, ReceiptInfoServices>();
+builder.Services.AddScoped<ISecretariatServices, SecretariatServices>();
+builder.Services.AddScoped<IUserServices, UserServices>();
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
