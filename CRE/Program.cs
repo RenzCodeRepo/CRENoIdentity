@@ -20,6 +20,7 @@ builder.Services.AddScoped<IEthicsEvaluationServices, EthicsEvaluationServices>(
 builder.Services.AddScoped<IEthicsEvaluatorServices, EthicsEvaluatorServices>();
 builder.Services.AddScoped<IEthicsEvaluatorExpertiseServices, EthicsEvaluatorExpertiseServices>();
 builder.Services.AddScoped<IExpertiseServices, ExpertiseServices>();
+builder.Services.AddScoped<IEthicsFormServices, EthicsFormServices>();
 builder.Services.AddScoped<IInitialReviewServices, InitialReviewServices>();
 builder.Services.AddScoped<INonFundedResearchInfoServices, NonFundedResearchInfoServices>();
 builder.Services.AddScoped<IReceiptInfoServices, ReceiptInfoServices>();
