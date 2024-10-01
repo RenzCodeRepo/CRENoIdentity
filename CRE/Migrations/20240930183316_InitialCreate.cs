@@ -235,18 +235,18 @@ namespace CRE.Migrations
                 name: "ReceiptInfo",
                 columns: table => new
                 {
-                    receipt_No = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    urec_No = table.Column<string>(type: "nvarchar(16)", nullable: false),
-                    amount_Paid = table.Column<float>(type: "real", nullable: false),
-                    date_Paid = table.Column<DateOnly>(type: "date", nullable: false),
-                    scan_Receipt = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
+                    receiptNo = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    amountPaid = table.Column<float>(type: "real", nullable: false),
+                    datePaid = table.Column<DateOnly>(type: "date", nullable: false),
+                    scanReceipt = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReceiptInfo", x => x.receipt_No);
+                    table.PrimaryKey("PK_ReceiptInfo", x => x.receiptNo);
                     table.ForeignKey(
-                        name: "FK_ReceiptInfo_EthicsApplication_urec_No",
-                        column: x => x.urec_No,
+                        name: "FK_ReceiptInfo_EthicsApplication_urecNo",
+                        column: x => x.urecNo,
                         principalTable: "EthicsApplication",
                         principalColumn: "urecNo",
                         onDelete: ReferentialAction.Cascade);
@@ -579,9 +579,9 @@ namespace CRE.Migrations
                 column: "userId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReceiptInfo_urec_No",
+                name: "IX_ReceiptInfo_urecNo",
                 table: "ReceiptInfo",
-                column: "urec_No",
+                column: "urecNo",
                 unique: true);
 
             migrationBuilder.CreateIndex(

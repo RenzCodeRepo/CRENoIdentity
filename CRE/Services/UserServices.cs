@@ -1,5 +1,6 @@
 ﻿using CRE.Data;
 using CRE.Interfaces;
+using CRE.Models;
 
 namespace CRE.Services
 {
@@ -10,5 +11,11 @@ namespace CRE.Services
         {
             _context = context;
         }
+
+        public async Task<User> GetByIdAsync(int userId)
+        {
+            return await _context.User.FindAsync(userId); // Retrieve user by user ID
+        }
+
     }
 }

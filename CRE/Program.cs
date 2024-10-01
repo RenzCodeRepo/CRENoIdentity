@@ -27,7 +27,6 @@ builder.Services.AddScoped<IReceiptInfoServices, ReceiptInfoServices>();
 builder.Services.AddScoped<ISecretariatServices, SecretariatServices>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

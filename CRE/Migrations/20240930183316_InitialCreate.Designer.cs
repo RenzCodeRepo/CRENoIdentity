@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240929164024_InitialCreate")]
+    [Migration("20240930183316_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -518,26 +518,26 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.ReceiptInfo", b =>
                 {
-                    b.Property<string>("receipt_No")
+                    b.Property<string>("receiptNo")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<float>("amount_Paid")
+                    b.Property<float>("amountPaid")
                         .HasColumnType("real");
 
-                    b.Property<DateOnly>("date_Paid")
+                    b.Property<DateOnly>("datePaid")
                         .HasColumnType("date");
 
-                    b.Property<byte[]>("scan_Receipt")
+                    b.Property<byte[]>("scanReceipt")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("urec_No")
+                    b.Property<string>("urecNo")
                         .IsRequired()
                         .HasColumnType("nvarchar(16)");
 
-                    b.HasKey("receipt_No");
+                    b.HasKey("receiptNo");
 
-                    b.HasIndex("urec_No")
+                    b.HasIndex("urecNo")
                         .IsUnique();
 
                     b.ToTable("ReceiptInfo");
@@ -814,13 +814,13 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.ReceiptInfo", b =>
                 {
-                    b.HasOne("CRE.Models.EthicsApplication", "E_Application")
+                    b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithOne("ReceiptInfo")
-                        .HasForeignKey("CRE.Models.ReceiptInfo", "urec_No")
+                        .HasForeignKey("CRE.Models.ReceiptInfo", "urecNo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("E_Application");
+                    b.Navigation("EthicsApplication");
                 });
 
             modelBuilder.Entity("CRE.Models.Secretariat", b =>

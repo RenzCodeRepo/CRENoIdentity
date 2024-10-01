@@ -40,6 +40,8 @@ namespace CRE.Data
                 if (!context.User.Any())
                 {
                     context.User.AddRange(
+                        new User { fName = "Renz Niño", mName = "S", lName = "Baladjay External", type = "external" }, // Developer ID for external
+                        new User { fName = "Renz Niño", mName = "S", lName = "Baladjay Internal", type = "internal" }, // Developer ID for external
                         new User { fName = "Alice", mName = "A", lName = "Anderson", type = "internal" },
                         new User { fName = "Bob", mName = "B", lName = "Bennett", type = "internal" },
                         new User { fName = "Charlie", mName = "C", lName = "Carter", type = "internal" },
@@ -66,26 +68,27 @@ namespace CRE.Data
                         new User { fName = "Xander", mName = "X", lName = "Xavier", type = "external" }, // External user
                         new User { fName = "Yara", mName = "Y", lName = "Young", type = "external" }, // External user
                         new User { fName = "Zoe", mName = "Z", lName = "Zimmerman", type = "external" } // External user
+                       
                         );
                     context.SaveChanges();
                 }
                 if (!context.Faculty.Any())
                 {
                     context.Faculty.AddRange(
-                        new Faculty { userId = 1, userType = "Professor", salaryGrade = 15 },
-                        new Faculty { userId = 2, userType = "Associate Professor", salaryGrade = 13 },
-                        new Faculty { userId = 3, userType = "Assistant Professor", salaryGrade = 12 },
-                        new Faculty { userId = 4, userType = "Instructor", salaryGrade = 10 },
-                        new Faculty { userId = 5, userType = "Professor", salaryGrade = 15 },
+                        new Faculty { userId = 3, userType = "Professor", salaryGrade = 15 },
+                        new Faculty { userId = 4, userType = "Associate Professor", salaryGrade = 13 },
+                        new Faculty { userId = 5, userType = "Assistant Professor", salaryGrade = 12 },
                         new Faculty { userId = 6, userType = "Instructor", salaryGrade = 10 },
-                        new Faculty { userId = 7, userType = "Assistant Professor", salaryGrade = 12 },
-                        new Faculty { userId = 8, userType = "Associate Professor", salaryGrade = 13 },
-                        new Faculty { userId = 9, userType = "Professor", salaryGrade = 15 },
-                        new Faculty { userId = 10, userType = "Instructor", salaryGrade = 10 },
-                        new Faculty { userId = 11, userType = "Assistant Professor", salaryGrade = 12 },
-                        new Faculty { userId = 12, userType = "Professor", salaryGrade = 15 },
-                        new Faculty { userId = 13, userType = "Associate Professor", salaryGrade = 13 },
-                        new Faculty { userId = 14, userType = "Instructor", salaryGrade = 10 }
+                        new Faculty { userId = 7, userType = "Professor", salaryGrade = 15 },
+                        new Faculty { userId = 8, userType = "Instructor", salaryGrade = 10 },
+                        new Faculty { userId = 9, userType = "Assistant Professor", salaryGrade = 12 },
+                        new Faculty { userId = 10, userType = "Associate Professor", salaryGrade = 13 },
+                        new Faculty { userId = 11, userType = "Professor", salaryGrade = 15 },
+                        new Faculty { userId = 12, userType = "Instructor", salaryGrade = 10 },
+                        new Faculty { userId = 13, userType = "Assistant Professor", salaryGrade = 12 },
+                        new Faculty { userId = 14, userType = "Professor", salaryGrade = 15 },
+                        new Faculty { userId = 15, userType = "Associate Professor", salaryGrade = 13 },
+                        new Faculty { userId = 16, userType = "Instructor", salaryGrade = 10 }
                     );
                     context.SaveChanges();
                 }
@@ -93,7 +96,7 @@ namespace CRE.Data
                 if (!context.Chief.Any())
                 {
                     context.Chief.Add(
-                        new Chief { userId = 15, center = "CRE" }
+                        new Chief { userId = 17, center = "CRE" }
                     );
                 }
                 // Seed 8 Chairperson records using the 7 Faculty records

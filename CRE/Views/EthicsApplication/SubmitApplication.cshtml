@@ -1,0 +1,230 @@
+﻿@model CRE.ViewModels.ApplyEthicsViewModel
+@{
+    ViewBag.Title = "Submit Applications";
+
+    // Example hardcoded values for dropdowns
+    var fieldOfStudies = new List<string>
+    {
+        "Education",
+        "Computer Science, Information Systems, and Technology",
+        "Engineering, Architecture, and Design",
+        "Humanities, Language, and Communication",
+        "Business",
+        "Social Sciences",
+        "Science, Mathematics, and Statistics"
+    };
+
+    var campuses = new List<string>
+    {
+        "Main Campus",
+        "North Campus",
+        "South Campus"
+    };
+
+    var colleges = new List<string>
+    {
+        "College of Science",
+        "College of Engineering",
+        "College of Arts"
+    };
+
+    var universities = new List<string>
+    {
+        "University A",
+        "University B",
+        "University C"
+    };
+   
+
+}
+
+<div class="container-fluid mt-3">
+    <div class="d-flex justify-content-center">
+        <!-- Start of form -->
+        <form asp-action="SubmitApplication" method="post" enctype="multipart/form-data" style="width: 80%;">
+            <!-- Card 1: General Information -->
+            <div class="card border-secondary mb-3">
+                <div class="card-header text-bg-danger text-white text-center">General Information</div>
+                <div class="card-body bg-white">
+                    <!-- DTS No -->
+                    <div class="row mb-3">
+                        <label asp-for="EthicsApplication.dtsNo" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">DTS No.:</label>
+                        <div class="col-sm-8">
+                            <input asp-for="EthicsApplication.dtsNo" class="form-control" placeholder="DTS No. (Optional)" />
+                        </div>
+                    </div>
+                    <span asp-validation-for="EthicsApplication.dtsNo" class="text-danger"></span>
+
+                    <!-- Research Project Title -->
+                    <div class="row mb-3">
+                        <label asp-for="NonFundedResearchInfo.title" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Research Project Title</label>
+                        <div class="col-sm-8">
+                            <input asp-for="NonFundedResearchInfo.title" class="form-control" placeholder="Research Title" />
+                        </div>
+                    </div>
+                    <span asp-validation-for="NonFundedResearchInfo.title" class="text-danger"></span>
+
+                    <!-- Project Leader -->
+                    <div class="row mb-3">
+                        <label asp-for="User.userId" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Project Leader</label>
+                        <div class="col-sm-8">
+                            @if (Model.User != null)
+                            {
+                                <input class="form-control" readonly value="@($"{Model.User.fName} {(string.IsNullOrEmpty(Model.User.mName) ? "" : Model.User.mName.Substring(0, 1) + ".")} {Model.User.lName}")" />
+                            }
+                            else
+                            {
+                                <input class="form-control" placeholder="No User Id Detected" value="" />
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Co-Proponents Container -->
+                    <div id="coProponentsContainer">
+                        @for (int i = 0; i < Model.CoProponent.Count; i++)
+                        {
+                            <div class="row mb-3">
+                                <label asp-for="CoProponent[i].coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
+                                <div class="col-sm-8">
+                                    <input asp-for="CoProponent[i].coProponentName" class="form-control" placeholder="Name" />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label asp-for="CoProponent[i].coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
+                                <div class="col-sm-8">
+                                    <input asp-for="CoProponent[i].coProponentEmail" class="form-control" placeholder="Email" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <!-- Flexbox for Add Co-Proponent Button -->
+                    <div class="row mb-3">
+                        <div class="col-sm-3"></div> <!-- Empty column for alignment -->
+                        <div class="col-sm-8 d-flex align-items-start">
+                            <button type="button" class="btn btn-secondary" onclick="addCoProponent()">Add Co-Proponent</button>
+                        </div>
+                    </div>
+
+                    <!-- Field of Study Dropdown -->
+                    <div class="row mb-3">
+                        <label asp-for="EthicsApplication.fieldOfStudy" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Field of Study</label>
+                        <div class="col-sm-8">
+                            <select asp-for="EthicsApplication.fieldOfStudy" class="form-control">
+                                <option value="">Select Field of Study</option>
+                                @for (int i = 0; i < fieldOfStudies.Count; i++)
+                                {
+                                    <option value="@fieldOfStudies[i]">@fieldOfStudies[i]</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campus Dropdown -->
+                    <div class="row mb-3">
+                        <label asp-for="NonFundedResearchInfo.campus" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Campus</label>
+                        <div class="col-sm-8">
+                            <select asp-for="NonFundedResearchInfo.campus" class="form-control">
+                                <option value="">Select Campus</option>
+                                @for (int i = 0; i < campuses.Count; i++)
+                                {
+                                    <option value="@campuses[i]">@campuses[i]</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- College Dropdown -->
+                    <div class="row mb-3">
+                        <label asp-for="NonFundedResearchInfo.college" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">College</label>
+                        <div class="col-sm-8">
+                            <select asp-for="NonFundedResearchInfo.college" class="form-control">
+                                <option value="">Select College</option>
+                                @for (int i = 0; i < colleges.Count; i++)
+                                {
+                                    <option value="@colleges[i]">@colleges[i]</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- University Dropdown -->
+                    <div class="row mb-3">
+                        <label asp-for="NonFundedResearchInfo.university" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">University</label>
+                        <div class="col-sm-8">
+                            <select asp-for="NonFundedResearchInfo.university" class="form-control">
+                                <option value="">Select University</option>
+                                @for (int i = 0; i < universities.Count; i++)
+                                {
+                                    <option value="@universities[i]">@universities[i]</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Receipt Information -->
+            <div class="card border-secondary mb-3">
+                <div class="card-header text-bg-danger text-white text-center">Receipt Information</div>
+                <div class="card-body bg-white">
+                    <div class="row mb-3">
+                        <label asp-for="ReceiptInfo.receiptNo" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Receipt Number:</label>
+                        <div class="col-sm-8">
+                            <input asp-for="ReceiptInfo.receiptNo" class="form-control" placeholder="Receipt Number" />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label asp-for="ReceiptInfo.amountPaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Amount Paid</label>
+                        <div class="col-sm-8">
+                            <input asp-for="ReceiptInfo.amountPaid" class="form-control" placeholder="Amount Paid" />
+                        </div>
+                    </div>
+                    <!-- Date Paid Input -->
+                    <div class="row mb-3">
+                        <label asp-for="ReceiptInfo.datePaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Date Paid</label>
+                        <div class="col-sm-8">
+                            <input asp-for="ReceiptInfo.datePaid" class="form-control" type="date" placeholder="Date Paid" />
+                        </div>
+                    </div>
+                    <!-- Scan Receipt Upload -->
+                    <div class="row mb-3">
+                        <label asp-for="ReceiptInfo.scanReceipt" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Upload Scanned Receipt</label>
+                        <div class="col-sm-8">
+                            <input asp-for="ReceiptInfo.scanReceipt" class="form-control" type="file" accept=".pdf" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-success mt-2">Submit</button>
+        </form>
+        <!-- End of form -->
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function addCoProponent() {
+            const container = document.getElementById('coProponentsContainer');
+            const index = container.children.length;
+
+            const newInputHtml = `
+                        <div class="row mb-3">
+                            <label for="CoProponent_${index}__coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="CoProponent[${index}].coProponentName" class="form-control" placeholder="Enter co-proponent name" />
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="CoProponent_${index}__coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="CoProponent[${index}].coProponentEmail" class="form-control" placeholder="Enter co-proponent email" />
+                            </div>
+                        </div>
+                    `;
+
+            container.insertAdjacentHTML('beforeend', newInputHtml);
+        }
+    </script>
+}
