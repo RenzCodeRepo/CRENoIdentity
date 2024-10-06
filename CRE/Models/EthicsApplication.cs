@@ -5,7 +5,7 @@ namespace CRE.Models
 {
     public class EthicsApplication
     {
-        [Key, MaxLength(16)]
+        [Key, MaxLength(30)]
         public string urecNo { get; set; }
         [ForeignKey(nameof(User))]
         public int userId { get; set; }

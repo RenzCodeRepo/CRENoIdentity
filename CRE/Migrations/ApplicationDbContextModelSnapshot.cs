@@ -133,13 +133,13 @@ namespace CRE.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("urecNo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("completionReportId");
 
                     b.HasIndex("urecNo")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[urecNo] IS NOT NULL");
 
                     b.ToTable("CompletionReport");
                 });
@@ -147,8 +147,8 @@ namespace CRE.Migrations
             modelBuilder.Entity("CRE.Models.EthicsApplication", b =>
                 {
                     b.Property<string>("urecNo")
-                        .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("dtsNo")
                         .HasColumnType("nvarchar(max)");
@@ -182,7 +182,6 @@ namespace CRE.Migrations
                         .HasColumnType("date");
 
                     b.Property<string>("ethicsFormId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(10)");
 
                     b.Property<byte[]>("file")
@@ -191,7 +190,7 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("ethicsApplicationFormId");
 
@@ -222,7 +221,7 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("userId")
                         .HasColumnType("int");
@@ -257,7 +256,7 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("ethicsClearanceId");
 
@@ -300,7 +299,7 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("evaluationId");
 
@@ -402,7 +401,8 @@ namespace CRE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("facultyId"));
 
-                    b.Property<int>("salaryGrade")
+                    b.Property<int?>("salaryGrade")
+                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<int>("userId")
@@ -428,6 +428,9 @@ namespace CRE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("initalReviewId"));
 
+                    b.Property<int?>("chiefId")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly?>("dateReviewed")
                         .HasColumnType("date");
 
@@ -435,7 +438,7 @@ namespace CRE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("secretariatId")
+                    b.Property<int?>("secretariatId")
                         .HasColumnType("int");
 
                     b.Property<string>("status")
@@ -444,9 +447,11 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("initalReviewId");
+
+                    b.HasIndex("chiefId");
 
                     b.HasIndex("secretariatId");
 
@@ -470,16 +475,16 @@ namespace CRE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("completionCertId")
+                    b.Property<int?>("completionCertId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("completion_Date")
+                    b.Property<DateOnly?>("completion_Date")
                         .HasColumnType("date");
 
                     b.Property<DateTime>("dateSubmitted")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ethicsClearanceId")
+                    b.Property<int?>("ethicsClearanceId")
                         .HasColumnType("int");
 
                     b.Property<string>("title")
@@ -492,7 +497,7 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("userId")
                         .HasColumnType("int");
@@ -500,10 +505,12 @@ namespace CRE.Migrations
                     b.HasKey("nonFundedResearchId");
 
                     b.HasIndex("completionCertId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[completionCertId] IS NOT NULL");
 
                     b.HasIndex("ethicsClearanceId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[ethicsClearanceId] IS NOT NULL");
 
                     b.HasIndex("urecNo")
                         .IsUnique();
@@ -530,7 +537,7 @@ namespace CRE.Migrations
 
                     b.Property<string>("urecNo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("receiptNo");
 
@@ -626,13 +633,11 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.CompletionReport", b =>
                 {
-                    b.HasOne("CRE.Models.EthicsApplication", "E_Application")
+                    b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithOne("CompletionReport")
-                        .HasForeignKey("CRE.Models.CompletionReport", "urecNo")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CRE.Models.CompletionReport", "urecNo");
 
-                    b.Navigation("E_Application");
+                    b.Navigation("EthicsApplication");
                 });
 
             modelBuilder.Entity("CRE.Models.EthicsApplication", b =>
@@ -650,9 +655,7 @@ namespace CRE.Migrations
                 {
                     b.HasOne("CRE.Models.EthicsForm", "EthicsForm")
                         .WithMany("EthicsApplicationForms")
-                        .HasForeignKey("ethicsFormId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ethicsFormId");
 
                     b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithMany("EthicsApplicationForms")
@@ -757,17 +760,22 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.InitialReview", b =>
                 {
+                    b.HasOne("CRE.Models.Chief", "Chief")
+                        .WithMany("InitialReview")
+                        .HasForeignKey("chiefId");
+
                     b.HasOne("CRE.Models.Secretariat", "Secretariat")
                         .WithMany("InitialReview")
                         .HasForeignKey("secretariatId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithOne("InitialReview")
                         .HasForeignKey("CRE.Models.InitialReview", "urecNo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Chief");
 
                     b.Navigation("EthicsApplication");
 
@@ -778,15 +786,12 @@ namespace CRE.Migrations
                 {
                     b.HasOne("CRE.Models.CompletionCertificate", "CompletionCertificate")
                         .WithOne("NonFundedResearchInfo")
-                        .HasForeignKey("CRE.Models.NonFundedResearchInfo", "completionCertId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CRE.Models.NonFundedResearchInfo", "completionCertId");
 
                     b.HasOne("CRE.Models.EthicsClearance", "EthicsClearance")
                         .WithOne("NonFundedResearchInfo")
                         .HasForeignKey("CRE.Models.NonFundedResearchInfo", "ethicsClearanceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithOne("NonFundedResearchInfo")
@@ -829,6 +834,11 @@ namespace CRE.Migrations
                         .IsRequired();
 
                     b.Navigation("Faculty");
+                });
+
+            modelBuilder.Entity("CRE.Models.Chief", b =>
+                {
+                    b.Navigation("InitialReview");
                 });
 
             modelBuilder.Entity("CRE.Models.CompletionCertificate", b =>

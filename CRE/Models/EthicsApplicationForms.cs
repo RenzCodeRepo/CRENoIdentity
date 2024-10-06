@@ -10,7 +10,7 @@ namespace CRE.Models
         [ForeignKey(nameof(EthicsApplication))]
         public string urecNo { get; set; }
         [ForeignKey(nameof(EthicsForm))]
-        public string ethicsFormId { get; set; }
+        public string? ethicsFormId { get; set; }
         [Required]
         public DateOnly dateUploaded { get; set; }
         [Required]

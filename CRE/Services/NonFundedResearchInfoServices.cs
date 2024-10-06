@@ -31,6 +31,28 @@ namespace CRE.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+        // Method to generate a unique primary key (NFID-XXXX)
+        public async Task<string> GenerateNonFundedResearchIdAsync()
+        {
+            string id;
+            bool exists;
+            Random random = new Random();
+
+            do
+            {
+                // Generate the ID in the format NFID-XXXX, where XXXX are 4 random digits
+                id = "NFID-" + random.Next(1000, 9999);
+
+                // Check if the generated ID already exists in the database
+                exists = await _context.NonFundedResearchInfo
+                                       .AnyAsync(r => r.nonFundedResearchId == id);
+
+            } while (exists); // Keep generating until a unique ID is found
+
+            return id;
+        }
+
         public async Task<IEnumerable<NonFundedResearchInfo>> GetAllNonFundedResearchAsync()
         {
             return await _context.NonFundedResearchInfo.ToListAsync();

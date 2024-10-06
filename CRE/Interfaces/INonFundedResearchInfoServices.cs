@@ -10,5 +10,6 @@ namespace CRE.Interfaces
         Task<NonFundedResearchInfo> SearchByTitleAsync(string title);
         Task<IEnumerable<NonFundedResearchInfo>> GetAllNonFundedResearchAsync();
         Task<IEnumerable<NonFundedResearchInfo>> GetNonFundedResearchByUserAsync(int userId);
+        Task<string> GenerateNonFundedResearchIdAsync(); // Generate a PK in the format NFID-XXXX
     }
 }

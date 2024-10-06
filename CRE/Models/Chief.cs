@@ -15,6 +15,7 @@ namespace CRE.Models
 
 
         //navigation properties
+        public ICollection<InitialReview> InitialReview { get; set; } = new List<InitialReview>();
         public User User { get; set; }
     }
 }

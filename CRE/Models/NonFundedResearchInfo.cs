@@ -14,10 +14,10 @@ namespace CRE.Models
         public string urecNo { get; set; }
 
         [ForeignKey(nameof(EthicsClearance))]
-        public int ethicsClearanceId { get; set; }
+        public int? ethicsClearanceId { get; set; }
 
         [ForeignKey(nameof(CompletionCertificate))]
-        public int completionCertId { get; set; }
+        public int? completionCertId { get; set; }
 
         [ForeignKey(nameof(User))]
         public int userId { get; set; }
@@ -34,7 +34,7 @@ namespace CRE.Models
         public string college { get; set; }
         public string university { get; set; }
 
-        public DateOnly completion_Date { get; set; }
+        public DateOnly? completion_Date { get; set; }
 
         // Navigation Properties
         public User User { get; set; }

@@ -34,7 +34,7 @@
         "University B",
         "University C"
     };
-   
+
 
 }
 
@@ -54,7 +54,6 @@
                         </div>
                     </div>
                     <span asp-validation-for="EthicsApplication.dtsNo" class="text-danger"></span>
-
                     <!-- Research Project Title -->
                     <div class="row mb-3">
                         <label asp-for="NonFundedResearchInfo.title" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Research Project Title</label>
@@ -92,7 +91,7 @@
                             <div class="row mb-3">
                                 <label asp-for="CoProponent[i].coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
                                 <div class="col-sm-8">
-                                    <input asp-for="CoProponent[i].coProponentEmail" class="form-control" placeholder="Email" />
+                                    <input asp-for="CoProponent[i].coProponentEmail" class="form-control" placeholder="Email (Optional)" />
                                 </div>
                             </div>
                         }
@@ -162,7 +161,8 @@
                     </div>
                 </div>
             </div>
-
+            @if (Model.ReceiptInfo != null)
+            {
             <!-- Card 2: Receipt Information -->
             <div class="card border-secondary mb-3">
                 <div class="card-header text-bg-danger text-white text-center">Receipt Information</div>
@@ -183,19 +183,20 @@
                     <div class="row mb-3">
                         <label asp-for="ReceiptInfo.datePaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Date Paid</label>
                         <div class="col-sm-8">
-                            <input asp-for="ReceiptInfo.datePaid" class="form-control" type="date" placeholder="Date Paid" />
+                            <input asp-for="ReceiptInfo.datePaid" class="form-control" type="date" placeholder="Date Paid" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
                         </div>
                     </div>
+
                     <!-- Scan Receipt Upload -->
                     <div class="row mb-3">
-                        <label asp-for="ReceiptInfo.scanReceipt" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Upload Scanned Receipt</label>
+                        <label asp-for="receiptFile" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Upload Scanned Receipt</label>
                         <div class="col-sm-8">
-                            <input asp-for="ReceiptInfo.scanReceipt" class="form-control" type="file" accept=".pdf" />
+                                <input asp-for="receiptFile" class="form-control" type="file" accept=".pdf" />
                         </div>
                     </div>
                 </div>
             </div>
-
+            }
             <!-- Submit Button -->
             <button type="submit" class="btn btn-success mt-2">Submit</button>
         </form>
@@ -210,19 +211,19 @@
             const index = container.children.length;
 
             const newInputHtml = `
-                        <div class="row mb-3">
-                            <label for="CoProponent_${index}__coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="CoProponent[${index}].coProponentName" class="form-control" placeholder="Enter co-proponent name" />
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-                            <label for="CoProponent_${index}__coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="CoProponent[${index}].coProponentEmail" class="form-control" placeholder="Enter co-proponent email" />
-                            </div>
-                        </div>
-                    `;
+                <div class="row mb-3">
+                    <label for="CoProponent_${index}__coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="CoProponent[${index}].coProponentName" class="form-control" placeholder="Name" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label for="CoProponent_${index}__coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="CoProponent[${index}].coProponentEmail" class="form-control" placeholder="Email (Optional)" />
+                    </div>
+                </div>
+            `;
 
             container.insertAdjacentHTML('beforeend', newInputHtml);
         }

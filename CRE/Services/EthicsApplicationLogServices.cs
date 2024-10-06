@@ -34,6 +34,16 @@ namespace CRE.Services
                                  .FirstOrDefaultAsync();                    // Get the latest log entry
         }
 
+        public async Task<IEnumerable<EthicsApplicationLog>> GetLatestLogsByApplicationIdsAsync(IEnumerable<string> urecNos)
+        {
+            return await _context.EthicsApplicationLog
+                .Where(log => urecNos.Contains(log.urecNo)) // Assuming EthicsApplicationId is the foreign key
+                .GroupBy(log => log.urecNo) // Group by the application ID
+                .Select(g => g.OrderByDescending(log => log.changeDate).FirstOrDefault()) // Get the latest log for each application
+                .ToListAsync();
+        }
+
+
         // Retrieve all logs for a specific urecNo
         public async Task<IEnumerable<EthicsApplicationLog>> GetLogsByUrecNoAsync(string urecNo)
         {

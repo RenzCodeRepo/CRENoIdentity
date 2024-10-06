@@ -1,6 +1,7 @@
 ﻿using CRE.Data;
 using CRE.Interfaces;
 using CRE.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRE.Services
 {
@@ -16,6 +17,9 @@ namespace CRE.Services
         {
             return await _context.User.FindAsync(userId); // Retrieve user by user ID
         }
-
+        public async Task<bool> UserExistsAsync(int userId)
+        {
+            return await _context.User.AnyAsync(u => u.userId == userId); // Assuming UserId is the primary key
+        }
     }
 }

@@ -7,8 +7,8 @@ namespace CRE.Models
     {
         [Key]
         public int completionReportId { get; set; }
-        [ForeignKey(nameof(E_Application))]
-        public string urecNo { get; set; }
+        [ForeignKey(nameof(EthicsApplication))]
+        public string? urecNo { get; set; }
         [Required]
         public DateOnly submissionDate { get; set; }
         [Required]
@@ -16,6 +16,6 @@ namespace CRE.Models
 
 
         //navigation properties
-        public EthicsApplication E_Application { get; set; }
+        public EthicsApplication EthicsApplication { get; set; }
     }
 }

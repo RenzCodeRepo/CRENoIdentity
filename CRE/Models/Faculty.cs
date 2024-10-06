@@ -11,9 +11,9 @@ namespace CRE.Models
         [ForeignKey(nameof(User))]
         public int userId { get; set; }
         [Required]
-        public string userType { get; set; }
+        public string? userType { get; set; }
         [Required]
-        public int salaryGrade { get; set; }
+        public int? salaryGrade { get; set; }
 
 
         //navigation properties

@@ -94,7 +94,7 @@ namespace CRE.Migrations
                 name: "EthicsApplication",
                 columns: table => new
                 {
-                    urecNo = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     userId = table.Column<int>(type: "int", nullable: false),
                     submissionDate = table.Column<DateOnly>(type: "date", nullable: false),
                     dtsNo = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -138,7 +138,7 @@ namespace CRE.Migrations
                 {
                     completionReportId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: true),
                     submissionDate = table.Column<DateOnly>(type: "date", nullable: false),
                     terminalReport = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
@@ -149,8 +149,7 @@ namespace CRE.Migrations
                         name: "FK_CompletionReport_EthicsApplication_urecNo",
                         column: x => x.urecNo,
                         principalTable: "EthicsApplication",
-                        principalColumn: "urecNo",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "urecNo");
                 });
 
             migrationBuilder.CreateTable(
@@ -159,8 +158,8 @@ namespace CRE.Migrations
                 {
                     ethicsApplicationFormId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
-                    ethicsFormId = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
+                    ethicsFormId = table.Column<string>(type: "nvarchar(10)", nullable: true),
                     dateUploaded = table.Column<DateOnly>(type: "date", nullable: false),
                     file = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
@@ -177,8 +176,7 @@ namespace CRE.Migrations
                         name: "FK_EthicsApplicationForms_EthicsForm_ethicsFormId",
                         column: x => x.ethicsFormId,
                         principalTable: "EthicsForm",
-                        principalColumn: "ethicsFormId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "ethicsFormId");
                 });
 
             migrationBuilder.CreateTable(
@@ -187,7 +185,7 @@ namespace CRE.Migrations
                 {
                     logId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     userId = table.Column<int>(type: "int", nullable: false),
                     status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     changeDate = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -215,7 +213,7 @@ namespace CRE.Migrations
                 {
                     ethicsClearanceId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     issuedDate = table.Column<DateOnly>(type: "date", nullable: false),
                     expirationDate = table.Column<DateOnly>(type: "date", nullable: false),
                     file = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
@@ -236,7 +234,7 @@ namespace CRE.Migrations
                 columns: table => new
                 {
                     receiptNo = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     amountPaid = table.Column<float>(type: "real", nullable: false),
                     datePaid = table.Column<DateOnly>(type: "date", nullable: false),
                     scanReceipt = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
@@ -317,16 +315,16 @@ namespace CRE.Migrations
                 columns: table => new
                 {
                     nonFundedResearchId = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
-                    ethicsClearanceId = table.Column<int>(type: "int", nullable: false),
-                    completionCertId = table.Column<int>(type: "int", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
+                    ethicsClearanceId = table.Column<int>(type: "int", nullable: true),
+                    completionCertId = table.Column<int>(type: "int", nullable: true),
                     userId = table.Column<int>(type: "int", nullable: false),
                     title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     dateSubmitted = table.Column<DateTime>(type: "datetime2", nullable: false),
                     campus = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     college = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     university = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    completion_Date = table.Column<DateOnly>(type: "date", nullable: false)
+                    completion_Date = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -335,8 +333,7 @@ namespace CRE.Migrations
                         name: "FK_NonFundedResearchInfo_CompletionCertificate_completionCertId",
                         column: x => x.completionCertId,
                         principalTable: "CompletionCertificate",
-                        principalColumn: "completionCertId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "completionCertId");
                     table.ForeignKey(
                         name: "FK_NonFundedResearchInfo_EthicsApplication_urecNo",
                         column: x => x.urecNo,
@@ -363,7 +360,7 @@ namespace CRE.Migrations
                 {
                     evaluationId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     ethicsEvaluatorId = table.Column<int>(type: "int", nullable: false),
                     startDate = table.Column<DateOnly>(type: "date", nullable: false),
                     endDate = table.Column<DateOnly>(type: "date", nullable: true),
@@ -419,8 +416,9 @@ namespace CRE.Migrations
                 {
                     initalReviewId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    secretariatId = table.Column<int>(type: "int", nullable: false),
-                    urecNo = table.Column<string>(type: "nvarchar(16)", nullable: false),
+                    secretariatId = table.Column<int>(type: "int", nullable: true),
+                    chiefId = table.Column<int>(type: "int", nullable: true),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     dateReviewed = table.Column<DateOnly>(type: "date", nullable: true),
                     status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     feedback = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -428,6 +426,11 @@ namespace CRE.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InitialReview", x => x.initalReviewId);
+                    table.ForeignKey(
+                        name: "FK_InitialReview_Chief_chiefId",
+                        column: x => x.chiefId,
+                        principalTable: "Chief",
+                        principalColumn: "chiefId");
                     table.ForeignKey(
                         name: "FK_InitialReview_EthicsApplication_urecNo",
                         column: x => x.urecNo,
@@ -479,7 +482,8 @@ namespace CRE.Migrations
                 name: "IX_CompletionReport_urecNo",
                 table: "CompletionReport",
                 column: "urecNo",
-                unique: true);
+                unique: true,
+                filter: "[urecNo] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CoProponent_nonFundedResearchId",
@@ -545,6 +549,11 @@ namespace CRE.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_InitialReview_chiefId",
+                table: "InitialReview",
+                column: "chiefId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_InitialReview_secretariatId",
                 table: "InitialReview",
                 column: "secretariatId");
@@ -559,13 +568,15 @@ namespace CRE.Migrations
                 name: "IX_NonFundedResearchInfo_completionCertId",
                 table: "NonFundedResearchInfo",
                 column: "completionCertId",
-                unique: true);
+                unique: true,
+                filter: "[completionCertId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NonFundedResearchInfo_ethicsClearanceId",
                 table: "NonFundedResearchInfo",
                 column: "ethicsClearanceId",
-                unique: true);
+                unique: true,
+                filter: "[ethicsClearanceId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NonFundedResearchInfo_urecNo",
@@ -596,9 +607,6 @@ namespace CRE.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Chairperson");
-
-            migrationBuilder.DropTable(
-                name: "Chief");
 
             migrationBuilder.DropTable(
                 name: "CompletionReport");
@@ -635,6 +643,9 @@ namespace CRE.Migrations
 
             migrationBuilder.DropTable(
                 name: "Expertise");
+
+            migrationBuilder.DropTable(
+                name: "Chief");
 
             migrationBuilder.DropTable(
                 name: "Secretariat");

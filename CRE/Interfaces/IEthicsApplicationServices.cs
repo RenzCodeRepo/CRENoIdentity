@@ -10,6 +10,8 @@ namespace CRE.Interfaces
         Task EditApplicationAsync(EthicsApplication application); // Edit existing application information
         Task CancelApplicationAsync(string urecNo); // Cancel an application / Deletes the record
         Task<IEnumerable<EthicsApplication>> GetApplicationsSortedByFieldOfStudyAsync(); // Get applications sorted by field of study
-        //get all application by user
+        Task<IEnumerable<EthicsApplication>> GetApplicationsByUserAsync(int userId); // Get all applications submitted by a specific user
+        Task<string> GenerateUrecNoAsync(); // Generate a unique record number for new applications
+        Task<bool> IsUrecNoExistsAsync(string urecNo);
     }
 }
