@@ -31,7 +31,7 @@
                         <p>
                             <strong>Submission Date:</strong> @application.submissionDate.ToShortDateString()
                         </p>
-                        <a href="@Url.Action("UploadForms", "EthicsApplication", new { urecNo = application.urecNo })" class="btn btn-primary">
+                        <a href="@Url.Action("ApplicationRequirements", "EthicsApplication", new { urecNo = application.urecNo })" class="btn btn-primary">
                             View Application
                         </a>
                     </div>

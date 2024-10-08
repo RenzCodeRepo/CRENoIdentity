@@ -1,0 +1,59 @@
+﻿@model CRE.ViewModels.ApplicationRequirementsViewModel
+
+<h2>Application Details</h2>
+
+<div>
+    <h4>UREC No: @Model.EthicsApplication.urecNo</h4>
+    <p><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</p>
+    <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+    <p><strong>College:</strong> @Model.NonFundedResearchInfo.college</p>
+    <p><strong>Branch:</strong> @Model.NonFundedResearchInfo.campus</p>
+    <p><strong>Proponents:</strong> @Model.NonFundedResearchInfo.CoProponent</p>
+
+    @if (Model.ReceiptInfo != null)
+    {
+        <p><strong>Scanned Receipt:</strong> Receipt Uploaded</p>
+    }
+    else
+    {
+        <p><strong>Scanned Receipt:</strong> No Receipt Available</p>
+    }
+
+    <h5>Application Forms</h5>
+    @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
+    {
+        <ul>
+            @foreach (var form in Model.EthicsApplicationForms)
+            {
+                <li>
+                    @* <p>Form Name: @form.file</p> *@
+                    <p>Date Submitted: @form.dateUploaded ?? "Not Submitted"</p>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No application forms submitted.</p>
+    }
+
+    <h5>Application Log</h5>
+    @if (Model.EthicsApplicationLog != null && Model.EthicsApplicationLog.Any())
+    {
+        <ul>
+            @foreach (var log in Model.EthicsApplicationLog)
+            {
+                <li>
+                    <p>Status: @log.status</p>
+                    <p>Change Date: @log.changeDate.ToShortDateString()</p>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No logs available for this application.</p>
+    }
+
+    <a href="@Url.Action("UploadForms", "EthicsApplication", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">Upload Forms</a>
+</div>

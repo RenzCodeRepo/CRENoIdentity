@@ -11,8 +11,9 @@ namespace CRE.Models
         public string nonFundedResearchId { get; set; }
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; } // Navigation property
 
-        [Required]
+        [Required(ErrorMessage ="Name is Required")]
         public string coProponentName { get; set; }
+        [EmailAddress(ErrorMessage ="Invalid email format.")]
         public string? coProponentEmail { get; set; }
     }
 }

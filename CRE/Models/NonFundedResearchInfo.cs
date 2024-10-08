@@ -23,15 +23,18 @@ namespace CRE.Models
         public int userId { get; set; }
 
         // Required Fields
-        [Required]
+        [Required(ErrorMessage ="Please input the Title of your research.")]
         public string title { get; set; }
 
         [Required]
         public DateTime dateSubmitted { get; set; }
 
         // Campus, College, and University attributes
+        [Required(ErrorMessage ="Campus is Required.")]
         public string campus { get; set; }
+        [Required(ErrorMessage = "College is Required.")]
         public string college { get; set; }
+        [Required(ErrorMessage = "University is Required.")]
         public string university { get; set; }
 
         public DateOnly? completion_Date { get; set; }

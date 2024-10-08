@@ -1,4 +1,5 @@
 ﻿using CRE.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace CRE.ViewModels
 {

@@ -12,7 +12,7 @@ namespace CRE.Models
         [Required]
         public DateOnly submissionDate { get; set; }
         public string? dtsNo { get; set; }
-        [Required]
+        [Required(ErrorMessage ="Please select the Fied of Study of your research.")]
         public string fieldOfStudy { get; set; }
 
         //navigation properties

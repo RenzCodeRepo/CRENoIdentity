@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Submit Applications";
 
-    // Example hardcoded values for dropdowns
+    // DROP DOWN DATAs
     var fieldOfStudies = new List<string>
     {
         "Education",
@@ -16,23 +16,51 @@
 
     var campuses = new List<string>
     {
-        "Main Campus",
-        "North Campus",
-        "South Campus"
+        "Sta. Mesa (MAIN CAMPUS)",
+        "Taguig City (BRANCH)",
+        "Quezon City (BRANCH)",
+        "San Juan City (BRANCH)",
+        "Parañaque City (CAMPUS)",
+        "Bataan (BRANCH)",
+        "Sta. Maria, Bulacan (CAMPUS)",
+        "Pulilan, Bulacan (CAMPUS)",
+        "Cabiao, Nueva Ecija (CAMPUS)",
+        "Lopez, Quezon (BRANCH)",
+        "Malunay, Quezon (BRANCH)",
+        "Unisan, Quezon (BRANCH)",
+        "Ragay, Camarines Sur (BRANCH)",
+        "Sto. Tomas, Batangas (BRANCH)",
+        "Maragondon, Cavite (BRANCH)",
+        "Bansud, Oriental Mindoro (BRANCH)",
+        "Sablayan, Occidental Mindoro (BRANCH)",
+        "Biñan, Laguna (CAMPUS)",
+        "San Pedro, Laguna (CAMPUS)",
+        "Sta. Rosa, Laguna (CAMPUS)",
+        "Calauan, Laguna (CAMPUS)"
     };
 
     var colleges = new List<string>
     {
-        "College of Science",
-        "College of Engineering",
-        "College of Arts"
+        "College of Accountancy and Finance (CAF)",
+        "College of Architecture, Design and the Built Environment (CADBE)",
+        "College of Arts and Letters (CAL)",
+        "College of Business Administration (CBA)",
+        "College of Communication (COC)",
+        "College of Computer and Information Sciences (CCIS)",
+        "College of Education (COED)",
+        "College of Engineering (CE)",
+        "College of Human Kinetics (CHK)",
+        "College of Law (CL)",
+        "College of Political Science and Public Administration (CPSPA)",
+        "College of Social Sciences and Development (CSSD)",
+        "College of Science (CS)",
+        "College of Tourism, Hospitality and Transportation Management (CTHTM)",
+        "Institute of Technology"
     };
 
     var universities = new List<string>
     {
-        "University A",
-        "University B",
-        "University C"
+        "Polytechnic University of the Philippines"
     };
 
 
@@ -53,15 +81,15 @@
                             <input asp-for="EthicsApplication.dtsNo" class="form-control" placeholder="DTS No. (Optional)" />
                         </div>
                     </div>
-                    <span asp-validation-for="EthicsApplication.dtsNo" class="text-danger"></span>
                     <!-- Research Project Title -->
                     <div class="row mb-3">
                         <label asp-for="NonFundedResearchInfo.title" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Research Project Title</label>
                         <div class="col-sm-8">
                             <input asp-for="NonFundedResearchInfo.title" class="form-control" placeholder="Research Title" />
+                            <span asp-validation-for="NonFundedResearchInfo.title" class="text-danger"></span>
                         </div>
                     </div>
-                    <span asp-validation-for="NonFundedResearchInfo.title" class="text-danger"></span>
+                   
 
                     <!-- Project Leader -->
                     <div class="row mb-3">
@@ -69,7 +97,7 @@
                         <div class="col-sm-8">
                             @if (Model.User != null)
                             {
-                                <input class="form-control" readonly value="@($"{Model.User.fName} {(string.IsNullOrEmpty(Model.User.mName) ? "" : Model.User.mName.Substring(0, 1) + ".")} {Model.User.lName}")" />
+                                <input class="form-control" disabled value="@($"{Model.User.fName} {(string.IsNullOrEmpty(Model.User.mName) ? "" : Model.User.mName.Substring(0, 1) + ".")} {Model.User.lName}")" />
                             }
                             else
                             {
@@ -78,29 +106,38 @@
                         </div>
                     </div>
 
-                    <!-- Co-Proponents Container -->
                     <div id="coProponentsContainer">
                         @for (int i = 0; i < Model.CoProponent.Count; i++)
                         {
-                            <div class="row mb-3">
-                                <label asp-for="CoProponent[i].coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
-                                <div class="col-sm-8">
-                                    <input asp-for="CoProponent[i].coProponentName" class="form-control" placeholder="Name" />
+                            <div class="coProponentRow row mb-3">
+                                <div class="row mb-3">
+                                    <label asp-for="CoProponent[i].coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
+                                    <div class="col-sm-8">
+                                        <input asp-for="CoProponent[i].coProponentName" class="form-control" placeholder="Name" />
+                                        <span asp-validation-for="CoProponent[i].coProponentName" class="text-danger"></span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row mb-3">
-                                <label asp-for="CoProponent[i].coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
-                                <div class="col-sm-8">
-                                    <input asp-for="CoProponent[i].coProponentEmail" class="form-control" placeholder="Email (Optional)" />
+                                <div class="row mb-3">
+                                    <label asp-for="CoProponent[i].coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
+                                    <div class="col-sm-8">
+                                        <input asp-for="CoProponent[i].coProponentEmail" class="form-control" placeholder="Email (Optional)" />
+                                        <span asp-validation-for="CoProponent[i].coProponentEmail" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-8 offset-sm-3">
+                                        <button type="button" class="btn btn-danger removeCoProponentBtn">Remove</button>
+                                    </div>
                                 </div>
                             </div>
                         }
                     </div>
+
                     <!-- Flexbox for Add Co-Proponent Button -->
                     <div class="row mb-3">
                         <div class="col-sm-3"></div> <!-- Empty column for alignment -->
                         <div class="col-sm-8 d-flex align-items-start">
-                            <button type="button" class="btn btn-secondary" onclick="addCoProponent()">Add Co-Proponent</button>
+                            <button type="button" class="btn btn-secondary" id="addCoProponentBtn">Add Co-Proponent</button>
                         </div>
                     </div>
 
@@ -115,6 +152,7 @@
                                     <option value="@fieldOfStudies[i]">@fieldOfStudies[i]</option>
                                 }
                             </select>
+                            <span asp-validation-for="EthicsApplication.fieldOfStudy" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -129,6 +167,7 @@
                                     <option value="@campuses[i]">@campuses[i]</option>
                                 }
                             </select>
+                            <span asp-validation-for="NonFundedResearchInfo.campus" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -143,6 +182,7 @@
                                     <option value="@colleges[i]">@colleges[i]</option>
                                 }
                             </select>
+                            <span asp-validation-for="NonFundedResearchInfo.college" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -157,6 +197,7 @@
                                     <option value="@universities[i]">@universities[i]</option>
                                 }
                             </select>
+                            <span asp-validation-for="NonFundedResearchInfo.university" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -171,12 +212,14 @@
                         <label asp-for="ReceiptInfo.receiptNo" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Receipt Number:</label>
                         <div class="col-sm-8">
                             <input asp-for="ReceiptInfo.receiptNo" class="form-control" placeholder="Receipt Number" />
+                                <span asp-validation-for="ReceiptInfo.receiptNo" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label asp-for="ReceiptInfo.amountPaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Amount Paid</label>
                         <div class="col-sm-8">
                             <input asp-for="ReceiptInfo.amountPaid" class="form-control" placeholder="Amount Paid" />
+                                <span asp-validation-for="ReceiptInfo.amountPaid" class="text-danger"></span>
                         </div>
                     </div>
                     <!-- Date Paid Input -->
@@ -184,6 +227,7 @@
                         <label asp-for="ReceiptInfo.datePaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Date Paid</label>
                         <div class="col-sm-8">
                             <input asp-for="ReceiptInfo.datePaid" class="form-control" type="date" placeholder="Date Paid" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="ReceiptInfo.datePaid" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -192,6 +236,7 @@
                         <label asp-for="receiptFile" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Upload Scanned Receipt</label>
                         <div class="col-sm-8">
                                 <input asp-for="receiptFile" class="form-control" type="file" accept=".pdf" />
+                                <span asp-validation-for="ReceiptInfo.scanReceipt" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -206,26 +251,69 @@
 
 @section Scripts {
     <script>
-        function addCoProponent() {
-            const container = document.getElementById('coProponentsContainer');
-            const index = container.children.length;
+        document.addEventListener('DOMContentLoaded', function () {
+            const maxCoProponents = 4;
+            let coProponentIndex = @Model.CoProponent.Count; // Start at the current count of co-proponents
+            const coProponentsContainer = document.getElementById('coProponentsContainer');
+            const addCoProponentBtn = document.getElementById('addCoProponentBtn');
 
-            const newInputHtml = `
-                <div class="row mb-3">
-                    <label for="CoProponent_${index}__coProponentName" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="CoProponent[${index}].coProponentName" class="form-control" placeholder="Name" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <label for="CoProponent_${index}__coProponentEmail" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="CoProponent[${index}].coProponentEmail" class="form-control" placeholder="Email (Optional)" />
-                    </div>
-                </div>
-            `;
+            // Function to add a new co-proponent row
+            function addCoProponent() {
+                if (coProponentIndex >= maxCoProponents) {
+                    alert('You can add a maximum of 4 co-proponents.');
+                    return;
+                }
 
-            container.insertAdjacentHTML('beforeend', newInputHtml);
-        }
+                const newCoProponentHtml = `
+                            <div class="coProponentRow row mb-3">
+                                <div class="row mb-3">
+                                    <label class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Name:</label>
+                                    <div class="col-sm-8">
+                                        <input name="CoProponent[${coProponentIndex}].coProponentName" class="form-control" placeholder="Name" />
+                                        <span class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <label class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Co-Proponent Email:</label>
+                                    <div class="col-sm-8">
+                                        <input name="CoProponent[${coProponentIndex}].coProponentEmail" class="form-control" placeholder="Email (Optional)" />
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-8 offset-sm-3">
+                                        <button type="button" class="btn btn-danger removeCoProponentBtn">Remove</button>
+                                    </div>
+                                </div>
+                            </div>`;
+
+                coProponentsContainer.insertAdjacentHTML('beforeend', newCoProponentHtml);
+                coProponentIndex++; // Increment the index
+                bindRemoveButtons();
+            }
+
+            // Function to remove a co-proponent row
+            function removeCoProponent(event) {
+                const coProponentRow = event.target.closest('.coProponentRow');
+                if (coProponentRow) {
+                    coProponentRow.remove();
+                    coProponentIndex--; // Decrement the index
+                }
+            }
+
+            // Bind the remove button functionality
+            function bindRemoveButtons() {
+                const removeButtons = document.querySelectorAll('.removeCoProponentBtn');
+                removeButtons.forEach(button => {
+                    button.removeEventListener('click', removeCoProponent); // Remove any previously bound event
+                    button.addEventListener('click', removeCoProponent);   // Bind the remove function
+                });
+            }
+
+            // Bind add button click event
+            addCoProponentBtn.addEventListener('click', addCoProponent);
+
+            // Initially bind remove buttons for existing co-proponents
+            bindRemoveButtons();
+        });
     </script>
 }

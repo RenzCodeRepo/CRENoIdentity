@@ -2,6 +2,7 @@
 using CRE.Models;
 using CRE.Services;
 using CRE.ViewModels;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,14 @@ namespace CRE.Controllers
         private readonly IEthicsApplicationLogServices _ethicsApplicationLogServices;
         private readonly IConfiguration _configuration;
         private readonly ICoProponentServices _coProponentServices;
+        private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
 
+        // Helper method for email validation
+        private bool IsValidEmail(string email)
+        {
+            // Basic email validation logic here
+            return !string.IsNullOrEmpty(email) && email.Contains("@");
+        }
         // Constructor to initialize the services
         public EthicsApplicationController(
             IEthicsApplicationServices ethicsApplicationServices,
@@ -24,7 +32,8 @@ namespace CRE.Controllers
             IUserServices userServices,
             IReceiptInfoServices receiptInfoServices,
             IEthicsApplicationLogServices ethicsApplicationLogServices,
-            IConfiguration configuration, ICoProponentServices coProponentServices)
+            IConfiguration configuration, ICoProponentServices coProponentServices,
+            IEthicsApplicationFormsServices ethicsApplicationFormsServices)
         {
             _ethicsApplicationServices = ethicsApplicationServices;
             _nonFundedResearchInfoServices = nonFundedResearchInfoServices;
@@ -33,6 +42,7 @@ namespace CRE.Controllers
             _ethicsApplicationLogServices = ethicsApplicationLogServices;
             _configuration = configuration;
             _coProponentServices = coProponentServices;
+            _ethicsApplicationFormsServices = ethicsApplicationFormsServices;
         }
         public IActionResult Index()
         {
@@ -133,12 +143,23 @@ namespace CRE.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SubmitApplication(ApplyEthicsViewModel model)
         {
-
+            if (model.CoProponent == null)
+            {
+                model.CoProponent = new List<CoProponent>();
+            }
             if (!int.TryParse(_configuration["DevelopmentUserId"], out int devUserId))
             {
                 ModelState.AddModelError("", "Invalid user ID.");
+                return View(model);
+            }
+
+            var user = await _userServices.GetByIdAsync(devUserId);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "User ID does not exist.");
                 return View(model);
             }
 
@@ -148,6 +169,26 @@ namespace CRE.Controllers
                 ModelState.AddModelError("", "User ID does not exist.");
                 return View(model);
             }
+            model.User = new User
+            {
+                userId = user.userId,
+                fName = user.fName,
+                mName = user.mName,
+                lName = user.lName,
+                type = user.type
+            };
+
+         
+            // Remove validation for fields that are not yet populated
+            if (user.type == "internal")
+            {
+                // If internal users don't need a receipt, remove validation errors related to ReceiptInfo
+                ModelState.Remove("ReceiptInfo.receiptNo");
+                ModelState.Remove("ReceiptInfo.amountPaid");
+                ModelState.Remove("receiptFile");
+            }
+            
+            
 
             var ethicsApplication = model.EthicsApplication;
             ethicsApplication.urecNo = await _ethicsApplicationServices.GenerateUrecNoAsync();
@@ -166,10 +207,52 @@ namespace CRE.Controllers
                 urecNo = ethicsApplication.urecNo,
                 userId = devUserId,
                 status = "Submitted",
-                changeDate = DateTime.Now
+                changeDate = DateTime.Now                               
             };
 
-            
+            // Removed some fields are to be inputed later
+            ModelState.Remove("User");
+            ModelState.Remove("ReceiptInfo");
+            ModelState.Remove("EthicsApplication.User");
+            ModelState.Remove("EthicsApplication.urecNo");
+            ModelState.Remove("EthicsApplication.ReceiptInfo");
+            ModelState.Remove("EthicsApplication.InitialReview");
+            ModelState.Remove("EthicsApplication.EthicsClearance");
+            ModelState.Remove("EthicsApplication.CompletionReport");
+            ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
+            ModelState.Remove("NonFundedResearchInfo.User");
+            ModelState.Remove("NonFundedResearchInfo.urecNo");
+            ModelState.Remove("NonFundedResearchInfo.EthicsClearance");
+            ModelState.Remove("NonFundedResearchInfo.EthicsApplication");
+            ModelState.Remove("NonFundedResearchInfo.nonFundedResearchId");
+            ModelState.Remove("NonFundedResearchInfo.CompletionCertificate");
+            ModelState.Remove("ReceiptInfo.urecNo");
+            ModelState.Remove("ReceiptInfo.scanReceipt");
+            ModelState.Remove("ReceiptInfo.EthicsApplication");
+            // Clear existing ModelState errors for CoProponents
+            for (int i = 0; i < model.CoProponent.Count; i++)
+            {
+                ModelState.Remove($"CoProponent[{i}].NonFundedResearchInfo");
+                ModelState.Remove($"CoProponent[{i}].nonFundedResearchId");
+            }
+            // Call the service method to check for a duplicate title
+            var existingResearch = await _nonFundedResearchInfoServices.SearchByTitleAsync(model.NonFundedResearchInfo.title);
+
+            // If a title match is found, add an error to the ModelState
+            if (existingResearch != null)
+            {
+                ModelState.AddModelError("NonFundedResearchInfo.title", "This title has already been used for another ethics application.");
+                return View(model);
+            }
+            // Check if the model state is valid
+            if (!ModelState.IsValid)
+            {
+               
+                // If model state is invalid, return the view with the validation messages
+                return View(model);
+            }
+
+
             try
             {
                 await _ethicsApplicationServices.ApplyForEthicsAsync(ethicsApplication);
@@ -188,44 +271,88 @@ namespace CRE.Controllers
                     }
 
 
-                    
-                }
-                // Handling the uploaded file (receiptFile)
-                if (model.receiptFile != null && model.receiptFile.Length > 0)
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await model.receiptFile.CopyToAsync(memoryStream); //converting IFormFile datatype to byte
-                        model.ReceiptInfo.scanReceipt = memoryStream.ToArray();
-                    }
 
-                    // Save ReceiptInfo if needed
-                    if (model.ReceiptInfo != null)
-                    {
-                        model.ReceiptInfo.urecNo = ethicsApplication.urecNo;
-                        await _receiptInfoServices.AddReceiptInfoAsync(model.ReceiptInfo);
-                    }
                 }
-                else
+                // Check if the user is internal
+                if (model.User != null && model.User.type == "internal")
                 {
-                    ModelState.AddModelError("receiptFile", "Please upload a scanned receipt.");
-                    return View(model);
+                    // Internal users do not need to upload a receipt
+                    TempData["SuccessMessage"] = "Your application has been submitted successfully (no receipt required).";
+                    return RedirectToAction("Applications");
                 }
 
+                // For external users, handle the receipt file upload
+                if (model.User != null && model.User.type == "external")
+                {
+                    // Handling the uploaded file (receiptFile)
+                    if (model.receiptFile != null && model.receiptFile.Length > 0)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await model.receiptFile.CopyToAsync(memoryStream); // Converting IFormFile to byte[]
+                            model.ReceiptInfo.scanReceipt = memoryStream.ToArray();
+                        }
+
+                        // Save ReceiptInfo if needed
+                        if (model.ReceiptInfo != null)
+                        {
+                            model.ReceiptInfo.urecNo = ethicsApplication.urecNo;
+                            await _receiptInfoServices.AddReceiptInfoAsync(model.ReceiptInfo);
+                        }
+                    }
+                    else
+                    {
+                        // If no file is uploaded for an external user, show error
+                        ModelState.AddModelError("receiptFile", "Please upload a scanned receipt.");
+                        return View(model); // Return to the view with validation error
+                    }
+                }
+
+                // If everything succeeds, show success message
                 TempData["SuccessMessage"] = "Your application has been submitted successfully.";
                 return RedirectToAction("Applications");
             }
+
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "There was an error saving your application. Please try again.");
                 Console.WriteLine($"Exception: {ex.Message}");
                 return View(model);
             }
-        }   
-
-        public async Task<IActionResult> UploadForms()
-        {
-            return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ApplicationRequirements(string urecNo)
+        {
+            if (string.IsNullOrEmpty(urecNo))
+            {
+                return NotFound(); // Handle the error case when urecNo is missing
+            }
+
+            // Retrieve the Ethics Application, Non-Funded Research Info, Receipt Info, and logs by urecNo
+            var ethicsApplication = await _ethicsApplicationServices.GetApplicationByUrecNoAsync(urecNo);
+            var nonFundedResearchInfo = await _nonFundedResearchInfoServices.GetNonFundedResearchByUrecNoAsync(urecNo);
+            var receiptInfo = await _receiptInfoServices.GetReceiptInfoByUrecNoAsync(urecNo);
+            var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
+            var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo); //non yet
+
+            if (ethicsApplication == null)
+            {
+                return NotFound(); // Handle the case where the application doesn't exist
+            }
+
+            // Populate ViewModel
+            var model = new ApplicationRequirementsViewModel
+            {
+                EthicsApplication = ethicsApplication,
+                NonFundedResearchInfo = nonFundedResearchInfo,
+                ReceiptInfo = receiptInfo,
+                EthicsApplicationForms = ethicsApplicationForms,
+                EthicsApplicationLog = ethicsApplicationLogs
+            };
+
+            return View(model); // Pass the populated model to the view
+        }
+
     }
 }

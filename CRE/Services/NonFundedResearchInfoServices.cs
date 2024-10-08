@@ -58,6 +58,12 @@ namespace CRE.Services
             return await _context.NonFundedResearchInfo.ToListAsync();
         }
 
+        public async Task<NonFundedResearchInfo> GetNonFundedResearchByUrecNoAsync(string urecNo)
+        {
+            return await _context.NonFundedResearchInfo
+                .FirstOrDefaultAsync(r => r.urecNo == urecNo);
+        }
+
         public async Task<IEnumerable<NonFundedResearchInfo>> GetNonFundedResearchByUserAsync(int userId)
         {
             return await _context.NonFundedResearchInfo
