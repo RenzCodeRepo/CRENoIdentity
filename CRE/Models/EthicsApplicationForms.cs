@@ -16,8 +16,6 @@ namespace CRE.Models
         [Required]
         public byte[] file { get; set; }
 
-
-
         //navigation properties
         public EthicsApplication EthicsApplication { get; set; }
         public EthicsForm EthicsForm { get; set; }

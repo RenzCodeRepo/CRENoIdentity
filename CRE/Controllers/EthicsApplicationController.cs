@@ -178,7 +178,7 @@ namespace CRE.Controllers
                 type = user.type
             };
 
-         
+
             // Remove validation for fields that are not yet populated
             if (user.type == "internal")
             {
@@ -187,8 +187,8 @@ namespace CRE.Controllers
                 ModelState.Remove("ReceiptInfo.amountPaid");
                 ModelState.Remove("receiptFile");
             }
-            
-            
+
+
 
             var ethicsApplication = model.EthicsApplication;
             ethicsApplication.urecNo = await _ethicsApplicationServices.GenerateUrecNoAsync();
@@ -207,7 +207,7 @@ namespace CRE.Controllers
                 urecNo = ethicsApplication.urecNo,
                 userId = devUserId,
                 status = "Submitted",
-                changeDate = DateTime.Now                               
+                changeDate = DateTime.Now
             };
 
             // Removed some fields are to be inputed later
@@ -247,7 +247,7 @@ namespace CRE.Controllers
             // Check if the model state is valid
             if (!ModelState.IsValid)
             {
-               
+
                 // If model state is invalid, return the view with the validation messages
                 return View(model);
             }
@@ -324,34 +324,84 @@ namespace CRE.Controllers
         [HttpGet]
         public async Task<IActionResult> ApplicationRequirements(string urecNo)
         {
+            // Check if urecNo is provided
             if (string.IsNullOrEmpty(urecNo))
             {
-                return NotFound(); // Handle the error case when urecNo is missing
+                ModelState.AddModelError("", "UrecNo is missing.");
+                return View("Error"); // Return an error view with appropriate error message
             }
 
-            // Retrieve the Ethics Application, Non-Funded Research Info, Receipt Info, and logs by urecNo
+            // Retrieve the development user ID from the configuration
+            var devUserIdString = _configuration["DevelopmentUserId"];
+            if (!int.TryParse(devUserIdString, out int devUserId))
+            {
+                ModelState.AddModelError("", "Invalid user ID in configuration.");
+                return View("Error"); // Return an error view
+            }
+
+            // Fetch all necessary data
             var ethicsApplication = await _ethicsApplicationServices.GetApplicationByUrecNoAsync(urecNo);
             var nonFundedResearchInfo = await _nonFundedResearchInfoServices.GetNonFundedResearchByUrecNoAsync(urecNo);
             var receiptInfo = await _receiptInfoServices.GetReceiptInfoByUrecNoAsync(urecNo);
             var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
-            var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo); //non yet
+            var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
+            var user = await _userServices.GetByIdAsync(devUserId);
 
-            if (ethicsApplication == null)
+            // Ensure all necessary data exists
+            if (ethicsApplication == null || nonFundedResearchInfo == null || user == null)
             {
-                return NotFound(); // Handle the case where the application doesn't exist
+                ModelState.AddModelError("", "Application or user data is missing.");
+                return View("Error"); // Return error view for missing data
             }
+
+            // Retrieve co-proponents based on the research ID
+            var coProponents = await _coProponentServices.GetCoProponentsByResearchIdAsync(nonFundedResearchInfo.nonFundedResearchId);
 
             // Populate ViewModel
             var model = new ApplicationRequirementsViewModel
             {
+                User = new User
+                {
+                    userId = user.userId,
+                    fName = user.fName,
+                    mName = user.mName,
+                    lName = user.lName,
+                    type = user.type
+                },
                 EthicsApplication = ethicsApplication,
                 NonFundedResearchInfo = nonFundedResearchInfo,
                 ReceiptInfo = receiptInfo,
                 EthicsApplicationForms = ethicsApplicationForms,
-                EthicsApplicationLog = ethicsApplicationLogs
+                EthicsApplicationLog = ethicsApplicationLogs,
+                CoProponent = coProponents.ToList() // Ensure it's a List
             };
 
             return View(model); // Pass the populated model to the view
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateDtsNo(string urecNo, string dtsNo)
+        {
+            if (string.IsNullOrEmpty(urecNo) || string.IsNullOrEmpty(dtsNo))
+            {
+                ModelState.AddModelError("", "DTS No. and Urec No. are required.");
+                return View("Error"); // Show an error view or handle appropriately
+            }
+
+            // Find the ethics application by urecNo
+            var ethicsApplication = await _ethicsApplicationServices.GetApplicationByUrecNoAsync(urecNo);
+            if (ethicsApplication == null)
+            {
+                return NotFound(); // Handle case where application doesn't exist
+            }
+
+            // Update the DTS No.
+            ethicsApplication.dtsNo = dtsNo;
+
+            // Save the changes (assuming _ethicsApplicationServices.SaveChangesAsync is available)
+            await _ethicsApplicationServices.SaveChangesAsync();
+
+            return RedirectToAction("ApplicationRequirements", new { urecNo = urecNo }); // Redirect to the same page to reflect the updated DTS No.
         }
 
     }

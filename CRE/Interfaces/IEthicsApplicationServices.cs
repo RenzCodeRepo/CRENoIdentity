@@ -13,5 +13,6 @@ namespace CRE.Interfaces
         Task<IEnumerable<EthicsApplication>> GetApplicationsByUserAsync(int userId); // Get all applications submitted by a specific user
         Task<string> GenerateUrecNoAsync(); // Generate a unique record number for new applications
         Task<bool> IsUrecNoExistsAsync(string urecNo);
+        Task SaveChangesAsync();
     }
 }

@@ -1,59 +1,166 @@
 ﻿@model CRE.ViewModels.ApplicationRequirementsViewModel
 
-<h2>Application Details</h2>
+<h2>Application Requirements</h2>
 
-<div>
-    <h4>UREC No: @Model.EthicsApplication.urecNo</h4>
-    <p><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</p>
-    <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
-    <p><strong>College:</strong> @Model.NonFundedResearchInfo.college</p>
-    <p><strong>Branch:</strong> @Model.NonFundedResearchInfo.campus</p>
-    <p><strong>Proponents:</strong> @Model.NonFundedResearchInfo.CoProponent</p>
+<div class="card border-light mb-3" style="width">
+    <div class="card-header">
+        <div class="row">
+            <div class="col text-start">
+                <p id="urecNoText">
+                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
 
-    @if (Model.ReceiptInfo != null)
-    {
-        <p><strong>Scanned Receipt:</strong> Receipt Uploaded</p>
-    }
-    else
-    {
-        <p><strong>Scanned Receipt:</strong> No Receipt Available</p>
-    }
+                </p>
+                <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
+                    Copy UREC No.
+                </button>
 
-    <h5>Application Forms</h5>
-    @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
-    {
-        <ul>
-            @foreach (var form in Model.EthicsApplicationForms)
-            {
-                <li>
-                    @* <p>Form Name: @form.file</p> *@
-                    <p>Date Submitted: @form.dateUploaded ?? "Not Submitted"</p>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>No application forms submitted.</p>
-    }
+                <h4><strong>Research Title: </strong>@Model.NonFundedResearchInfo.title</h4>
+                <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+            </div>
 
-    <h5>Application Log</h5>
-    @if (Model.EthicsApplicationLog != null && Model.EthicsApplicationLog.Any())
-    {
-        <ul>
-            @foreach (var log in Model.EthicsApplicationLog)
-            {
-                <li>
-                    <p>Status: @log.status</p>
-                    <p>Change Date: @log.changeDate.ToShortDateString()</p>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>No logs available for this application.</p>
-    }
 
-    <a href="@Url.Action("UploadForms", "EthicsApplication", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">Upload Forms</a>
+            <!-- Display DTS No. or Edit Button -->
+            <div class="col text-end">
+                <p id="dtsNoText">
+                    <strong>DTS No.:</strong>
+                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                    {
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                    }
+                    else
+                    {
+                        @Model.EthicsApplication.dtsNo
+                    }
+                </p>
+                <!-- Button to Copy DTS No. if it exists -->
+                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo)) // Ensure the button only shows if DTS No. exists
+                {
+                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                        Copy DTS No.
+                    </button>
+                }
+            </div>
+
+            <!-- Modal for Adding/Editing DTS No. -->
+            <div class="modal fade" id="editDtsModal" tabindex="-1" aria-labelledby="editDtsLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editDtsLabel">Edit DTS No.</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editDtsForm" method="post" asp-action="UpdateDtsNo" asp-controller="EthicsApplication">
+                                <div class="mb-3">
+                                    <label for="dtsNoInput" class="form-label">DTS No.</label>
+                                    <input type="text" class="form-control" id="dtsNoInput" name="dtsNo" required />
+                                </div>
+                                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" form="editDtsForm" class="btn btn-primary">Save DTS No.</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Display the name of the user who applied -->
+    </div>
 </div>
+
+<h2>Your Attachments</h2>
+<hr />
+
+
+@if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
+{
+    <ul>
+        @foreach (var form in Model.EthicsApplicationForms)
+        {
+            <li>
+                @* <p>Form Name: @form.file</p> *@
+                <p>Date Submitted: @form.dateUploaded ?? "Not Submitted"</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No application forms submitted.</p>
+}
+
+<h5>Application Log</h5>
+@if (Model.EthicsApplicationLog != null && Model.EthicsApplicationLog.Any())
+{
+    <ul>
+        @foreach (var log in Model.EthicsApplicationLog)
+        {
+            <li>
+                <p>Status: @log.status</p>
+                <p>Change Date: @log.changeDate.ToShortDateString()</p>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p>No logs available for this application.</p>
+}
+
+<a href="@Url.Action("UploadForms", "EthicsApplication", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">Upload Forms</a>
+</div>
+@section Scripts {
+    <script>
+        function copyUrecNo() {
+            // Get the UREC No. text
+            var urecNoText = document.getElementById('urecNoText').innerText.replace('UREC No.: ', '');
+
+            // Create a temporary text area to hold the text
+            var tempInput = document.createElement('textarea');
+            tempInput.value = `${urecNoText}`;
+
+            // Append it to the body
+            document.body.appendChild(tempInput);
+
+            // Select the text in the textarea
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+
+            // Execute the copy command
+            document.execCommand('copy');
+
+            // Remove the temporary textarea
+            document.body.removeChild(tempInput);
+
+            // Display a success message
+            alert("Copied: UREC No. " + urecNoText);
+        }
+
+        function copyDtsNo() {
+            // Get the DTS No. text
+            var dtsText = document.getElementById('dtsNoText').innerText.replace('DTS No.: ', '');
+
+            // Create a temporary text area to hold the text
+            var tempInput = document.createElement('textarea');
+            tempInput.value = `${dtsText}`;
+
+            // Append it to the body
+            document.body.appendChild(tempInput);
+
+            // Select the text in the textarea
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999); // For mobile devices
+
+            // Execute the copy command
+            document.execCommand('copy');
+
+            // Remove the temporary textarea
+            document.body.removeChild(tempInput);
+
+            // Display a success message
+            alert("Copied: DTS No. " + dtsText);
+        }
+    </script>
+}
