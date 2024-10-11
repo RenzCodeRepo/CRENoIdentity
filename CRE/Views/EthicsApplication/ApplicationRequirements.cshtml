@@ -66,51 +66,118 @@
                 </div>
             </div>
         </div>
-        <!-- Display the name of the user who applied -->
+    </div>
+</div>
+<div class="card border-light mb-3" style="width">
+    <div class="card-header"><h2>Your Attachments</h2></div>
+    <div class="card-body">
+        <form asp-action="ApplicationRequirements" enctype="multipart/form-data" method="post">
+            <input type="hidden" name="EthicsApplication.urecNo" value="@Model.EthicsApplication.urecNo" />
+
+            <div>
+                <label asp-for="Form9">Upload Ethics Form 9 Application for Ethics Review of New Protocol:</label>
+                <input asp-for="Form9" class="form-control form-control-sm" type="file" accept=".pdf" />
+                <span asp-validation-for="Form9" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="Form10">Upload Ethics Form 10 Research Study Protocol:</label>
+                <input asp-for="Form10" class="form-control form-control-sm" type="file" accept=".pdf" />
+                <span asp-validation-for="Form10" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="RCV">Upload Researcher Curriculum Vitae:</label>
+                <input asp-for="RCV" class="form-control form-control-sm" type="file" accept=".pdf" />
+                <span asp-validation-for="RCV" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="CV">Upload Certificate of Validity:</label>
+                <input asp-for="CV" class="form-control form-control-sm" type="file" accept=".pdf" />
+                <span asp-validation-for="CV" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="CAA">Upload Co-Authorship Agreement:</label>
+                <input asp-for="CAA" class="form-control form-control-sm" type="file" accept=".pdf" />
+                <span asp-validation-for="CAA" class="text-danger"></span>
+            </div>
+
+            <div>
+                <label asp-for="LI">Upload Letter of Intent:</label>
+                <input asp-for="LI" class="form-control form-control-sm" type="file" accept=".pdf" />
+                <span asp-validation-for="LI" class="text-danger"></span>
+            </div>
+
+            <hr />
+            <!-- Condition Section -->
+            <div>
+                <p>
+                    <strong>Does the research involve human subjects?</strong>
+                    <label for="human-subjects-yes">
+                        <input type="radio" id="human-subjects-yes" name="humanSubjects" value="yes" onclick="updateFormState(true)" /> Yes
+                    </label>
+                    <label for="human-subjects-no">
+                        <input type="radio" id="human-subjects-no" name="humanSubjects" value="no" onclick="updateFormState(false)" /> No
+                    </label>
+                </p>
+            </div>
+
+            <!-- Minors Question Section (Initially Hidden) -->
+            <div id="minors-question" style="display:none;">
+                <p>
+                    <strong>Will the research involve minors?</strong>
+                    <label for="minors-yes">
+                        <input type="radio" id="minors-yes" name="involvesMinors" value="yes" onclick="updateFormStateWithMinors(true)" /> Yes
+                    </label>
+                    <label for="minors-no">
+                        <input type="radio" id="minors-no" name="involvesMinors" value="no" onclick="updateFormStateWithMinors(false)" checked /> No
+                    </label>
+                </p>
+            </div>
+
+            <!-- Upload Sections -->
+            <div>
+                <div>
+                    <label asp-for="Form11">Upload Ethics Form 11 Informed Consent:</label>
+                    <input asp-for="Form11" id="form11-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
+                    <span asp-validation-for="Form11" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Form12">Upload Ethics Form 12 Assent Form:</label>
+                    <input asp-for="Form12" id="form12-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
+                    <span asp-validation-for="Form12" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label asp-for="Form10_1">Upload Ethics Form 10.1 Non-Human Determination Form:</label>
+                    <input asp-for="Form10_1" id="form10-1-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
+                    <span asp-validation-for="Form10_1" class="text-danger"></span>
+                </div>
+
+                @* will use later if needed the application is returned or the reseach is finished *@
+                @* <div>
+                <label asp-for="Form15">Upload Ethics Form 15 Application for Ethics Review of Amendments:</label>
+                <input asp-for="Form15" id="form15-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
+                <span asp-validation-for="Form15" class="text-danger"></span>
+                </div>
+
+                <div>
+                <label asp-for="Form18">Upload Ethics Form 18 Terminal Report:</label>
+                <input asp-for="Form18" id="form18-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
+                <span asp-validation-for="Form18" class="text-danger"></span>
+                </div>
+                *@
+            </div>
+
+            <button type="submit" class="btn btn-success mt-2">Submit</button>
+        </form>
+
     </div>
 </div>
 
-<h2>Your Attachments</h2>
-<hr />
-
-
-@if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
-{
-    <ul>
-        @foreach (var form in Model.EthicsApplicationForms)
-        {
-            <li>
-                @* <p>Form Name: @form.file</p> *@
-                <p>Date Submitted: @form.dateUploaded ?? "Not Submitted"</p>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>No application forms submitted.</p>
-}
-
-<h5>Application Log</h5>
-@if (Model.EthicsApplicationLog != null && Model.EthicsApplicationLog.Any())
-{
-    <ul>
-        @foreach (var log in Model.EthicsApplicationLog)
-        {
-            <li>
-                <p>Status: @log.status</p>
-                <p>Change Date: @log.changeDate.ToShortDateString()</p>
-            </li>
-        }
-    </ul>
-}
-else
-{
-    <p>No logs available for this application.</p>
-}
-
-<a href="@Url.Action("UploadForms", "EthicsApplication", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">Upload Forms</a>
-</div>
 @section Scripts {
     <script>
         function copyUrecNo() {
@@ -161,6 +228,43 @@ else
 
             // Display a success message
             alert("Copied: DTS No. " + dtsText);
+        }
+        function updateFormState(hasHumanSubjects) {
+            const form11Input = document.getElementById('form11-file');
+            const form10_1Input = document.getElementById('form10-1-file');
+            const minorsQuestionDiv = document.getElementById('minors-question');
+            const form11ValidationMessage = document.querySelector('span[asp-validation-for="Form11"]');
+            const form10_1ValidationMessage = document.querySelector('span[asp-validation-for="Form10_1"]');
+            const form12ValidationMessage = document.querySelector('span[asp-validation-for="Form12"]');
+
+            // Clear all validation messages
+            if (form11ValidationMessage) form11ValidationMessage.textContent = '';
+            if (form10_1ValidationMessage) form10_1ValidationMessage.textContent = '';
+            if (form12ValidationMessage) form12ValidationMessage.textContent = '';
+
+            if (hasHumanSubjects) {
+                if (form11Input) form11Input.disabled = false;
+                if (form10_1Input) form10_1Input.disabled = true;
+                if (minorsQuestionDiv) minorsQuestionDiv.style.display = 'block';
+            } else {
+                if (form11Input) form11Input.disabled = true;
+                if (form10_1Input) form10_1Input.disabled = false;
+                if (minorsQuestionDiv) minorsQuestionDiv.style.display = 'none';
+            }
+        }
+
+        function updateFormStateWithMinors(involvesMinors) {
+            const form12Input = document.getElementById('form12-file');
+            const form12ValidationMessage = document.querySelector('span[asp-validation-for="Form12"]');
+
+            // Clear validation message for Form12
+            if (form12ValidationMessage) form12ValidationMessage.textContent = '';
+
+            if (involvesMinors) {
+                if (form12Input) form12Input.disabled = false;
+            } else {
+                if (form12Input) form12Input.disabled = true;
+            }
         }
     </script>
 }

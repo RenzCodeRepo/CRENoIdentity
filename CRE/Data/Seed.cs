@@ -206,13 +206,14 @@ namespace CRE.Data
                             formDescription = "This form should be used for detail changes and addition with regards to the application.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-15-Application for Ethics Review of Amendments.docx")
                         },
-                        new EthicsForm
-                        {
-                            ethicsFormId = "FORM-16",
-                            formName = "Application for Cancellation of Ethics Review",
-                            formDescription = "This form should be used in the event of cancellation of ethics clearance application.",
-                            file = seed.ReadFileToByteArray("FormFiles\\FORM-16-Application for Cancellation of Ethics Review.docx")
-                        },
+                        //Form 16 is disabled due to the interview 
+                        //new EthicsForm
+                        //{
+                        //    ethicsFormId = "FORM-16",
+                        //    formName = "Application for Cancellation of Ethics Review",
+                        //    formDescription = "This form should be used in the event of cancellation of ethics clearance application.",
+                        //    file = seed.ReadFileToByteArray("FormFiles\\FORM-16-Application for Cancellation of Ethics Review.docx")
+                        //},
                         new EthicsForm
                         {
                             ethicsFormId = "FORM-18",
@@ -240,14 +241,14 @@ namespace CRE.Data
                             formName = "Certificate of Validity",
                             formDescription = "This document should be submitted the study instrument is researcher-made or adapted but modified.",
                             file = seed.ReadFileToByteArray("FormFiles\\CERTIFICATE OF VALIDITY.docx")
+                        },
+                        new EthicsForm
+                        {
+                            ethicsFormId = "LI",
+                            formName = "Letter of Intent",
+                            formDescription = "This document is to be submitted to the Office of the VPRED",
+                            file = seed.ReadFileToByteArray("FormFiles\\LETTER OF INTENT.docx")
                         }
-                        //would ask the front end if needed as downloadable form
-                        //new EthicsForm
-                        //{
-                        //    ethicsFormId = "LI",
-                        //    formName = "Letter of Intent",
-                        //    file = seed.ReadFileToByteArray("FormFiles\\LETTER OF INTENT.docx")
-                        //}
                     );
                     context.SaveChanges();
                 }

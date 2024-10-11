@@ -5,6 +5,7 @@ using CRE.ViewModels;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static CRE.ViewModels.ApplicationRequirementsViewModel;
 
 namespace CRE.Controllers
 {
@@ -34,6 +35,7 @@ namespace CRE.Controllers
             IEthicsApplicationLogServices ethicsApplicationLogServices,
             IConfiguration configuration, ICoProponentServices coProponentServices,
             IEthicsApplicationFormsServices ethicsApplicationFormsServices)
+
         {
             _ethicsApplicationServices = ethicsApplicationServices;
             _nonFundedResearchInfoServices = nonFundedResearchInfoServices;
@@ -374,6 +376,7 @@ namespace CRE.Controllers
                 EthicsApplicationForms = ethicsApplicationForms,
                 EthicsApplicationLog = ethicsApplicationLogs,
                 CoProponent = coProponents.ToList() // Ensure it's a List
+              
             };
 
             return View(model); // Pass the populated model to the view
@@ -402,6 +405,97 @@ namespace CRE.Controllers
             await _ethicsApplicationServices.SaveChangesAsync();
 
             return RedirectToAction("ApplicationRequirements", new { urecNo = urecNo }); // Redirect to the same page to reflect the updated DTS No.
+        }
+        [HttpPost]
+        public async Task<IActionResult> ApplicationRequirements(ApplicationRequirementsViewModel model)
+        {
+           
+
+            //// Removed unnecessary properties from ModelState
+            //ModelState.Remove("User");
+            //ModelState.Remove("User.type");
+            //ModelState.Remove("User.Chief");
+            //ModelState.Remove("User.fName");
+            //ModelState.Remove("User.lName");
+            //ModelState.Remove("User.mName");
+            //ModelState.Remove("User.Faculty");
+            //ModelState.Remove("CoProponent");
+            //ModelState.Remove("ReceiptInfo");
+            //ModelState.Remove("ReceiptInfo.urecNo");
+            //ModelState.Remove("ReceiptInfo.receiptNo");
+            //ModelState.Remove("ReceiptInfo.amountPaid");
+            //ModelState.Remove("ReceiptInfo.scanReceipt");
+            //ModelState.Remove("ReceiptInfo.EthicsApplication");
+            //ModelState.Remove("EthicsApplication");
+            //ModelState.Remove("NonFundedResearchInfo");
+            //ModelState.Remove("NonFundedResearchInfo.User");
+            //ModelState.Remove("NonFundedResearchInfo.title");
+            //ModelState.Remove("NonFundedResearchInfo.campus");
+            //ModelState.Remove("NonFundedResearchInfo.urecNo");
+            //ModelState.Remove("NonFundedResearchInfo.college");
+            //ModelState.Remove("NonFundedResearchInfo.university");
+            //ModelState.Remove("NonFundedResearchInfo.EthicsClearance");
+            //ModelState.Remove("NonFundedResearchInfo.EthicsApplication");
+            //ModelState.Remove("NonFundedResearchInfo.nonFundedResearchId");
+            //ModelState.Remove("NonFundedResearchInfo.CompletionCertificate");
+            //ModelState.Remove("EthicsApplication.User");
+            //ModelState.Remove("EthicsApplication.urecNo");
+            //ModelState.Remove("EthicsApplication.ReceiptInfo");
+            //ModelState.Remove("EthicsApplication.InitialReview");
+            //ModelState.Remove("EthicsApplication.EthicsClearance");
+            //ModelState.Remove("EthicsApplication.CompletionReport");
+            //ModelState.Remove("EthicsApplication.fieldOfStudy");
+            //ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
+            //ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
+
+            // Validate the model
+            var fileProperties = new List<(string PropertyName, IFormFile File)>
+            {
+                (nameof(model.Form9), model.Form9),
+                (nameof(model.Form10), model.Form10),
+                (nameof(model.Form10_1), model.Form10_1),
+                (nameof(model.Form11), model.Form11),
+                (nameof(model.Form12), model.Form12),
+                (nameof(model.Form15), model.Form15),
+                (nameof(model.Form18), model.Form18),
+                (nameof(model.CAA), model.CAA),
+                (nameof(model.RCV), model.RCV),
+                (nameof(model.CV), model.CV),
+                (nameof(model.LI), model.LI)
+            };
+
+
+            if (!ModelState.IsValid)
+            {
+                return View("ApplicationRequirements", model);
+            }
+
+            // Loop through the list of uploaded files
+            foreach (var (propertyName, file) in fileProperties)
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await file.CopyToAsync(memoryStream);
+
+                        // Create a new instance of the EthicsApplicationForms object
+                        var ethicsApplicationForm = new EthicsApplicationForms
+                        {
+                            urecNo = model.EthicsApplication.urecNo, // Assuming UrecNo is passed along
+                            ethicsFormId = propertyName,
+                            dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow),
+                            file = memoryStream.ToArray() // Store the file as byte array
+                        };
+
+                        // Save to database (example repository method)
+                        await _ethicsApplicationFormsServices.AddFormAsync(ethicsApplicationForm);
+                    }
+                }
+            }
+
+            // After processing, redirect to a confirmation page or return the view
+            return RedirectToAction("ApplicationRequirements", new { urecNo = model.EthicsApplication.urecNo });
         }
 
     }

@@ -63,7 +63,7 @@
         "Polytechnic University of the Philippines"
     };
 
-
+    bool isExternalResearcher = Model.User.type == "External";
 }
 
 <div class="container-fluid mt-3">
@@ -160,14 +160,22 @@
                     <div class="row mb-3">
                         <label asp-for="NonFundedResearchInfo.campus" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Campus</label>
                         <div class="col-sm-8">
-                            <select asp-for="NonFundedResearchInfo.campus" class="form-control">
-                                <option value="">Select Campus</option>
-                                @for (int i = 0; i < campuses.Count; i++)
-                                {
-                                    <option value="@campuses[i]">@campuses[i]</option>
-                                }
-                            </select>
-                            <span asp-validation-for="NonFundedResearchInfo.campus" class="text-danger"></span>
+                            @if (isExternalResearcher)
+                            {
+                                <select asp-for="NonFundedResearchInfo.campus" class="form-control">
+                                    <option value="">Select College</option>
+                                    @foreach (var campus in campuses)
+                                    {
+                                        <option value="@campus">@campus</option>
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <!-- Text Input for External Researchers -->
+                                <input asp-for="NonFundedResearchInfo.campus" class="form-control" placeholder="Enter College" />
+                            }
+                            <span asp-validation-for="NonFundedResearchInfo.college" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -175,13 +183,21 @@
                     <div class="row mb-3">
                         <label asp-for="NonFundedResearchInfo.college" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">College</label>
                         <div class="col-sm-8">
-                            <select asp-for="NonFundedResearchInfo.college" class="form-control">
-                                <option value="">Select College</option>
-                                @for (int i = 0; i < colleges.Count; i++)
-                                {
-                                    <option value="@colleges[i]">@colleges[i]</option>
-                                }
-                            </select>
+                            @if (isExternalResearcher)
+                            {
+                                <select asp-for="NonFundedResearchInfo.college" class="form-control">
+                                    <option value="">Select College</option>
+                                    @foreach (var college in colleges)
+                                    {
+                                        <option value="@college">@college</option>
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <!-- Text Input for External Researchers -->
+                                <input asp-for="NonFundedResearchInfo.college" class="form-control" placeholder="Enter College" />
+                            }
                             <span asp-validation-for="NonFundedResearchInfo.college" class="text-danger"></span>
                         </div>
                     </div>
@@ -190,13 +206,22 @@
                     <div class="row mb-3">
                         <label asp-for="NonFundedResearchInfo.university" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">University</label>
                         <div class="col-sm-8">
-                            <select asp-for="NonFundedResearchInfo.university" class="form-control">
-                                <option value="">Select University</option>
-                                @for (int i = 0; i < universities.Count; i++)
-                                {
-                                    <option value="@universities[i]">@universities[i]</option>
-                                }
-                            </select>
+                            @if (isExternalResearcher)
+                            {
+                                <!-- Dropdown for Internal Researchers -->
+                                <select asp-for="NonFundedResearchInfo.university" class="form-control">
+                                    <option value="">Select University</option>
+                                    @foreach (var university in universities)
+                                    {
+                                        <option value="@university">@university</option>
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <!-- Text Input for External Researchers -->
+                                <input asp-for="NonFundedResearchInfo.university" class="form-control" placeholder="Enter University" />
+                            }
                             <span asp-validation-for="NonFundedResearchInfo.university" class="text-danger"></span>
                         </div>
                     </div>
@@ -215,13 +240,13 @@
                                 <span asp-validation-for="ReceiptInfo.receiptNo" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="row mb-3">
-                        <label asp-for="ReceiptInfo.amountPaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Amount Paid</label>
-                        <div class="col-sm-8">
-                            <input asp-for="ReceiptInfo.amountPaid" class="form-control" placeholder="Amount Paid" />
+                        <div class="row mb-3">
+                            <label asp-for="ReceiptInfo.amountPaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Amount Paid</label>
+                            <div class="col-sm-8">
+                                <input asp-for="ReceiptInfo.amountPaid" class="form-control" type="number" placeholder="Amount Paid" />
                                 <span asp-validation-for="ReceiptInfo.amountPaid" class="text-danger"></span>
+                            </div>
                         </div>
-                    </div>
                     <!-- Date Paid Input -->
                     <div class="row mb-3">
                         <label asp-for="ReceiptInfo.datePaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Date Paid</label>
@@ -235,7 +260,7 @@
                     <div class="row mb-3">
                         <label asp-for="receiptFile" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Upload Scanned Receipt</label>
                         <div class="col-sm-8">
-                                <input asp-for="receiptFile" class="form-control" type="file" accept=".pdf" />
+                                <input asp-for="receiptFile" class="form-control form-control-sm" type="file" accept=".pdf" />
                                 <span asp-validation-for="ReceiptInfo.scanReceipt" class="text-danger"></span>
                         </div>
                     </div>
