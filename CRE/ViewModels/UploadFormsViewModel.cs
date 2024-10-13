@@ -22,11 +22,11 @@ namespace CRE.ViewModels
 
         [Required(ErrorMessage = "Form Upload is Required.")]
         [Display(Name = "Form 9 Application for Ethics Review of New Protocol: ")]
-        public IFormFile Form9 { get; set; }
+        public IFormFile FORM9 { get; set; }
 
         [Required(ErrorMessage = "Form Upload is Required.")]
         [Display(Name = "Form 10 Research Study Protocol: ")]
-        public IFormFile Form10 { get; set; }
+        public IFormFile FORM10 { get; set; }
 
         [Required(ErrorMessage = "Form Upload is Required.")]
         [Display(Name = "Researcher/s Curriculum Vitae: ")]
@@ -47,14 +47,14 @@ namespace CRE.ViewModels
         // Conditional required fields based on involvement with human subjects and minors
         [RequiredIfHumanSubjects(ErrorMessage = "Form Upload is Required if human subjects are involved.")]
         [Display(Name = "Form 11 Informed Consent: ")]
-        public IFormFile Form11 { get; set; }
+        public IFormFile FORM11 { get; set; }
 
         [RequiredIfHumanSubjects(ErrorMessage = "Form Upload is Required if human subjects are involved.")]
         [Display(Name = "Form 12 Assent Form: ")]
-        public IFormFile Form12 { get; set; }
+        public IFormFile FORM12 { get; set; }
 
         [RequiredIfMinors(ErrorMessage = "Form Upload is Required if minors are involved.")]
         [Display(Name = "Form 10.1 Non-Human Determination Form: ")]
-        public IFormFile Form10_1 { get; set; }
+        public IFormFile FORM10_1 { get; set; }
     }
 }

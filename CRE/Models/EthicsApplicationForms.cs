@@ -14,6 +14,8 @@ namespace CRE.Models
         [Required]
         public DateOnly dateUploaded { get; set; }
         [Required]
+        public string fileName { get; set; }
+        [Required]
         public byte[] file { get; set; }
 
 

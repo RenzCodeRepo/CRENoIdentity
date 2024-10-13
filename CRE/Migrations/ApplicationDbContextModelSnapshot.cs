@@ -188,6 +188,10 @@ namespace CRE.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("fileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("urecNo")
                         .IsRequired()
                         .HasColumnType("nvarchar(30)");

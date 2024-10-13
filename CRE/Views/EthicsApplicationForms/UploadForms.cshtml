@@ -1,6 +1,33 @@
 ﻿@model CRE.ViewModels.UploadFormsViewModel
 @{
     ViewBag.Title = "Upload Requirements";
+    var anyFormsUploaded = Model?.EthicsApplicationForms?.Any(f =>
+                (f.ethicsFormId == "FORM11" || f.ethicsFormId == "FORM12" || f.ethicsFormId == "FORM10_1") && f.file != null
+                ) == true;
+
+    // Check if the required forms from Form 9 to Letter of Intent are uploaded
+    var allMainFormsUploaded = Model?.EthicsApplicationForms?.All(f =>
+        f.file != null &&
+        (f.ethicsFormId == "FORM9" ||
+         f.ethicsFormId == "FORM10" ||
+         f.ethicsFormId == "FORM11" ||
+         f.ethicsFormId == "FORM12" ||
+         f.ethicsFormId == "CAA" ||
+         f.ethicsFormId == "RCV" ||
+         f.ethicsFormId == "CV" ||
+         f.ethicsFormId == "LI")
+    ) == true;
+
+    // Check if at least one of Form 11, 12, or 10.1 is uploaded
+    var anyConditionalFormsUploaded = Model?.EthicsApplicationForms?.Any(f =>
+        (f.ethicsFormId == "FORM11" ||
+         f.ethicsFormId == "FORM12" ||
+         f.ethicsFormId == "FORM10_1") &&
+         f.file != null
+    ) == true;
+
+    // All conditions for the submit and track buttons
+    var allFormsUploaded = allMainFormsUploaded && anyConditionalFormsUploaded;
 }
 
 <h2>Application Requirements</h2>
@@ -91,99 +118,273 @@
 <div class="card border-light mb-3" style="width">
     <div class="card-header"><h2>Your Attachments</h2></div>
     <div class="card-body">
-        <form id="myForm" asp-action="ApplicationRequirements" enctype="multipart/form-data" method="post">
+        @* Display receipt PDF link if it exists in the database *@
+        @if (Model.ReceiptInfo.scanReceipt != null)
+        {
+            <div class="mb-3">
+                <label><strong>Receipt:</strong></label>
+                <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary btn-sm">
+                    View Receipt (PDF)
+                </a>
+            </div>
+        }
+        <form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
             <input type="hidden" name="EthicsApplication.urecNo" value="@Model.EthicsApplication.urecNo" />
 
             <div>
-                <label asp-for="Form9">Upload Ethics Form 9 Application for Ethics Review of New Protocol:</label>
-                <input asp-for="Form9" class="form-control form-control-sm" type="file" accept=".pdf" />
-                <span asp-validation-for="Form9" class="text-danger"></span>
+                <label asp-for="FORM9">Upload Ethics Form 9 Application for Ethics Review of New Protocol:</label>
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM9") == true)
+                {
+                    <p>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM9", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            View Uploaded Form 9
+                        </a>
+                        <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM9", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                            Download Form 9
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <input asp-for="FORM9" class="form-control form-control-sm" type="file" accept=".pdf" />
+                    <span asp-validation-for="FORM9" class="text-danger"></span>
+                }
             </div>
 
             <div>
-                <label asp-for="Form10">Upload Ethics Form 10 Research Study Protocol:</label>
-                <input asp-for="Form10" class="form-control form-control-sm" type="file" accept=".pdf" />
-                <span asp-validation-for="Form10" class="text-danger"></span>
+                <label asp-for="FORM10">Upload Ethics Form 10 Research Study Protocol:</label>
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM10") == true)
+                {
+                    <p>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM10", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            View Uploaded Form 10
+                        </a>
+                        <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM10", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                            Download Form 10
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <input asp-for="FORM10" class="form-control form-control-sm" type="file" accept=".pdf" />
+                    <span asp-validation-for="FORM10" class="text-danger"></span>
+                }
             </div>
 
             <div>
                 <label asp-for="RCV">Upload Researcher Curriculum Vitae:</label>
-                <input asp-for="RCV" class="form-control form-control-sm" type="file" accept=".pdf" />
-                <span asp-validation-for="RCV" class="text-danger"></span>
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "RCV") == true)
+                {
+                    <p>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "RCV", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            View Uploaded RCV
+                        </a>
+                        <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "RCV", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                            Download RCV
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <input asp-for="RCV" class="form-control form-control-sm" type="file" accept=".pdf" />
+                    <span asp-validation-for="RCV" class="text-danger"></span>
+                }
             </div>
 
             <div>
                 <label asp-for="CV">Upload Certificate of Validity:</label>
-                <input asp-for="CV" class="form-control form-control-sm" type="file" accept=".pdf" />
-                <span asp-validation-for="CV" class="text-danger"></span>
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "CV") == true)
+                {
+                    <p>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "CV", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            View Uploaded CV
+                        </a>
+                        <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "CV", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                            Download CV
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <input asp-for="CV" class="form-control form-control-sm" type="file" accept=".pdf" />
+                    <span asp-validation-for="CV" class="text-danger"></span>
+                }
             </div>
 
             <div>
                 <label asp-for="CAA">Upload Co-Authorship Agreement:</label>
-                <input asp-for="CAA" class="form-control form-control-sm" type="file" accept=".pdf" />
-                <span asp-validation-for="CAA" class="text-danger"></span>
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "CAA") == true)
+                {
+                    <p>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "CAA", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            View Uploaded CAA
+                        </a>
+                        <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "CAA", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                            Download CAA
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <input asp-for="CAA" class="form-control form-control-sm" type="file" accept=".pdf" />
+                    <span asp-validation-for="CAA" class="text-danger"></span>
+                }
             </div>
 
             <div>
                 <label asp-for="LI">Upload Letter of Intent:</label>
-                <input asp-for="LI" class="form-control form-control-sm" type="file" accept=".pdf" />
-                <span asp-validation-for="LI" class="text-danger"></span>
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "LI") == true)
+                {
+                    <p>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "LI", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            View Uploaded LI
+                        </a>
+                        <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "LI", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                            Download LI
+                        </a>
+                    </p>
+                }
+                else
+                {
+                    <input asp-for="LI" class="form-control form-control-sm" type="file" accept=".pdf" />
+                    <span asp-validation-for="LI" class="text-danger"></span>
+                }
             </div>
+
 
             <hr />
             <!-- Condition Section -->
             <div>
-                <p>
-                    <strong>Does the research involve human subjects?</strong>
-                    <label for="human-subjects-yes">
-                        <input type="radio" id="human-subjects-yes" name="humanSubjects" value="yes" onclick="updateFormState(true)" /> Yes
-                    </label>
-                    <label for="human-subjects-no">
-                        <input type="radio" id="human-subjects-no" name="humanSubjects" value="no" onclick="updateFormState(false)" checked /> No
-                    </label>
-                </p>
-            </div>
+                @* Check if any of the specified forms have been uploaded *@
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM11" || f.ethicsFormId == "FORM12" || f.ethicsFormId == "FORM10_1") == true)
+                {
+                // If any of the forms are uploaded, remove condition questions
+                    <p>Condition questions have been removed because one or more forms have been uploaded.</p>
+                }
+                else
+                {
+                    <p>
+                        <strong>Does the research involve human subjects?</strong>
+                        <label for="human-subjects-yes">
+                            <input type="radio" id="human-subjects-yes" name="InvolvesHumanSubjects" value="true" onclick="updateFormState(true)" /> Yes
+                        </label>
+                        <label for="human-subjects-no">
+                            <input type="radio" id="human-subjects-no" name="InvolvesHumanSubjects" value="false" onclick="updateFormState(false)" checked /> No
+                        </label>
+                    </p>
 
-            <!-- Minors Question Section -->
-            <div id="minors-question" style="display:none;">
-                <p>
-                    <strong>Will the research involve minors?</strong>
-                    <label for="minors-yes">
-                        <input type="radio" id="minors-yes" name="involvesMinors" value="yes" onclick="updateFormStateWithMinors(true)" /> Yes
-                    </label>
-                    <label for="minors-no">
-                        <input type="radio" id="minors-no" name="involvesMinors" value="no" onclick="updateFormStateWithMinors(false)" checked /> No
-                    </label>
-                </p>
+                    <!-- Minors Question Section -->
+                    <div id="minors-question" style="display:none;">
+                        <p>
+                            <strong>Will the research involve minors?</strong>
+                            <label for="minors-yes">
+                                <input type="radio" id="minors-yes" name="InvolvesMinors" value="true" onclick="updateFormStateWithMinors(true)" /> Yes
+                            </label>
+                            <label for="minors-no">
+                                <input type="radio" id="minors-no" name="InvolvesMinors" value="false" onclick="updateFormStateWithMinors(false)" checked /> No
+                            </label>
+                        </p>
+                    </div>
+                }
             </div>
 
             <!-- Upload Sections -->
             <div>
-                <div>
-                    <label asp-for="Form11">Upload Ethics Form 11 Informed Consent:</label>
-                    <input asp-for="Form11" id="form11-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
-                    <span asp-validation-for="Form11" class="text-danger"></span>
-                </div>
+                @if (!anyFormsUploaded) // If none of the forms are uploaded, display upload inputs
+                {
+                    <div>
+                        <label asp-for="FORM11">Upload Ethics Form 11 Informed Consent:</label>
+                        <input asp-for="FORM11" id="form11-file" class="form-control form-control-sm" type="file" accept=".pdf" />
+                        <span asp-validation-for="FORM11" class="text-danger"></span>
+                    </div>
 
-                <div>
-                    <label asp-for="Form12">Upload Ethics Form 12 Assent Form:</label>
-                    <input asp-for="Form12" id="form12-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
-                    <span asp-validation-for="Form12" class="text-danger"></span>
-                </div>
+                    <div>
+                        <label asp-for="FORM12">Upload Ethics Form 12 Assent Form:</label>
+                        <input asp-for="FORM12" id="form12-file" class="form-control form-control-sm" type="file" accept=".pdf" />
+                        <span asp-validation-for="FORM12" class="text-danger"></span>
+                    </div>
 
-                <div>
-                    <label asp-for="Form10_1">Upload Ethics Form 10.1 Non-Human Determination Form:</label>
-                    <input asp-for="Form10_1" id="form10-1-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
-                    <span asp-validation-for="Form10_1" class="text-danger"></span>
-                </div>
+                    <div>
+                        <label asp-for="FORM10_1">Upload Ethics Form 10.1 Non-Human Determination Form:</label>
+                        <input asp-for="FORM10_1" id="form10-1-file" class="form-control form-control-sm" type="file" accept=".pdf" />
+                        <span asp-validation-for="FORM10_1" class="text-danger"></span>
+                    </div>
+                }
+                else // If any of the forms have been uploaded, show buttons to view/download
+                {
+                    @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM11") == true)
+                    {
+                        <p>
+                            <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM11", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                                View Uploaded Form 11
+                            </a>
+                            <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM11", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                                Download Form 11
+                            </a>
+                        </p>
+                    }
+
+                    @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM12") == true)
+                    {
+                        <p>
+                            <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM12", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                                View Uploaded Form 12
+                            </a>
+                            <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM12", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                                Download Form 12
+                            </a>
+                        </p>
+                    }
+
+                    @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM10_1") == true)
+                    {
+                        <p>
+                            <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM10_1", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                                View Uploaded Form 10.1
+                            </a>
+                            <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM10_1", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                                Download Form 10.1
+                            </a>
+                        </p>
+                    }
+                }
             </div>
 
-            <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
+            <!-- Track Application / Submit Button -->
+            @if (allFormsUploaded)
+            {
+                <a href="@Url.Action("TrackApplication", "EthicsApplicationForms", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success mt-2">
+                    Track Application
+                </a>
+            }
+            else
+            {
+                <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
+            }
         </form>
     </div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 </div>
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript">
+        // Add confirmation before submitting the form
+        document.getElementById('myForm').addEventListener('submit', function (event) {
+            // Show confirmation dialog
+            var confirmSubmit = confirm('Are you sure you want to submit the form with the current files?');
+
+            // If the user cancels, prevent form submission
+            if (!confirmSubmit) {
+                event.preventDefault();
+            }
+        });
+    </script>
     <script>
         $(document).ready(function () {
             // Initialize form states based on default selections
@@ -199,19 +400,16 @@
         function updateFormState(hasHumanSubjects) {
             $('#minors-question').toggle(hasHumanSubjects);
             if (!hasHumanSubjects) {
-                // No human subjects involved
-                $('#form10-1-file').prop('disabled', false); // Enable Form 10.1
-                $('#form11-file, #form12-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Forms 11 and 12
+                $('#form10-1-file').prop('disabled', false);
+                $('#form11-file, #form12-file').prop('disabled', true).val('').siblings('.text-danger').text('');
             } else {
-                // Human subjects involved
-                $('#form10-1-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Form 10.1
-                $('#form11-file').prop('disabled', false); // Enable Form 11
-                $('#form12-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Form 12 initially
+                $('#form10-1-file').prop('disabled', true).val('').siblings('.text-danger').text('');
+                $('#form11-file').prop('disabled', false);
+                $('#form12-file').prop('disabled', true).val('').siblings('.text-danger').text('');
 
-                // Check if minors are involved
-                const minorsSelected = $('input[name="involvesMinors"]:checked').val();
-                if (minorsSelected === "yes") {
-                    $('#form12-file').prop('disabled', false); // Enable Form 12 if minors are involved
+                const minorsSelected = $('input[name="InvolvesMinors"]:checked').val();
+                if (minorsSelected === "true") {
+                    $('#form12-file').prop('disabled', false);
                 }
             }
         }

@@ -30,6 +30,7 @@ namespace CRE.Data
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Secretariat', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Expertise', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('EthicsEvaluator', RESEED, 1);");
+                context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('EthicsApplicationForms', RESEED, 1);");
 
                 context.Database.EnsureCreated();
 
@@ -166,35 +167,35 @@ namespace CRE.Data
                     context.EthicsForm.AddRange(
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-9",
+                            ethicsFormId = "FORM9",
                             formName = "Application for Ethics Review of New Protocol",
                             formDescription = "This form is required to be accomplished by all of the applicants.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-9-Application for Ethics Review of New Protocol.docx")
                         },
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-10",
+                            ethicsFormId = "FORM10",
                             formName = "Research Study Protocol",
                             formDescription = "This form is required to be accomplished by all of the applicants.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-10-Research-Study Protocol.docx")
                         },
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-10.1",
+                            ethicsFormId = "FORM10_1",
                             formName = "Research Study Protocol",
                             formDescription = "This form is for non-human research/es.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-10.1-NON-HUMAN-DETERMINANT-TEMPLATE.docx")
                         },
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-11",
+                            ethicsFormId = "FORM11",
                             formName = "Informed Consent Form",
                             formDescription = "This form should be used for studies that requires human respondents.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-10.1-NON-HUMAN-DETERMINANT-TEMPLATE.docx")
                         },
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-12",
+                            ethicsFormId = "FORM12",
                             formName = "Assent Form",
                             formDescription = "This form should be used for studies with minor respondents.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-12-Assent Form for Minors-Participants.docx")

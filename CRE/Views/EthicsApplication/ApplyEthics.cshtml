@@ -239,7 +239,13 @@
                     <div class="row mb-3">
                         <label asp-for="ReceiptInfo.datePaid" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Date Paid: </label>
                         <div class="col-sm-8">
-                            @Html.TextBoxFor(model => model.ReceiptInfo.datePaid, new { @class = "form-control", type = "date", required = "required" })
+                            @Html.TextBoxFor(model => model.ReceiptInfo.datePaid, new
+                                {
+                                    @class = "form-control",
+                                    type = "date",
+                                    required = "required",
+                                    max = DateTime.Now.ToString("yyyy-MM-dd") // Set max to today's date
+                                })
                             @Html.ValidationMessageFor(model => model.ReceiptInfo.datePaid, "", new { @class = "text-danger" })
                         </div>
                     </div>

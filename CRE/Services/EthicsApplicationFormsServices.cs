@@ -55,5 +55,10 @@ namespace CRE.Services
             _context.EthicsApplicationForms.Update(form);
             await _context.SaveChangesAsync();
         }
+        public async Task<EthicsApplicationForms> GetFormByIdAndUrecNoAsync(string formId, string urecNo)
+        {
+            return await _context.EthicsApplicationForms
+                .FirstOrDefaultAsync(f => f.ethicsFormId == formId && f.urecNo == urecNo);
+        }
     }
 }

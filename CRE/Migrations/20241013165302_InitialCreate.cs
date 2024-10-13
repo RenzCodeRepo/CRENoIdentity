@@ -161,6 +161,7 @@ namespace CRE.Migrations
                     urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     ethicsFormId = table.Column<string>(type: "nvarchar(10)", nullable: true),
                     dateUploaded = table.Column<DateOnly>(type: "date", nullable: false),
+                    fileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     file = table.Column<byte[]>(type: "varbinary(max)", nullable: false)
                 },
                 constraints: table =>

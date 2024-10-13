@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241012140714_InitialCreate")]
+    [Migration("20241013165302_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -190,6 +190,10 @@ namespace CRE.Migrations
                     b.Property<byte[]>("file")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("fileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("urecNo")
                         .IsRequired()

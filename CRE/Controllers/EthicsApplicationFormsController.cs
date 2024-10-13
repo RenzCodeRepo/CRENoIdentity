@@ -2,6 +2,7 @@
 using CRE.Models;
 using CRE.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.SqlServer.Server;
 
 namespace CRE.Controllers
 {
@@ -99,67 +100,65 @@ namespace CRE.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> ApplicationRequirements(ApplicationRequirementsViewModel model)
+        public async Task<IActionResult> UploadForms(UploadFormsViewModel model)
         {
+            // Removed unnecessary properties from ModelState
+            ModelState.Remove("User");
+            ModelState.Remove("CoProponent");
+            ModelState.Remove("ReceiptInfo");
+            ModelState.Remove("EthicsApplicationLog");
+            ModelState.Remove("NonFundedResearchInfo");
+            ModelState.Remove("EthicsApplication.User");
+            ModelState.Remove("EthicsApplication.urecNo");
+            ModelState.Remove("EthicsApplication.ReceiptInfo");
+            ModelState.Remove("EthicsApplication.InitialReview");
+            ModelState.Remove("EthicsApplication.fieldOfStudy");
+            ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
+            ModelState.Remove("EthicsApplicationForms");
+            ModelState.Remove("EthicsApplication.EthicsClearance");
+            ModelState.Remove("EthicsApplication.CompletionReport");
 
+            // Handle logic based on whether the research involves humans or minors
+            if (model.InvolvesHumanSubjects)  // Assuming you have a boolean field in your model
+            {
+                // If the research involves humans
+                ModelState.Remove(nameof(model.FORM10_1)); // Remove Form 10.1 from validation
 
-            //// Removed unnecessary properties from ModelState
-            //ModelState.Remove("User");
-            //ModelState.Remove("User.type");
-            //ModelState.Remove("User.Chief");
-            //ModelState.Remove("User.fName");
-            //ModelState.Remove("User.lName");
-            //ModelState.Remove("User.mName");
-            //ModelState.Remove("User.Faculty");
-            //ModelState.Remove("CoProponent");
-            //ModelState.Remove("ReceiptInfo");
-            //ModelState.Remove("ReceiptInfo.urecNo");
-            //ModelState.Remove("ReceiptInfo.receiptNo");
-            //ModelState.Remove("ReceiptInfo.amountPaid");
-            //ModelState.Remove("ReceiptInfo.scanReceipt");
-            //ModelState.Remove("ReceiptInfo.EthicsApplication");
-            //ModelState.Remove("EthicsApplication");
-            //ModelState.Remove("NonFundedResearchInfo");
-            //ModelState.Remove("NonFundedResearchInfo.User");
-            //ModelState.Remove("NonFundedResearchInfo.title");
-            //ModelState.Remove("NonFundedResearchInfo.campus");
-            //ModelState.Remove("NonFundedResearchInfo.urecNo");
-            //ModelState.Remove("NonFundedResearchInfo.college");
-            //ModelState.Remove("NonFundedResearchInfo.university");
-            //ModelState.Remove("NonFundedResearchInfo.EthicsClearance");
-            //ModelState.Remove("NonFundedResearchInfo.EthicsApplication");
-            //ModelState.Remove("NonFundedResearchInfo.nonFundedResearchId");
-            //ModelState.Remove("NonFundedResearchInfo.CompletionCertificate");
-            //ModelState.Remove("EthicsApplication.User");
-            //ModelState.Remove("EthicsApplication.urecNo");
-            //ModelState.Remove("EthicsApplication.ReceiptInfo");
-            //ModelState.Remove("EthicsApplication.InitialReview");
-            //ModelState.Remove("EthicsApplication.EthicsClearance");
-            //ModelState.Remove("EthicsApplication.CompletionReport");
-            //ModelState.Remove("EthicsApplication.fieldOfStudy");
-            //ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
-            //ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
+                if (model.InvolvesMinors)  // Assuming another boolean field
+                {
+                    // If research involves minors, also remove Form 10.1 but keep Form 12
+                    ModelState.Remove(nameof(model.FORM10_1)); // Already removed above, but redundant check
+                }
+                else
+                {
+                    // If no minors are involved, remove Form 12 from validation
+                    ModelState.Remove(nameof(model.FORM12));
+                }
+            }
+            else
+            {
+                // If research does not involve humans, only Form 10.1 is valid
+                ModelState.Remove(nameof(model.FORM11)); // Remove Form 11 from validation
+                ModelState.Remove(nameof(model.FORM12)); // Remove Form 12 from validation
+            }
 
             // Validate the model
             var fileProperties = new List<(string PropertyName, IFormFile File)>
             {
-                (nameof(model.Form9), model.Form9),
-                (nameof(model.Form10), model.Form10),
-                (nameof(model.Form10_1), model.Form10_1),
-                (nameof(model.Form11), model.Form11),
-                (nameof(model.Form12), model.Form12),
-                (nameof(model.Form15), model.Form15),
-                (nameof(model.Form18), model.Form18),
+                (nameof(model.FORM9), model.FORM9),
+                (nameof(model.FORM10), model.FORM10),
+                (nameof(model.FORM10_1), model.FORM10_1),
+                (nameof(model.FORM11), model.FORM11),
+                (nameof(model.FORM12), model.FORM12),
                 (nameof(model.CAA), model.CAA),
                 (nameof(model.RCV), model.RCV),
                 (nameof(model.CV), model.CV),
                 (nameof(model.LI), model.LI)
             };
 
-
             if (!ModelState.IsValid)
             {
-                return View("ApplicationRequirements", model);
+                return View("UploadForms", model);
             }
 
             // Loop through the list of uploaded files
@@ -174,10 +173,12 @@ namespace CRE.Controllers
                         // Create a new instance of the EthicsApplicationForms object
                         var ethicsApplicationForm = new EthicsApplicationForms
                         {
-                            urecNo = model.EthicsApplication.urecNo, // Assuming UrecNo is passed along
+                            urecNo = model.EthicsApplication.urecNo,
                             ethicsFormId = propertyName,
                             dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow),
-                            file = memoryStream.ToArray() // Store the file as byte array
+                            file = memoryStream.ToArray(),
+                             // Generate and set the filename based on your format
+                            fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf" // Assuming you want a PDF extension
                         };
 
                         // Save to database (example repository method)
@@ -185,9 +186,44 @@ namespace CRE.Controllers
                     }
                 }
             }
+            TempData["SuccessMessage"] = "Forms uploaded successfully!";
 
             // After processing, redirect to a confirmation page or return the view
-            return RedirectToAction("ApplicationRequirements", new { urecNo = model.EthicsApplication.urecNo });
+            return RedirectToAction("UploadForms", new { urecNo = model.EthicsApplication.urecNo });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewFile(string formId, string urecNo)
+        {
+            // Fetch the form from the database based on formId and urecNo
+            var form = await _ethicsApplicationFormsServices.GetFormByIdAndUrecNoAsync(formId, urecNo);
+
+            if (form.file == null)
+            {
+                return NotFound(); 
+            }
+           
+            // Return the file with the specified filename
+            return File(form.file, "application/pdf");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadFile(string formId, string urecNo)
+        {
+            // Fetch the form from the database based on formId and urecNo
+            var form = await _ethicsApplicationFormsServices.GetFormByIdAndUrecNoAsync(formId, urecNo);
+
+            if (form.file == null)
+            {
+                return NotFound();
+            }
+
+            // Generate the filename based on the property name and urecNo
+            var filename = $"{formId}_{urecNo}.pdf"; // Adjust this format as needed
+
+            // Return the file for download
+            return File(form.file, "application/pdf", filename);
+        }
+
     }
 }

@@ -7,6 +7,7 @@ namespace CRE.Interfaces
         Task<IEnumerable<EthicsApplicationForms>> GetAllFormsByUrecAsync(string urecNo); 
         Task<EthicsForm> GetFormByIdAsync(string ethicsFormId);
         Task<EthicsApplicationForms> GetApplicationFormByIdAsync(int ethicsApplicationFormId);
+        Task<EthicsApplicationForms> GetFormByIdAndUrecNoAsync(string formId, string urecNo);
         Task AddFormAsync(EthicsApplicationForms form);
         Task UpdateFormAsync(EthicsApplicationForms form);
         Task RemoveFormAsync(int ethicsApplicationFormId);
