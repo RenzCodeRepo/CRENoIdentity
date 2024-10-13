@@ -102,6 +102,13 @@ namespace CRE.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadForms(UploadFormsViewModel model)
         {
+            var devUserIdString = _configuration["DevelopmentUserId"]; // or get it from logged-in user context
+
+            if (!int.TryParse(devUserIdString, out int devUserId))
+            {
+                ModelState.AddModelError("", "Invalid user ID.");
+                return View(); // return view with some error handling
+            }
             // Removed unnecessary properties from ModelState
             ModelState.Remove("User");
             ModelState.Remove("CoProponent");
@@ -186,6 +193,16 @@ namespace CRE.Controllers
                     }
                 }
             }
+            var uploadFormLog = new EthicsApplicationLog
+            {
+                urecNo = model.EthicsApplication.urecNo,
+                userId = devUserId,
+                status = "Forms Uploaded",
+                changeDate = DateTime.Now
+            };
+            await _ethicsApplicationLogServices.AddLogAsync(uploadFormLog);
+
+            //log that the user has uploaded their forms
             TempData["SuccessMessage"] = "Forms uploaded successfully!";
 
             // After processing, redirect to a confirmation page or return the view

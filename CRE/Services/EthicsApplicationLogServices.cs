@@ -45,12 +45,18 @@ namespace CRE.Services
 
 
         // Retrieve all logs for a specific urecNo
-        public async Task<IEnumerable<EthicsApplicationLog>> GetLogsByUrecNoAsync(string urecNo)
+        public async Task<List<EthicsApplicationLog>> GetLogsByUrecNoAsync(string urecNo)
         {
             return await _context.EthicsApplicationLog
-                                 .Where(log => log.urecNo == urecNo)       // Filter by urecNo
-                                 .OrderBy(log => log.changeDate)            // Order by changeDate (oldest to latest)
-                                 .ToListAsync();                           // Return all matching logs
+                                 .Where(log => log.urecNo == urecNo)
+                                 .OrderByDescending(log => log.changeDate)
+                                 .Select(log => new EthicsApplicationLog
+                                 {
+                                     changeDate = log.changeDate,
+                                     status = log.status,
+                                     comments = log.comments
+                                 })
+                                 .ToListAsync();
         }
     }
 }

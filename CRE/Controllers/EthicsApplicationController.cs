@@ -204,11 +204,11 @@ namespace CRE.Controllers
             nonFundedResearchInfo.dateSubmitted = DateTime.Now;
 
 
-            var ethicsApplicationLog = new EthicsApplicationLog
+            var ethicsApplyLog = new EthicsApplicationLog
             {
                 urecNo = ethicsApplication.urecNo,
                 userId = devUserId,
-                status = "Submitted",
+                status = "Applied",
                 changeDate = DateTime.Now
             };
 
@@ -259,7 +259,7 @@ namespace CRE.Controllers
             {
                 await _ethicsApplicationServices.ApplyForEthicsAsync(ethicsApplication);
                 await _nonFundedResearchInfoServices.AddNonFundedResearchAsync(nonFundedResearchInfo);
-                await _ethicsApplicationLogServices.AddLogAsync(ethicsApplicationLog);
+                await _ethicsApplicationLogServices.AddLogAsync(ethicsApplyLog);
 
                 if (model.CoProponent != null && model.CoProponent.Any())
                 {
