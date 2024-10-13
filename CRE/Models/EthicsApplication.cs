@@ -6,13 +6,15 @@ namespace CRE.Models
     public class EthicsApplication
     {
         [Key, MaxLength(30)]
+        [Display(Name = "UREC NO.")]
         public string urecNo { get; set; }
         [ForeignKey(nameof(User))]
         public int userId { get; set; }
         [Required]
         public DateOnly submissionDate { get; set; }
         public string? dtsNo { get; set; }
-        [Required(ErrorMessage ="Please select the Fied of Study of your research.")]
+        [Required(ErrorMessage ="Field of Study is Required.")]
+        [Display(Name ="Field of Study: ")]
         public string fieldOfStudy { get; set; }
 
         //navigation properties

@@ -14,6 +14,8 @@ namespace CRE.ViewModels
 
 
         //other properties needed
+        [Required(ErrorMessage = "Payment Receipt is Required.")]
+        [Display(Name = "Upload Payment Receipt")]
         public IFormFile receiptFile { get; set; } //placeholder for conversion
     }
 }

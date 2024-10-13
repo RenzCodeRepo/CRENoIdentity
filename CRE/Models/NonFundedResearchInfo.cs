@@ -20,10 +20,13 @@ namespace CRE.Models
         public int? completionCertId { get; set; }
 
         [ForeignKey(nameof(User))]
+        [Display(Name = "Project Proponent: ")]
         public int userId { get; set; }
 
         // Required Fields
-        [Required(ErrorMessage ="Please input the Title of your research.")]
+        [Required(ErrorMessage ="Title of Research is Required.")]
+        [StringLength(100, ErrorMessage = "Title cannot exceed 100 characters")]
+        [Display(Name ="Research Project Title: ")]
         public string title { get; set; }
 
         [Required]
@@ -31,10 +34,16 @@ namespace CRE.Models
 
         // Campus, College, and University attributes
         [Required(ErrorMessage ="Campus is Required.")]
+        [StringLength(70, ErrorMessage = "Campus cannot exceed 70 characters")]
+        [Display(Name ="Branch/Campus: ")]
         public string campus { get; set; }
+        [StringLength(70, ErrorMessage = "College cannot exceed 70 characters")]
         [Required(ErrorMessage = "College is Required.")]
+        [Display(Name = "College: ")]
         public string college { get; set; }
         [Required(ErrorMessage = "University is Required.")]
+        [StringLength(70, ErrorMessage = "University cannot exceed 70 characters")]
+        [Display(Name = "University: ")]
         public string university { get; set; }
 
         public DateOnly? completion_Date { get; set; }

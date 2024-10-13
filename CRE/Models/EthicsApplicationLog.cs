@@ -18,6 +18,7 @@ namespace CRE.Models
 
         // Required Fields
         [Required]
+        [Display(Name ="Status: ")]
         public string status { get; set; }
 
         [Required]

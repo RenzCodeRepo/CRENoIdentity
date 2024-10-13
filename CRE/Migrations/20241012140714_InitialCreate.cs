@@ -319,11 +319,11 @@ namespace CRE.Migrations
                     ethicsClearanceId = table.Column<int>(type: "int", nullable: true),
                     completionCertId = table.Column<int>(type: "int", nullable: true),
                     userId = table.Column<int>(type: "int", nullable: false),
-                    title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     dateSubmitted = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    campus = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    college = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    university = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    campus = table.Column<string>(type: "nvarchar(70)", maxLength: 70, nullable: false),
+                    college = table.Column<string>(type: "nvarchar(70)", maxLength: 70, nullable: false),
+                    university = table.Column<string>(type: "nvarchar(70)", maxLength: 70, nullable: false),
                     completion_Date = table.Column<DateOnly>(type: "date", nullable: true)
                 },
                 constraints: table =>

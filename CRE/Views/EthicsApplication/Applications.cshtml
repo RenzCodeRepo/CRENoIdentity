@@ -31,7 +31,7 @@
                         <p>
                             <strong>Submission Date:</strong> @application.submissionDate.ToShortDateString()
                         </p>
-                        <a href="@Url.Action("ApplicationRequirements", "EthicsApplication", new { urecNo = application.urecNo })" class="btn btn-primary">
+                        <a href="@Url.Action("UploadForms", "EthicsApplicationForms", new { urecNo = application.urecNo })" class="btn btn-primary">
                             View Application
                         </a>
                     </div>
@@ -44,7 +44,7 @@ else
 {
     <p>You have no applications submitted.</p>
 }
-<button type="button" class="btn btn-success" onclick="location.href='@Url.Action("SubmitApplication", "EthicsApplication")'">Apply</button>
+<button type="button" class="btn btn-success" onclick="location.href='@Url.Action("ApplyEthics", "EthicsApplication")'">Apply</button>
 
 
 <!-- Modal Structure -->

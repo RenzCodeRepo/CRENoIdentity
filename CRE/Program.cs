@@ -2,11 +2,17 @@ using CRE.Data;
 using CRE.Interfaces;
 using CRE.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true; // Enable client-side validation
+    });
+
 builder.Services.AddScoped<IChairpersonServices, ChairpersonServices>();
 builder.Services.AddScoped<IChiefServices, ChiefServices>();
 builder.Services.AddScoped<ICompletionCertificateServices, CompletionCertificateServices>();
@@ -38,6 +44,7 @@ if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
     Seed.SeedData(app);
 }
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

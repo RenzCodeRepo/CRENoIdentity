@@ -86,7 +86,7 @@ namespace CRE.Controllers
             return View(model);
         }
         //View Logic
-        public async Task<IActionResult> SubmitApplication()
+        public async Task<IActionResult> ApplyEthics()
         {
             // Retrieve the development user ID from configuration
             var devUserIdString = _configuration["DevelopmentUserId"];
@@ -146,7 +146,7 @@ namespace CRE.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitApplication(ApplyEthicsViewModel model)
+        public async Task<IActionResult> ApplyEthics(ApplyEthicsViewModel model)
         {
             if (model.CoProponent == null)
             {
@@ -404,7 +404,7 @@ namespace CRE.Controllers
             // Save the changes (assuming _ethicsApplicationServices.SaveChangesAsync is available)
             await _ethicsApplicationServices.SaveChangesAsync();
 
-            return RedirectToAction("ApplicationRequirements", new { urecNo = urecNo }); // Redirect to the same page to reflect the updated DTS No.
+            return RedirectToAction("UploadForms","EthicsApplicationForms", new { urecNo = urecNo }); // Redirect to the same page to reflect the updated DTS No.
         }
         [HttpPost]
         public async Task<IActionResult> ApplicationRequirements(ApplicationRequirementsViewModel model)

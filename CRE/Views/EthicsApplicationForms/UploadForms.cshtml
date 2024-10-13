@@ -1,23 +1,42 @@
-﻿@model CRE.ViewModels.ApplicationRequirementsViewModel
+﻿@model CRE.ViewModels.UploadFormsViewModel
+@{
+    ViewBag.Title = "Upload Requirements";
+}
 
 <h2>Application Requirements</h2>
 
-<div class="card border-light mb-3" style="width">
+<div class="card border-light mb-3" style="width:contain">
     <div class="card-header">
         <div class="row">
             <div class="col text-start">
                 <p id="urecNoText">
                     <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
-
                 </p>
                 <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
                     Copy UREC No.
                 </button>
 
-                <h4><strong>Research Title: </strong>@Model.NonFundedResearchInfo.title</h4>
+                <h4><strong>Research Title:</strong>@Model.NonFundedResearchInfo.title</h4>
+                <p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Proponent/s:</strong><br />
+                            @($"{Model.User.fName} {Model.User.mName} {Model.User.lName}")
+                            <br />
+                            @if (Model.CoProponent != null && Model.CoProponent.Any())
+                            {
+                                foreach (var proponent in Model.CoProponent)
+                                {
+                                    @proponent.coProponentName <br />
+                                }
+                            }
+                        </div>
+                    </div>
+                </p>
                 <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+                <p><strong>Collge: </strong> @Model.NonFundedResearchInfo.college</p>
+                <p><strong>Branch/Campuses: </strong> @Model.NonFundedResearchInfo.campus</p>
             </div>
-
 
             <!-- Display DTS No. or Edit Button -->
             <div class="col text-end">
@@ -68,10 +87,11 @@
         </div>
     </div>
 </div>
+
 <div class="card border-light mb-3" style="width">
     <div class="card-header"><h2>Your Attachments</h2></div>
     <div class="card-body">
-        <form asp-action="ApplicationRequirements" enctype="multipart/form-data" method="post">
+        <form id="myForm" asp-action="ApplicationRequirements" enctype="multipart/form-data" method="post">
             <input type="hidden" name="EthicsApplication.urecNo" value="@Model.EthicsApplication.urecNo" />
 
             <div>
@@ -119,12 +139,12 @@
                         <input type="radio" id="human-subjects-yes" name="humanSubjects" value="yes" onclick="updateFormState(true)" /> Yes
                     </label>
                     <label for="human-subjects-no">
-                        <input type="radio" id="human-subjects-no" name="humanSubjects" value="no" onclick="updateFormState(false)" /> No
+                        <input type="radio" id="human-subjects-no" name="humanSubjects" value="no" onclick="updateFormState(false)" checked /> No
                     </label>
                 </p>
             </div>
 
-            <!-- Minors Question Section (Initially Hidden) -->
+            <!-- Minors Question Section -->
             <div id="minors-question" style="display:none;">
                 <p>
                     <strong>Will the research involve minors?</strong>
@@ -156,115 +176,68 @@
                     <input asp-for="Form10_1" id="form10-1-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
                     <span asp-validation-for="Form10_1" class="text-danger"></span>
                 </div>
-
-                @* will use later if needed the application is returned or the reseach is finished *@
-                @* <div>
-                <label asp-for="Form15">Upload Ethics Form 15 Application for Ethics Review of Amendments:</label>
-                <input asp-for="Form15" id="form15-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
-                <span asp-validation-for="Form15" class="text-danger"></span>
-                </div>
-
-                <div>
-                <label asp-for="Form18">Upload Ethics Form 18 Terminal Report:</label>
-                <input asp-for="Form18" id="form18-file" class="form-control form-control-sm" type="file" accept=".pdf" disabled />
-                <span asp-validation-for="Form18" class="text-danger"></span>
-                </div>
-                *@
             </div>
 
-            <button type="submit" class="btn btn-success mt-2">Submit</button>
+            <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
         </form>
-
     </div>
 </div>
-
 @section Scripts {
+    <script src="~/lib/jquery/jquery.min.js"></script>
     <script>
-        function copyUrecNo() {
-            // Get the UREC No. text
-            var urecNoText = document.getElementById('urecNoText').innerText.replace('UREC No.: ', '');
+        $(document).ready(function () {
+            // Initialize form states based on default selections
+            const humanSubjectsSelected = $('input[name="humanSubjects"]:checked').val();
+            updateFormState(humanSubjectsSelected === "yes");
 
-            // Create a temporary text area to hold the text
-            var tempInput = document.createElement('textarea');
-            tempInput.value = `${urecNoText}`;
+            $('#myForm').on('submit', function () {
+                // Clear validation messages for disabled inputs
+                $('#form11-file, #form12-file, #form10-1-file').siblings('.text-danger').text('');
+            });
+        });
 
-            // Append it to the body
-            document.body.appendChild(tempInput);
-
-            // Select the text in the textarea
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999); // For mobile devices
-
-            // Execute the copy command
-            document.execCommand('copy');
-
-            // Remove the temporary textarea
-            document.body.removeChild(tempInput);
-
-            // Display a success message
-            alert("Copied: UREC No. " + urecNoText);
-        }
-
-        function copyDtsNo() {
-            // Get the DTS No. text
-            var dtsText = document.getElementById('dtsNoText').innerText.replace('DTS No.: ', '');
-
-            // Create a temporary text area to hold the text
-            var tempInput = document.createElement('textarea');
-            tempInput.value = `${dtsText}`;
-
-            // Append it to the body
-            document.body.appendChild(tempInput);
-
-            // Select the text in the textarea
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999); // For mobile devices
-
-            // Execute the copy command
-            document.execCommand('copy');
-
-            // Remove the temporary textarea
-            document.body.removeChild(tempInput);
-
-            // Display a success message
-            alert("Copied: DTS No. " + dtsText);
-        }
         function updateFormState(hasHumanSubjects) {
-            const form11Input = document.getElementById('form11-file');
-            const form10_1Input = document.getElementById('form10-1-file');
-            const minorsQuestionDiv = document.getElementById('minors-question');
-            const form11ValidationMessage = document.querySelector('span[asp-validation-for="Form11"]');
-            const form10_1ValidationMessage = document.querySelector('span[asp-validation-for="Form10_1"]');
-            const form12ValidationMessage = document.querySelector('span[asp-validation-for="Form12"]');
-
-            // Clear all validation messages
-            if (form11ValidationMessage) form11ValidationMessage.textContent = '';
-            if (form10_1ValidationMessage) form10_1ValidationMessage.textContent = '';
-            if (form12ValidationMessage) form12ValidationMessage.textContent = '';
-
-            if (hasHumanSubjects) {
-                if (form11Input) form11Input.disabled = false;
-                if (form10_1Input) form10_1Input.disabled = true;
-                if (minorsQuestionDiv) minorsQuestionDiv.style.display = 'block';
+            $('#minors-question').toggle(hasHumanSubjects);
+            if (!hasHumanSubjects) {
+                // No human subjects involved
+                $('#form10-1-file').prop('disabled', false); // Enable Form 10.1
+                $('#form11-file, #form12-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Forms 11 and 12
             } else {
-                if (form11Input) form11Input.disabled = true;
-                if (form10_1Input) form10_1Input.disabled = false;
-                if (minorsQuestionDiv) minorsQuestionDiv.style.display = 'none';
+                // Human subjects involved
+                $('#form10-1-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Form 10.1
+                $('#form11-file').prop('disabled', false); // Enable Form 11
+                $('#form12-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Form 12 initially
+
+                // Check if minors are involved
+                const minorsSelected = $('input[name="involvesMinors"]:checked').val();
+                if (minorsSelected === "yes") {
+                    $('#form12-file').prop('disabled', false); // Enable Form 12 if minors are involved
+                }
             }
         }
 
         function updateFormStateWithMinors(involvesMinors) {
-            const form12Input = document.getElementById('form12-file');
-            const form12ValidationMessage = document.querySelector('span[asp-validation-for="Form12"]');
-
-            // Clear validation message for Form12
-            if (form12ValidationMessage) form12ValidationMessage.textContent = '';
-
             if (involvesMinors) {
-                if (form12Input) form12Input.disabled = false;
+                // If it involves minors, enable Form 12
+                $('#form12-file').prop('disabled', false);
             } else {
-                if (form12Input) form12Input.disabled = true;
+                // If it does not involve minors, keep Form 12 disabled
+                $('#form12-file').prop('disabled', true).val('').siblings('.text-danger').text('');
             }
+        }
+
+        function copyUrecNo() {
+            const urecNo = document.getElementById("urecNoText").innerText.split(': ')[1];
+            navigator.clipboard.writeText(urecNo).then(() => {
+                alert("UREC No. copied to clipboard!");
+            });
+        }
+
+        function copyDtsNo() {
+            const dtsNo = document.getElementById("dtsNoText").innerText.split(': ')[1];
+            navigator.clipboard.writeText(dtsNo).then(() => {
+                alert("DTS No. copied to clipboard!");
+            });
         }
     </script>
 }
