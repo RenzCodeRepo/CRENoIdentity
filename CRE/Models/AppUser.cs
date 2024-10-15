@@ -16,8 +16,8 @@ namespace CRE.Models
         public string type { get; set; } //internal and external
 
         //navigation properties
-        public Faculty Faculty { get; set; }
-        public Chief Chief { get; set; }
+        public Faculty? Faculty { get; set; }
+        public Chief? Chief { get; set; }
         public ICollection<EthicsApplication> EthicsApplication { get; set; } = new List<EthicsApplication>();
         public ICollection<EthicsApplicationLog> EthicsApplicationLog { get; set; } = new List<EthicsApplicationLog>();
         public ICollection<NonFundedResearchInfo> NonFundedResearchInfo { get; set; } = new List<NonFundedResearchInfo>(); // Collection of research projects

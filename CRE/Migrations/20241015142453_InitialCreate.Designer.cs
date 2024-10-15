@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241015064900_InitialCreate")]
+    [Migration("20241015142453_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1090,15 +1090,13 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.AppUser", b =>
                 {
-                    b.Navigation("Chief")
-                        .IsRequired();
+                    b.Navigation("Chief");
 
                     b.Navigation("EthicsApplication");
 
                     b.Navigation("EthicsApplicationLog");
 
-                    b.Navigation("Faculty")
-                        .IsRequired();
+                    b.Navigation("Faculty");
 
                     b.Navigation("NonFundedResearchInfo");
                 });

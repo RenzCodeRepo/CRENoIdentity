@@ -14,9 +14,29 @@ builder.Services.AddControllersWithViews()
     {
         options.HtmlHelperOptions.ClientValidationEnabled = true; // Enable client-side validation
     });
-builder.Services.AddIdentity<AppUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+
+// Configure Identity with AppUser and IdentityRole
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+{
+    // Optionally configure password and user options here
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 6;
+    options.SignIn.RequireConfirmedAccount = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+// Configure authentication cookie settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/User/Login";
+    options.AccessDeniedPath = "/User/AccessDenied"; 
+});
+
+// Add application services
 builder.Services.AddScoped<IChairpersonServices, ChairpersonServices>();
 builder.Services.AddScoped<IChiefServices, ChiefServices>();
 builder.Services.AddScoped<ICompletionCertificateServices, CompletionCertificateServices>();
@@ -37,6 +57,7 @@ builder.Services.AddScoped<IReceiptInfoServices, ReceiptInfoServices>();
 builder.Services.AddScoped<ISecretariatServices, SecretariatServices>();
 builder.Services.AddScoped<IUserServices, UserServices>();
 
+// Configure the database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -44,6 +65,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+// Seed data if specified
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
     Seed.SeedDataAsync(app);
@@ -53,7 +75,6 @@ if (args.Length == 1 && args[0].ToLower() == "seeddata")
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -62,6 +83,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Ensure authentication middleware is included
+app.UseAuthentication(); // Added for authentication
 app.UseAuthorization();
 
 app.MapControllerRoute(

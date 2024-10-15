@@ -1087,15 +1087,13 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.AppUser", b =>
                 {
-                    b.Navigation("Chief")
-                        .IsRequired();
+                    b.Navigation("Chief");
 
                     b.Navigation("EthicsApplication");
 
                     b.Navigation("EthicsApplicationLog");
 
-                    b.Navigation("Faculty")
-                        .IsRequired();
+                    b.Navigation("Faculty");
 
                     b.Navigation("NonFundedResearchInfo");
                 });
