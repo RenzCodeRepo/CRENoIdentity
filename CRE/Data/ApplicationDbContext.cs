@@ -30,7 +30,7 @@ namespace CRE.Data
         public DbSet<InitialReview> InitialReview { get; set; }
         public DbSet<ReceiptInfo> ReceiptInfo { get; set; }
         public DbSet<Secretariat> Secretariat { get; set; }
-        public DbSet<AppUser> User { get; set; }
+        public DbSet<AppUser> AppUser { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,13 +65,13 @@ namespace CRE.Data
 
             // Existing relationships should stay the same
             modelBuilder.Entity<NonFundedResearchInfo>()
-                .HasOne(g => g.User)
+                .HasOne(g => g.AppUser)
                 .WithMany(u => u.NonFundedResearchInfo)
                 .HasForeignKey(g => g.userId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<EthicsApplicationLog>()
-                .HasOne(e => e.User)
+                .HasOne(e => e.AppUser)
                 .WithMany(u => u.EthicsApplicationLog)
                 .HasForeignKey(e => e.userId)
                 .OnDelete(DeleteBehavior.NoAction);

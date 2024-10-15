@@ -27,15 +27,26 @@ namespace CRE.Controllers
         }
 
         // Login action
+        
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                // Find user by email
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user == null)
+                {
+                    // If no user found, show error message
+                    ModelState.AddModelError(string.Empty, "no user login attempt.");
+                    return View(model);
+                }
+
+                // Sign in the user
+                var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    var user = await _userManager.FindByEmailAsync(model.Email);
                     var roles = await _userManager.GetRolesAsync(user);
 
                     if (roles.Any(role =>
@@ -45,17 +56,21 @@ namespace CRE.Controllers
                         role == UserRoles.Secretariat ||
                         role == UserRoles.Chairperson))
                     {
-                        return RedirectToAction("UserDashboard", "Home");
+                        return RedirectToAction("Index", "Home");
                     }
                     else
                     {
                         return RedirectToAction("AccessDenied", "User");
                     }
                 }
+
+                // If we got here, the login attempt failed
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
+
             return View(model);
         }
+
 
         [AllowAnonymous]
         public IActionResult AccessDenied()

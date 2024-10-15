@@ -52,63 +52,67 @@ namespace CRE.Data
 
                 context.Database.EnsureCreated();
 
-
                 List<AppUser> users = new List<AppUser>();
-                if (!context.User.Any())
+                if (!context.AppUser.Any()) // Ensure this matches your DbSet name
                 {
                     var passwordHasher = new PasswordHasher<AppUser>();
-                    // Initialize the list of users with Email and PasswordHash
-                    users = new List<AppUser>
-                {
-                    new AppUser { fName = "Renz Niño", mName = "S", lName = "Baladjay Internal", type = "internal", Email = "renzbaladjay25@gmail.com" },
-                    new AppUser { fName = "Renz Niño", mName = "S", lName = "Baladjay External", type = "external", Email = "baladjaygaming12@gmail.com" },
-                    new AppUser { fName = "Elena", mName = "N", lName = "Fa-ed", type = "internal", Email = "elena.fa-ed@example.com" },
-                    new AppUser { fName = "Carlos", mName = "E", lName = "Ramos", type = "internal", Email = "carlos.ramos@example.com"  },
-                    new AppUser { fName = "David", mName = "A", lName = "Gonzales", type = "internal", Email = "david.gonzales@example.com"  },
-                    new AppUser { fName = "Eva", mName = "M", lName = "Mendez", type = "internal", Email = "eva.mendez@example.com"  },
-                    new AppUser { fName = "Francisco", mName = "J", lName = "Lopez", type = "internal", Email = "francisco.lopez@example.com"  },
-                    new AppUser { fName = "Gina", mName = "R", lName = "Garcia", type = "internal", Email = "gina.garcia@example.com"  },
-                    new AppUser { fName = "Hector", mName = "E", lName = "Bautista", type = "internal", Email = "hector.bautista@example.com"  },
-                    new AppUser { fName = "Irene", mName = "C", lName = "De Guzman", type = "internal", Email = "irene.deguzman@example.com"  },
-                    new AppUser { fName = "Jose", mName = "P", lName = "Morales", type = "internal", Email = "jose.morales@example.com"  },
-                    new AppUser { fName = "Katrina", mName = "J", lName = "Cruz", type = "internal", Email = "katrina.cruz@example.com"  },
-                    new AppUser { fName = "Leon", mName = "A", lName = "Alvarez", type = "internal", Email = "leon.alvarez@example.com"  },
-                    new AppUser { fName = "Mila", mName = "I", lName = "Villanueva", type = "internal", Email = "mila.villanueva@example.com"  },
-                    new AppUser { fName = "Nina", mName = "E", lName = "Tan", type = "internal", Email = "nina.tan@example.com"  },
-                    new AppUser { fName = "Omar", mName = "M", lName = "Reyes", type = "internal", Email = "omar.reyes@example.com"  },
-                    new AppUser { fName = "Pedro", mName = "F", lName = "Santiago", type = "internal", Email = "pedro.santiago@example.com"  },
-                    new AppUser { fName = "Quincy", mName = "R", lName = "Pineda", type = "internal", Email = "quincy.pineda@example.com"  },
-                    new AppUser { fName = "Ruby", mName = "A", lName = "Delos Santos", type = "internal", Email = "ruby.delossantos@example.com"  },
-                    new AppUser { fName = "Samuel", mName = "D", lName = "Bacalso", type = "internal", Email = "samuel.bacalso@example.com"  },
-                    new AppUser { fName = "Tina", mName = "C", lName = "Silva", type = "internal", Email = "tina.silva@example.com"  },
-                    new AppUser { fName = "Ulysses", mName = "J", lName = "Lim", type = "internal", Email = "ulysses.lim@example.com"  },
-                    new AppUser { fName = "Dante", mName = "R", lName = "Ponce", type = "internal", Email = "dante.ponce@example.com"  },
-                    new AppUser { fName = "Liza", mName = "C", lName = "Neri", type = "internal", Email = "liza.neri@example.com"  },
-                    new AppUser { fName = "Lucas", mName = "G", lName = "Martinez", type = "internal", Email = "lucas.martinez@example.com"  },
-                    new AppUser { fName = "Sofia", mName = "L", lName = "Villanueva", type = "internal", Email = "sofia.villanueva@example.com"  },
-                    new AppUser { fName = "Michael", mName = "K", lName = "Fernandez", type = "internal", Email = "michael.fernandez@example.com"  },
-                    new AppUser { fName = "Aria", mName = "M", lName = "Palacios", type = "internal", Email = "aria.palacios@example.com"  },
-                    new AppUser { fName = "Bruno", mName = "H", lName = "Diaz", type = "internal", Email = "bruno.diaz@example.com"  },
-                    new AppUser { fName = "Claudia", mName = "C", lName = "Ortega", type = "internal", Email = "claudia.ortega@example.com"  },
-                    new AppUser { fName = "Daniel", mName = "J", lName = "Navarro", type = "internal", Email = "daniel.navarro@example.com"  },
-                    new AppUser { fName = "Elisa", mName = "F", lName = "Garcia", type = "internal", Email = "elisa.garcia@example.com"  },
-                    new AppUser { fName = "Marco", mName = "A", lName = "Xavier", type = "external", Email = "marco.xavier@example.com"  },
-                    new AppUser { fName = "Maya", mName = "E", lName = "Yu", type = "external", Email = "maya.yu@example.com"  },
-                    new AppUser { fName = "Clara", mName = "S", lName = "Zamora", type = "external", Email = "clara.zamora@example.com"  },
-                    new AppUser { fName = "Felix", mName = "Q", lName = "Torres", type = "external", Email = "felix.torres@example.com"  },
-                    new AppUser { fName = "Julie Charmain", mName = "O", lName = "Bonifacio", type = "internal", Email = "julie.bonifacio@example.com"  }
-                };
 
+                    users = new List<AppUser>
+                    {
+                        new AppUser { fName = "Renz Niño", mName = "S", lName = "Baladjay Internal", type = "internal", Email = "renzbaladjay25@gmail.com", UserName = "renzbaladjay25@gmail.com", NormalizedUserName = "RENZBALADJAY25@GMAIL.COM", NormalizedEmail = "RENZBALADJAY25@GMAIL.COM" },
+                        new AppUser { fName = "Renz Niño", mName = "S", lName = "Baladjay External", type = "external", Email = "baladjaygaming12@gmail.com", UserName = "baladjaygaming12@gmail.com", NormalizedUserName = "BALADJAYGAMING12@GMAIL.COM", NormalizedEmail = "BALADJAYGAMING12@GMAIL.COM" },
+                        new AppUser { fName = "Elena", mName = "N", lName = "Fa-ed", type = "internal", Email = "elena.fa-ed@example.com", UserName = "elena.fa-ed@example.com", NormalizedUserName = "ELENA.FA-ED@EXAMPLE.COM", NormalizedEmail = "ELENA.FA-ED@EXAMPLE.COM" },
+                        new AppUser { fName = "Carlos", mName = "E", lName = "Ramos", type = "internal", Email = "carlos.ramos@example.com", UserName = "carlos.ramos@example.com", NormalizedUserName = "CARLOS.RAMOS@EXAMPLE.COM", NormalizedEmail = "CARLOS.RAMOS@EXAMPLE.COM" },
+                        new AppUser { fName = "David", mName = "A", lName = "Gonzales", type = "internal", Email = "david.gonzales@example.com", UserName = "david.gonzales@example.com", NormalizedUserName = "DAVID.GONZALES@EXAMPLE.COM", NormalizedEmail = "DAVID.GONZALES@EXAMPLE.COM" },
+                        new AppUser { fName = "Eva", mName = "M", lName = "Mendez", type = "internal", Email = "eva.mendez@example.com", UserName = "eva.mendez@example.com", NormalizedUserName = "EVA.MENDEZ@EXAMPLE.COM", NormalizedEmail = "EVA.MENDEZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Francisco", mName = "J", lName = "Lopez", type = "internal", Email = "francisco.lopez@example.com", UserName = "francisco.lopez@example.com", NormalizedUserName = "FRANCISCO.LOPEZ@EXAMPLE.COM", NormalizedEmail = "FRANCISCO.LOPEZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Gina", mName = "R", lName = "Garcia", type = "internal", Email = "gina.garcia@example.com", UserName = "gina.garcia@example.com", NormalizedUserName = "GINA.GARCIA@EXAMPLE.COM", NormalizedEmail = "GINA.GARCIA@EXAMPLE.COM" },
+                        new AppUser { fName = "Hector", mName = "E", lName = "Bautista", type = "internal", Email = "hector.bautista@example.com", UserName = "hector.bautista@example.com", NormalizedUserName = "HECTOR.BAUTISTA@EXAMPLE.COM", NormalizedEmail = "HECTOR.BAUTISTA@EXAMPLE.COM" },
+                        new AppUser { fName = "Irene", mName = "C", lName = "De Guzman", type = "internal", Email = "irene.deguzman@example.com", UserName = "irene.deguzman@example.com", NormalizedUserName = "IRENE.DEGUZMAN@EXAMPLE.COM", NormalizedEmail = "IRENE.DEGUZMAN@EXAMPLE.COM" },
+                        new AppUser { fName = "Jose", mName = "P", lName = "Morales", type = "internal", Email = "jose.morales@example.com", UserName = "jose.morales@example.com", NormalizedUserName = "JOSE.MORALES@EXAMPLE.COM", NormalizedEmail = "JOSE.MORALES@EXAMPLE.COM" },
+                        new AppUser { fName = "Katrina", mName = "J", lName = "Cruz", type = "internal", Email = "katrina.cruz@example.com", UserName = "katrina.cruz@example.com", NormalizedUserName = "KATRINA.CRUZ@EXAMPLE.COM", NormalizedEmail = "KATRINA.CRUZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Leon", mName = "A", lName = "Alvarez", type = "internal", Email = "leon.alvarez@example.com", UserName = "leon.alvarez@example.com", NormalizedUserName = "LEON.ALVAREZ@EXAMPLE.COM", NormalizedEmail = "LEON.ALVAREZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Mila", mName = "I", lName = "Villanueva", type = "internal", Email = "mila.villanueva@example.com", UserName = "mila.villanueva@example.com", NormalizedUserName = "MILA.VILLANUEVA@EXAMPLE.COM", NormalizedEmail = "MILA.VILLANUEVA@EXAMPLE.COM" },
+                        new AppUser { fName = "Nina", mName = "E", lName = "Tan", type = "internal", Email = "nina.tan@example.com", UserName = "nina.tan@example.com", NormalizedUserName = "NINA.TAN@EXAMPLE.COM", NormalizedEmail = "NINA.TAN@EXAMPLE.COM" },
+                        new AppUser { fName = "Omar", mName = "M", lName = "Reyes", type = "internal", Email = "omar.reyes@example.com", UserName = "omar.reyes@example.com", NormalizedUserName = "OMAR.REYES@EXAMPLE.COM", NormalizedEmail = "OMAR.REYES@EXAMPLE.COM" },
+                        new AppUser { fName = "Pedro", mName = "F", lName = "Santiago", type = "internal", Email = "pedro.santiago@example.com", UserName = "pedro.santiago@example.com", NormalizedUserName = "PEDRO.SANTIAGO@EXAMPLE.COM", NormalizedEmail = "PEDRO.SANTIAGO@EXAMPLE.COM" },
+                        new AppUser { fName = "Quincy", mName = "R", lName = "Pineda", type = "internal", Email = "quincy.pineda@example.com", UserName = "quincy.pineda@example.com", NormalizedUserName = "QUINCY.PINEDA@EXAMPLE.COM", NormalizedEmail = "QUINCY.PINEDA@EXAMPLE.COM" },
+                        new AppUser { fName = "Ruby", mName = "A", lName = "Delos Santos", type = "internal", Email = "ruby.delossantos@example.com", UserName = "ruby.delossantos@example.com", NormalizedUserName = "RUBY.DELOSSANTOS@EXAMPLE.COM", NormalizedEmail = "RUBY.DELOSSANTOS@EXAMPLE.COM" },
+                        new AppUser { fName = "Samuel", mName = "D", lName = "Bacalso", type = "internal", Email = "samuel.bacalso@example.com", UserName = "samuel.bacalso@example.com", NormalizedUserName = "SAMUEL.BACALSO@EXAMPLE.COM", NormalizedEmail = "SAMUEL.BACALSO@EXAMPLE.COM" },
+                        new AppUser { fName = "Tina", mName = "C", lName = "Silva", type = "internal", Email = "tina.silva@example.com", UserName = "tina.silva@example.com", NormalizedUserName = "TINA.SILVA@EXAMPLE.COM", NormalizedEmail = "TINA.SILVA@EXAMPLE.COM" },
+                        new AppUser { fName = "Ulysses", mName = "J", lName = "Lim", type = "internal", Email = "ulysses.lim@example.com", UserName = "ulysses.lim@example.com", NormalizedUserName = "ULYSSES.LIM@EXAMPLE.COM", NormalizedEmail = "ULYSSES.LIM@EXAMPLE.COM" },
+                        new AppUser { fName = "Dante", mName = "R", lName = "Ponce", type = "internal", Email = "dante.ponce@example.com", UserName = "dante.ponce@example.com", NormalizedUserName = "DANTE.PONCE@EXAMPLE.COM", NormalizedEmail = "DANTE.PONCE@EXAMPLE.COM" },
+                        new AppUser { fName = "Liza", mName = "C", lName = "Neri", type = "internal", Email = "liza.neri@example.com", UserName = "liza.neri@example.com", NormalizedUserName = "LIZA.NERI@EXAMPLE.COM", NormalizedEmail = "LIZA.NERI@EXAMPLE.COM" },
+                        new AppUser { fName = "Lucas", mName = "G", lName = "Martinez", type = "internal", Email = "lucas.martinez@example.com", UserName = "lucas.martinez@example.com", NormalizedUserName = "LUCAS.MARTINEZ@EXAMPLE.COM", NormalizedEmail = "LUCAS.MARTINEZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Sofia", mName = "L", lName = "Villanueva", type = "internal", Email = "sofia.villanueva@example.com", UserName = "sofia.villanueva@example.com", NormalizedUserName = "SOFIA.VILLANUEVA@EXAMPLE.COM", NormalizedEmail = "SOFIA.VILLANUEVA@EXAMPLE.COM" },
+                        new AppUser { fName = "Michael", mName = "K", lName = "Fernandez", type = "internal", Email = "michael.fernandez@example.com", UserName = "michael.fernandez@example.com", NormalizedUserName = "MICHAEL.FERNANDEZ@EXAMPLE.COM", NormalizedEmail = "MICHAEL.FERNANDEZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Aria", mName = "M", lName = "Palacios", type = "internal", Email = "aria.palacios@example.com", UserName = "aria.palacios@example.com", NormalizedUserName = "ARIA.PALACIOS@EXAMPLE.COM", NormalizedEmail = "ARIA.PALACIOS@EXAMPLE.COM" },
+                        new AppUser { fName = "Bruno", mName = "H", lName = "Diaz", type = "internal", Email = "bruno.diaz@example.com", UserName = "bruno.diaz@example.com", NormalizedUserName = "BRUNO.DIAZ@EXAMPLE.COM", NormalizedEmail = "BRUNO.DIAZ@EXAMPLE.COM" },
+                        new AppUser { fName = "Claudia", mName = "C", lName = "Ortega", type = "internal", Email = "claudia.ortega@example.com", UserName = "claudia.ortega@example.com", NormalizedUserName = "CLAUDIA.ORTEGA@EXAMPLE.COM", NormalizedEmail = "CLAUDIA.ORTEGA@EXAMPLE.COM" },
+                        new AppUser { fName = "Daniel", mName = "J", lName = "Navarro", type = "internal", Email = "daniel.navarro@example.com", UserName = "daniel.navarro@example.com", NormalizedUserName = "DANIEL.NAVARRO@EXAMPLE.COM", NormalizedEmail = "DANIEL.NAVARRO@EXAMPLE.COM" },
+                        new AppUser { fName = "Elisa", mName = "F", lName = "Garcia", type = "internal", Email = "elisa.garcia@example.com", UserName = "elisa.garcia@example.com", NormalizedUserName = "ELISA.GARCIA@EXAMPLE.COM", NormalizedEmail = "ELISA.GARCIA@EXAMPLE.COM" },
+                        new AppUser { fName = "Marco", mName = "A", lName = "Xavier", type = "external", Email = "marco.xavier@example.com", UserName = "marco.xavier@example.com", NormalizedUserName = "MARCO.XAVIER@EXAMPLE.COM", NormalizedEmail = "MARCO.XAVIER@EXAMPLE.COM" },
+                        new AppUser { fName = "Maya", mName = "E", lName = "Yu", type = "external", Email = "maya.yu@example.com", UserName = "maya.yu@example.com", NormalizedUserName = "MAYA.YU@EXAMPLE.COM", NormalizedEmail = "MAYA.YU@EXAMPLE.COM" },
+                        new AppUser { fName = "Clara", mName = "S", lName = "Zamora", type = "external", Email = "clara.zamora@example.com", UserName = "clara.zamora@example.com", NormalizedUserName = "CLARA.ZAMORA@EXAMPLE.COM", NormalizedEmail = "CLARA.ZAMORA@EXAMPLE.COM" },
+                        new AppUser { fName = "Felix", mName = "Q", lName = "Torres", type = "external", Email = "felix.torres@example.com", UserName = "felix.torres@example.com", NormalizedUserName = "FELIX.TORRES@EXAMPLE.COM", NormalizedEmail = "FELIX.TORRES@EXAMPLE.COM" },
+                        new AppUser { fName = "Julie Charmain", mName = "O", lName = "Bonifacio", type = "internal", Email = "julie.bonifacio@example.com", UserName = "julie.bonifacio@example.com", NormalizedUserName = "JULIE.BONIFACIO@EXAMPLE.COM", NormalizedEmail = "JULIE.BONIFACIO@EXAMPLE.COM" }
+                    };
+
+                    // Hash passwords for all users
                     foreach (var user in users)
                     {
-                        user.PasswordHash = passwordHasher.HashPassword(user, "password123"); // Replace with desired password
+                        user.PasswordHash = passwordHasher.HashPassword(user, "password123"); // Set password
                     }
-                    foreach (var user in users)
-                    {
-                        await AssignRolesBasedOnFullName(userManager, user);
-                    }
-                    context.User.AddRange(users);
+
+                    // Save users to the database
+                    context.AppUser.AddRange(users);
                     context.SaveChanges(); // Save to get the IDs of the added users
+
+                    // Assign roles after saving the users
+                    foreach (var user in users)
+                    {
+                        await AssignRolesBasedOnFullName(userManager, user); // Ensure this method is defined correctly
+                    }
                 }
 
                 if (!context.Faculty.Any())
@@ -239,7 +243,7 @@ namespace CRE.Data
                 // Seed EthicsEvaluatorExpertise with specific expertise assignments
                 if (!context.EthicsEvaluatorExpertise.Any())
                 {
-                   var ethicsEvaluatorExpertises = new List<EthicsEvaluatorExpertise> {
+                    var ethicsEvaluatorExpertises = new List<EthicsEvaluatorExpertise> {
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 1, expertiseId = 1 }, // Faculty 1 -> Education
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 2, expertiseId = 2 }, // Faculty 2 -> Computer Science
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 3, expertiseId = 3 }, // Faculty 11 -> Engineering
@@ -420,6 +424,6 @@ namespace CRE.Data
                 }
             }
         }
-       
+
     }
 }

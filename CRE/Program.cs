@@ -22,7 +22,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
     options.SignIn.RequireConfirmedAccount = false;
 })
@@ -33,7 +33,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/AppUser/Login";
-    options.AccessDeniedPath = "/AppUser/AccessDenied"; 
+    options.AccessDeniedPath = "/AppUser/AccessDenied";
 });
 
 // Add application services

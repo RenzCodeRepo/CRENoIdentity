@@ -874,15 +874,15 @@ namespace CRE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CRE.Models.AppUser", "User")
+                    b.HasOne("CRE.Models.AppUser", "AppUser")
                         .WithMany("EthicsApplicationLog")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("EthicsApplication");
+                    b.Navigation("AppUser");
 
-                    b.Navigation("User");
+                    b.Navigation("EthicsApplication");
                 });
 
             modelBuilder.Entity("CRE.Models.EthicsClearance", b =>
@@ -997,19 +997,19 @@ namespace CRE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CRE.Models.AppUser", "User")
+                    b.HasOne("CRE.Models.AppUser", "AppUser")
                         .WithMany("NonFundedResearchInfo")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("CompletionCertificate");
 
                     b.Navigation("EthicsApplication");
 
                     b.Navigation("EthicsClearance");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CRE.Models.ReceiptInfo", b =>

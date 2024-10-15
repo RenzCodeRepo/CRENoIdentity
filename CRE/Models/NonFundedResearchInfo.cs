@@ -19,7 +19,7 @@ namespace CRE.Models
         [ForeignKey(nameof(CompletionCertificate))]
         public int? completionCertId { get; set; }
 
-        [ForeignKey(nameof(User))]
+        [ForeignKey(nameof(AppUser))]
         [Display(Name = "Project Proponent: ")]
         public string userId { get; set; }
 
@@ -49,7 +49,7 @@ namespace CRE.Models
         public DateOnly? completion_Date { get; set; }
 
         // Navigation Properties
-        public AppUser User { get; set; }
+        public AppUser AppUser { get; set; }
         public EthicsApplication EthicsApplication { get; set; }
         public EthicsClearance EthicsClearance { get; set; }
         public CompletionCertificate CompletionCertificate { get; set; }

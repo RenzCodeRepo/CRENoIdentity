@@ -13,7 +13,7 @@ namespace CRE.Models
         [ForeignKey(nameof(EthicsApplication))]
         public string urecNo { get; set; }
 
-        [ForeignKey(nameof(User))]
+        [ForeignKey(nameof(AppUser))]
         public string userId { get; set; }
 
         // Required Fields
@@ -28,6 +28,6 @@ namespace CRE.Models
 
         // Navigation Properties
         public EthicsApplication EthicsApplication { get; set; }
-        public AppUser User { get; set; }
+        public AppUser AppUser { get; set; }
     }
 }

@@ -91,7 +91,7 @@ namespace CRE.Controllers
             // Retrieve the development user ID from configuration
             var devUserIdString = _configuration["DevelopmentUserId"];
 
-            if (int.TryParse(devUserIdString, out int devUserId))
+            if (!int.TryParse(devUserIdString, out int devUserId))
             {
                 // Fetch the user record from the service asynchronously
                 var user = await _userServices.GetByIdAsync(devUserId);
