@@ -9,7 +9,7 @@ namespace CRE.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int facultyId { get; set; }
         [ForeignKey(nameof(User))]
-        public int userId { get; set; }
+        public string userId { get; set; }
         [Required]
         public string? userType { get; set; }
         [Required]
@@ -17,7 +17,7 @@ namespace CRE.Models
 
 
         //navigation properties
-        public User User { get; set; }
+        public AppUser User { get; set; }
         public Secretariat Secretariat { get; set; }
         public Chairperson Chairperson { get; set; }
         public EthicsEvaluator EthicsEvaluator { get; set; }

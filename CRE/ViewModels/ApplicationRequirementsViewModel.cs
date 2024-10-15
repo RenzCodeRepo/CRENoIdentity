@@ -7,7 +7,7 @@ namespace CRE.ViewModels
 {
     public class ApplicationRequirementsViewModel
     {
-        public User User { get; set; }
+        public AppUser User { get; set; }
         public EthicsApplication EthicsApplication { get; set; }
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
         public IEnumerable<EthicsApplicationForms> EthicsApplicationForms { get; set; }

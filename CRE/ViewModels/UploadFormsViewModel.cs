@@ -9,7 +9,7 @@ namespace CRE.ViewModels
     public class UploadFormsViewModel
     {
         public EthicsApplication EthicsApplication { get; set; }
-        public User User { get; set; }
+        public AppUser User { get; set; }
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
         public IEnumerable<EthicsApplicationForms> EthicsApplicationForms { get; set; } // List for multiple forms
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; } // For new logs when uploading the forms

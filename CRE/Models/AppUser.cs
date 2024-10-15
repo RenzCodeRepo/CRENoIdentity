@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace CRE.Models
 {
-    public class User
+    public class AppUser : IdentityUser
     {
-        [Key]
-        public int userId { get; set; }
 
         [Required, StringLength(30)]
         public string fName { get; set; }

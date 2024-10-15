@@ -8,7 +8,7 @@ namespace CRE.Models
         [Key]
         public int chiefId { get; set; }
         [ForeignKey(nameof(User))]
-        public int userId { get; set; }
+        public string userId { get; set; }
         [Required]
         public string center { get; set; }
 
@@ -16,6 +16,6 @@ namespace CRE.Models
 
         //navigation properties
         public ICollection<InitialReview> InitialReview { get; set; } = new List<InitialReview>();
-        public User User { get; set; }
+        public AppUser User { get; set; }
     }
 }

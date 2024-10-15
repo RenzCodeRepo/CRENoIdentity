@@ -9,7 +9,7 @@ namespace CRE.Models
         [Display(Name = "UREC NO.")]
         public string urecNo { get; set; }
         [ForeignKey(nameof(User))]
-        public int userId { get; set; }
+        public string userId { get; set; }
         [Required]
         public DateOnly submissionDate { get; set; }
         public string? dtsNo { get; set; }
@@ -19,7 +19,7 @@ namespace CRE.Models
 
         //navigation properties
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
-        public User User { get; set; }
+        public AppUser User { get; set; }
         public ReceiptInfo ReceiptInfo { get; set; }
         public InitialReview InitialReview { get; set; }
         public ICollection<EthicsApplicationLog> EthicsApplicationLog { get; set; } = new List<EthicsApplicationLog>();

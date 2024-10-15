@@ -100,9 +100,9 @@ namespace CRE.Controllers
                     // Create an instance of the ViewModel
                     var model = new ApplyEthicsViewModel
                     {
-                        User = new User
+                        User = new AppUser
                         {
-                            userId = user.userId,
+                            //userId = user.userId,
                             fName = user.fName,
                             mName = user.mName,
                             lName = user.lName,
@@ -110,12 +110,12 @@ namespace CRE.Controllers
                         },
                         EthicsApplication = new EthicsApplication
                         {
-                            userId = user.userId
+                            //userId = user.userId
                         },
                         EthicsApplicationLog = new List<EthicsApplicationLog>(),
                         NonFundedResearchInfo = new NonFundedResearchInfo
                         {
-                            userId = user.userId
+                            //userId = user.userId
                         },
                         CoProponent = new List<CoProponent>() // Start with an empty list
                     };
@@ -165,15 +165,15 @@ namespace CRE.Controllers
                 return View(model);
             }
 
-            var userExists = await _userServices.UserExistsAsync(devUserId);
-            if (!userExists)
+            //var userExists = await _userServices.UserExistsAsync(devUserId);
+            //if (!userExists)
+            //{
+            //    ModelState.AddModelError("", "User ID does not exist.");
+            //    return View(model);
+            //}
+            model.User = new AppUser
             {
-                ModelState.AddModelError("", "User ID does not exist.");
-                return View(model);
-            }
-            model.User = new User
-            {
-                userId = user.userId,
+                //userId = user.userId,
                 fName = user.fName,
                 mName = user.mName,
                 lName = user.lName,
@@ -194,12 +194,12 @@ namespace CRE.Controllers
 
             var ethicsApplication = model.EthicsApplication;
             ethicsApplication.urecNo = await _ethicsApplicationServices.GenerateUrecNoAsync();
-            ethicsApplication.userId = devUserId;
+            //ethicsApplication.userId = devUserId;
             ethicsApplication.submissionDate = DateOnly.FromDateTime(DateTime.Now);
 
             var nonFundedResearchInfo = model.NonFundedResearchInfo;
             nonFundedResearchInfo.nonFundedResearchId = await _nonFundedResearchInfoServices.GenerateNonFundedResearchIdAsync();
-            nonFundedResearchInfo.userId = devUserId;
+            //nonFundedResearchInfo.userId = devUserId;
             nonFundedResearchInfo.urecNo = ethicsApplication.urecNo;
             nonFundedResearchInfo.dateSubmitted = DateTime.Now;
 
@@ -207,7 +207,7 @@ namespace CRE.Controllers
             var ethicsApplyLog = new EthicsApplicationLog
             {
                 urecNo = ethicsApplication.urecNo,
-                userId = devUserId,
+                //userId = devUserId,
                 status = "Applied",
                 changeDate = DateTime.Now
             };
@@ -362,9 +362,9 @@ namespace CRE.Controllers
             // Populate ViewModel
             var model = new ApplicationRequirementsViewModel
             {
-                User = new User
+                User = new AppUser
                 {
-                    userId = user.userId,
+                    //userId = user.userId,
                     fName = user.fName,
                     mName = user.mName,
                     lName = user.lName,

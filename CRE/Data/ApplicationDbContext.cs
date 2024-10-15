@@ -1,10 +1,11 @@
 ﻿using CRE.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 
 namespace CRE.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -29,7 +30,7 @@ namespace CRE.Data
         public DbSet<InitialReview> InitialReview { get; set; }
         public DbSet<ReceiptInfo> ReceiptInfo { get; set; }
         public DbSet<Secretariat> Secretariat { get; set; }
-        public DbSet<User> User { get; set; }
+        public DbSet<AppUser> User { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,17 +63,18 @@ namespace CRE.Data
                 .HasForeignKey(ee => ee.expertiseId)
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
 
+            // Existing relationships should stay the same
             modelBuilder.Entity<NonFundedResearchInfo>()
-                .HasOne(g => g.User) // Navigation property in Gen_Info_NF_Research
-                .WithMany(u => u.NonFundedResearchInfo) // Navigation property in User
+                .HasOne(g => g.User)
+                .WithMany(u => u.NonFundedResearchInfo)
                 .HasForeignKey(g => g.userId)
-                .OnDelete(DeleteBehavior.Restrict); // Set delete behavior as required
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<EthicsApplicationLog>()
                 .HasOne(e => e.User)
-                .WithMany(u => u.EthicsApplicationLog) // Adjust based on your actual relationships
+                .WithMany(u => u.EthicsApplicationLog)
                 .HasForeignKey(e => e.userId)
-                .OnDelete(DeleteBehavior.NoAction); // Specify No Action on delete
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<EthicsApplicationLog>()
                 .HasOne(e => e.EthicsApplication)

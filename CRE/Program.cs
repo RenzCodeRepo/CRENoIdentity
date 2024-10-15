@@ -3,6 +3,8 @@ using CRE.Interfaces;
 using CRE.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using CRE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,9 @@ builder.Services.AddControllersWithViews()
     {
         options.HtmlHelperOptions.ClientValidationEnabled = true; // Enable client-side validation
     });
-
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 builder.Services.AddScoped<IChairpersonServices, ChairpersonServices>();
 builder.Services.AddScoped<IChiefServices, ChiefServices>();
 builder.Services.AddScoped<ICompletionCertificateServices, CompletionCertificateServices>();
@@ -42,7 +46,7 @@ var app = builder.Build();
 
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
-    Seed.SeedData(app);
+    Seed.SeedDataAsync(app);
 }
 
 // Configure the HTTP request pipeline.

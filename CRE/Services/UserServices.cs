@@ -13,13 +13,13 @@ namespace CRE.Services
             _context = context;
         }
 
-        public async Task<User> GetByIdAsync(int userId)
+        public async Task<AppUser> GetByIdAsync(int userId)
         {
             return await _context.User.FindAsync(userId); // Retrieve user by user ID
         }
-        public async Task<bool> UserExistsAsync(int userId)
-        {
-            return await _context.User.AnyAsync(u => u.userId == userId); // Assuming UserId is the primary key
-        }
+        //public async Task<bool> UserExistsAsync(int userId)
+        //{
+        //    return await _context.User.AnyAsync(u => u.userId == userId); // Assuming UserId is the primary key
+        //}
     }
 }

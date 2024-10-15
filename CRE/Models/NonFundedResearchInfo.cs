@@ -21,7 +21,7 @@ namespace CRE.Models
 
         [ForeignKey(nameof(User))]
         [Display(Name = "Project Proponent: ")]
-        public int userId { get; set; }
+        public string userId { get; set; }
 
         // Required Fields
         [Required(ErrorMessage ="Title of Research is Required.")]
@@ -49,7 +49,7 @@ namespace CRE.Models
         public DateOnly? completion_Date { get; set; }
 
         // Navigation Properties
-        public User User { get; set; }
+        public AppUser User { get; set; }
         public EthicsApplication EthicsApplication { get; set; }
         public EthicsClearance EthicsClearance { get; set; }
         public CompletionCertificate CompletionCertificate { get; set; }

@@ -80,9 +80,9 @@ namespace CRE.Controllers
             // Populate ViewModel
             var model = new UploadFormsViewModel
             {
-                User = new User
+                User = new AppUser
                 {
-                    userId = user.userId,
+                    //userId = user.userId,
                     fName = user.fName,
                     mName = user.mName,
                     lName = user.lName,
@@ -196,7 +196,7 @@ namespace CRE.Controllers
             var uploadFormLog = new EthicsApplicationLog
             {
                 urecNo = model.EthicsApplication.urecNo,
-                userId = devUserId,
+                //userId = devUserId,
                 status = "Forms Uploaded",
                 changeDate = DateTime.Now
             };
