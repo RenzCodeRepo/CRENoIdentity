@@ -18,7 +18,6 @@ namespace CRE.Controllers
             _configuration = configuration;
             _userManager = userManager; // Initialize UserManager
         }
-
         public async Task<IActionResult> Index()
         {
             // Get the currently logged-in user
@@ -26,18 +25,28 @@ namespace CRE.Controllers
 
             if (user != null)
             {
-                // You can access user information or roles here
+                // Store user information in ViewBag for use in the view
+                ViewBag.User = new
+                {
+                    fName = user.fName,
+                    mName = user.mName,
+                    lName = user.lName,
+                    type = user.type
+                };
+
+                // Get user roles
                 var roles = await _userManager.GetRolesAsync(user);
                 ViewBag.UserRoles = roles; // Store roles in ViewBag for use in the view
-                ViewBag.UserId = user.Id; // Store user ID in ViewBag
             }
             else
             {
                 ViewBag.UserRoles = new List<string>(); // No user logged in
+                ViewBag.User = null; // Clear user data if not logged in
             }
 
             return View();
         }
+
 
         public IActionResult Privacy()
         {

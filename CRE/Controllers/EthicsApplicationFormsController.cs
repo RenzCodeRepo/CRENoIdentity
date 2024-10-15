@@ -11,7 +11,7 @@ namespace CRE.Controllers
         private readonly IConfiguration _configuration;
         private readonly IEthicsApplicationServices _ethicsApplicationServices;
         private readonly INonFundedResearchInfoServices _nonFundedResearchInfoServices;
-        private readonly IUserServices _userServices;
+        private readonly IAppUserServices _userServices;
         private readonly IReceiptInfoServices _receiptInfoServices;
         private readonly IEthicsApplicationLogServices _ethicsApplicationLogServices;
         private readonly ICoProponentServices _coProponentServices;
@@ -21,7 +21,7 @@ namespace CRE.Controllers
             IConfiguration configuration,
             IEthicsApplicationServices ethicsApplicationServices,
             INonFundedResearchInfoServices nonFundedResearchInfoServices,
-            IUserServices userServices,
+            IAppUserServices userServices,
             IReceiptInfoServices receiptInfoServices,
             IEthicsApplicationLogServices ethicsApplicationLogServices,
             ICoProponentServices coProponentServices,

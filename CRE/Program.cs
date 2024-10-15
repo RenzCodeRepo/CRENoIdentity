@@ -32,8 +32,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 // Configure authentication cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/User/Login";
-    options.AccessDeniedPath = "/User/AccessDenied"; 
+    options.LoginPath = "/AppUser/Login";
+    options.AccessDeniedPath = "/AppUser/AccessDenied"; 
 });
 
 // Add application services
@@ -55,7 +55,7 @@ builder.Services.AddScoped<IInitialReviewServices, InitialReviewServices>();
 builder.Services.AddScoped<INonFundedResearchInfoServices, NonFundedResearchInfoServices>();
 builder.Services.AddScoped<IReceiptInfoServices, ReceiptInfoServices>();
 builder.Services.AddScoped<ISecretariatServices, SecretariatServices>();
-builder.Services.AddScoped<IUserServices, UserServices>();
+builder.Services.AddScoped<IAppUserServices, AppUserServices>();
 
 // Configure the database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

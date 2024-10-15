@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRE.Services
 {
-    public class UserServices : IUserServices
+    public class AppUserServices : IAppUserServices
     {
         private readonly ApplicationDbContext _context;
-        public UserServices(ApplicationDbContext context)
+        public AppUserServices(ApplicationDbContext context)
         {
             _context = context;
         }

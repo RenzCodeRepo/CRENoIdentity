@@ -13,7 +13,7 @@ namespace CRE.Controllers
     {
         private readonly IEthicsApplicationServices _ethicsApplicationServices;
         private readonly INonFundedResearchInfoServices _nonFundedResearchInfoServices;
-        private readonly IUserServices _userServices;
+        private readonly IAppUserServices _userServices;
         private readonly IReceiptInfoServices _receiptInfoServices;
         private readonly IEthicsApplicationLogServices _ethicsApplicationLogServices;
         private readonly IConfiguration _configuration;
@@ -30,7 +30,7 @@ namespace CRE.Controllers
         public EthicsApplicationController(
             IEthicsApplicationServices ethicsApplicationServices,
             INonFundedResearchInfoServices nonFundedResearchInfoServices,
-            IUserServices userServices,
+            IAppUserServices userServices,
             IReceiptInfoServices receiptInfoServices,
             IEthicsApplicationLogServices ethicsApplicationLogServices,
             IConfiguration configuration, ICoProponentServices coProponentServices,

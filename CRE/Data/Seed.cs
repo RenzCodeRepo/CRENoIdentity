@@ -172,15 +172,15 @@ namespace CRE.Data
                 {
                     var chairpersons = new List<Chairperson>
                         {
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Renz Niño" && u.lName == "Baladjay Internal").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Renz Niño" && u.lName == "Baladjay External").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Carlos" && u.lName == "Ramos").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "David" && u.lName == "Gonzales").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Eva" && u.lName == "Mendez").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Francisco" && u.lName == "Lopez").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Gina" && u.lName == "Garcia").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Hector" && u.lName == "Bautista").Id).facultyId },
-                            new Chairperson { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Irene" && u.lName == "De Guzman").Id).facultyId }
+                            new Chairperson { facultyId = 1},
+                            new Chairperson { facultyId = 2},
+                            new Chairperson { facultyId = 4},
+                            new Chairperson { facultyId = 5},
+                            new Chairperson { facultyId = 6},
+                            new Chairperson { facultyId = 7},
+                            new Chairperson { facultyId = 8},
+                            new Chairperson { facultyId = 9},
+                            new Chairperson { facultyId = 10}
                         };
 
                     context.Chairperson.AddRange(chairpersons);
@@ -201,80 +201,70 @@ namespace CRE.Data
                     );
                     context.SaveChanges();
                 }
+
+                // Seed Ethics Evaluators
                 if (!context.EthicsEvaluator.Any())
                 {
                     var ethicsEvaluators = new List<EthicsEvaluator>
-                        {
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Renz Niño" && u.lName == "Baladjay Internal").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Renz Niño" && u.lName == "Baladjay External").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Jose" && u.lName == "Morales").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Katrina" && u.lName == "Cruz").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Leon" && u.lName == "Alvarez").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Mila" && u.lName == "Villanueva").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Nina" && u.lName == "Tan").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Omar" && u.lName == "Reyes").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Pedro" && u.lName == "Santiago").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Quincy" && u.lName == "Pineda").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Ruby" && u.lName == "Delos Santos").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Samuel" && u.lName == "Bacalso").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Tina" && u.lName == "Silva").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Ulysses" && u.lName == "Lim").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Dante" && u.lName == "Ponce").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Liza" && u.lName == "Neri").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Lucas" && u.lName == "Martinez").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Sofia" && u.lName == "Villanueva").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Michael" && u.lName == "Fernandez").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Aria" && u.lName == "Palacios").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Bruno" && u.lName == "Diaz").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Claudia" && u.lName == "Ortega").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                            new EthicsEvaluator { facultyId = context.Faculty.First(f => f.userId == users.First(u => u.fName == "Daniel" && u.lName == "Navarro").Id).facultyId, completedEval = 0, pendingEval = 0, declinedAssignment = 0 }
-                        };
+                {
+                    new EthicsEvaluator { facultyId = 1, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 2, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 11, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 12, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 13, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 14, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 15, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 16, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 17, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 18, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 19, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 20, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 21, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 22, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 23, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 24, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 25, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 26, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 27, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 28, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 29, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 30, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 31, completedEval = 0, pendingEval = 0, declinedAssignment = 0 }
+                };
 
                     context.EthicsEvaluator.AddRange(ethicsEvaluators);
                     context.SaveChanges(); // Save the ethics evaluator records
                 }
 
-
+                // Seed EthicsEvaluatorExpertise with specific expertise assignments
                 if (!context.EthicsEvaluatorExpertise.Any())
                 {
-                    var expertiseAssignments = new List<(int evaluatorId, List<int> expertiseIds)>
-                        {
-                            (1, new List<int> { 1, 2 }), // Renz Niño Internal - Education, Computer Science
-                            (2, new List<int> { 3, 5 }), // Renz Niño External - Engineering, Business
-                            (3, new List<int> { 4, 6 }), // Jose Morales - Humanities, Social Sciences
-                            (4, new List<int> { 1, 2 }), // Katrina Cruz - Education, Computer Science
-                            (5, new List<int> { 3, 4 }), // Leon Alvarez - Engineering, Humanities
-                            (6, new List<int> { 5, 7 }), // Mila Villanueva - Business, Science
-                            (7, new List<int> { 1, 6 }), // Nina Tan - Education, Social Sciences
-                            (8, new List<int> { 2, 3 }), // Omar Reyes - Computer Science, Engineering
-                            (9, new List<int> { 4, 5 }), // Pedro Santiago - Humanities, Business
-                            (10, new List<int> { 1, 2 }), // Quincy Pineda - Education, Computer Science
-                            (11, new List<int> { 3, 4 }), // Ruby Delos Santos - Engineering, Humanities
-                            (12, new List<int> { 5, 6 }), // Samuel Bacalso - Business, Social Sciences
-                            (13, new List<int> { 1, 2 }), // Tina Silva - Education, Computer Science
-                            (14, new List<int> { 3, 7 }), // Ulysses Lim - Engineering, Science
-                            (15, new List<int> { 4, 6 }), // Dante Ponce - Humanities, Social Sciences
-                            (16, new List<int> { 1, 5 }), // Liza Neri - Education, Business
-                            (17, new List<int> { 2, 4 }), // Lucas Martinez - Computer Science, Humanities
-                            (18, new List<int> { 3, 1 }), // Sofia Villanueva - Engineering, Education
-                            (19, new List<int> { 4, 5 }), // Michael Fernandez - Humanities, Business
-                            (20, new List<int> { 6, 2 }), // Aria Palacios - Social Sciences, Computer Science
-                            (21, new List<int> { 7, 1 }), // Bruno Diaz - Science, Education
-                            (22, new List<int> { 2, 3 }), // Claudia Ortega - Computer Science, Engineering
-                            (23, new List<int> { 5, 6 })  // Daniel Navarro - Business, Social Sciences
-                        };
-
-                    foreach (var assignment in expertiseAssignments)
-                    {
-                        foreach (var expertiseId in assignment.expertiseIds)
-                        {
-                            context.EthicsEvaluatorExpertise.Add(new EthicsEvaluatorExpertise
-                            {
-                                ethicsEvaluatorId = assignment.evaluatorId, // Ensure 'evaluatorId' matches your EthicsEvaluator primary key
-                                expertiseId = expertiseId
-                            });
-                        }
-                    }
+                   var ethicsEvaluatorExpertises = new List<EthicsEvaluatorExpertise> {
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 1, expertiseId = 1 }, // Faculty 1 -> Education
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 2, expertiseId = 2 }, // Faculty 2 -> Computer Science
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 3, expertiseId = 3 }, // Faculty 11 -> Engineering
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 4, expertiseId = 4 }, // Faculty 12 -> Humanities
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 5, expertiseId = 5 }, // Faculty 13 -> Business
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 6, expertiseId = 6 }, // Faculty 14 -> Social Sciences
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 7, expertiseId = 7 }, // Faculty 15 -> Science
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 8, expertiseId = 1 }, // Faculty 16 -> Education
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 9, expertiseId = 2 }, // Faculty 17 -> Computer Science
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 10, expertiseId = 3 }, // Faculty 18 -> Engineering
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 11, expertiseId = 4 }, // Faculty 19 -> Humanities
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 12, expertiseId = 5 }, // Faculty 20 -> Business
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 13, expertiseId = 6 }, // Faculty 21 -> Social Sciences
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 14, expertiseId = 7 }, // Faculty 22 -> Science
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 15, expertiseId = 1 }, // Faculty 23 -> Education
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 16, expertiseId = 2 }, // Faculty 24 -> Computer Science
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 17, expertiseId = 3 }, // Faculty 25 -> Engineering
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 18, expertiseId = 4 }, // Faculty 26 -> Humanities
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 19, expertiseId = 5 }, // Faculty 27 -> Business
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 20, expertiseId = 6 }, // Faculty 28 -> Social Sciences
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 21, expertiseId = 7 }, // Faculty 29 -> Science
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 22, expertiseId = 1 }, // Faculty 30 -> Education
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 23, expertiseId = 2 } // Faculty 30 -> Education
+                    };
+                    context.EthicsEvaluatorExpertise.AddRange(ethicsEvaluatorExpertises);
                     context.SaveChanges(); // Save the expertise relationships
                 }
                 // Seed EthicsForms

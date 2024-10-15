@@ -1,16 +1,30 @@
 ﻿@{
-    ViewData["Title"] = "Center for Research Ethics";
+    ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    @if (ViewBag.Error != null)
+<h1>Welcome to the Home Page</h1>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <p>
+        Hello, @(ViewBag.User != null ? ViewBag.User.fName + " " + ViewBag.User.mName + " " + ViewBag.User.lName : "User")!
+        You are logged in as @User.Identity.Name.
+    </p>
+
+    @if (ViewBag.UserRoles != null && ViewBag.UserRoles.Count > 0)
     {
-        <p style="color:red">@ViewBag.Error</p>
+        <p>Your roles:</p>
+        <ul>
+            @foreach (var role in ViewBag.UserRoles)
+            {
+                <li>@role</li>
+            }
+        </ul>
     }
-    else
-    {
-        <p>Developer with ID: @ViewBag.DevUserId</p>
-    }
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+    <p>Your type: @(ViewBag.User != null ? ViewBag.User.type : "N/A")</p>
+}
+else
+{
+    <p>You are not logged in. Please <a asp-controller="AppUser" asp-action="Login">log in</a>.</p>
+}
