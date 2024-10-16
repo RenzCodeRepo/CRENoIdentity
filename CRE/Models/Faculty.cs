@@ -18,7 +18,6 @@ namespace CRE.Models
 
         //navigation properties
         public AppUser User { get; set; }
-        public Secretariat Secretariat { get; set; }
         public Chairperson Chairperson { get; set; }
         public EthicsEvaluator EthicsEvaluator { get; set; }
     }

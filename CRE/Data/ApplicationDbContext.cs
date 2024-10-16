@@ -1,7 +1,6 @@
 ﻿using CRE.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Common;
 
 namespace CRE.Data
 {
@@ -11,6 +10,8 @@ namespace CRE.Data
         {
 
         }
+
+        // DbSets for various models
         public DbSet<Chairperson> Chairperson { get; set; }
         public DbSet<Chief> Chief { get; set; }
         public DbSet<CoProponent> CoProponent { get; set; }
@@ -34,36 +35,41 @@ namespace CRE.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Define the relationship and restrict delete behavior for 'E_Clearance' and 'Gen_Info_NF_Research'
+            // Define relationships with foreign keys and restrict cascade deletes
             modelBuilder.Entity<NonFundedResearchInfo>()
-                .HasOne(g => g.EthicsClearance) // Gen_Info_NF_Research has one E_Clearance
-                .WithOne(e => e.NonFundedResearchInfo) // E_Clearance has one Gen_Info_NF_Research
-                .HasForeignKey<NonFundedResearchInfo>(g => g.ethicsClearanceId) // e_Clearance_Id is the foreign key in Gen_Info_NF_Research
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+                .HasOne(g => g.EthicsClearance)
+                .WithOne(e => e.NonFundedResearchInfo)
+                .HasForeignKey<NonFundedResearchInfo>(g => g.ethicsClearanceId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Define composite key for E_Evaluator_Expertise
             modelBuilder.Entity<EthicsEvaluatorExpertise>()
                 .HasKey(ee => new { ee.ethicsEvaluatorId, ee.expertiseId });
-            // Define composite key for E_Evaluator_Expertise
+
             modelBuilder.Entity<EthicsEvaluation>()
-                .HasOne(e => e.EthicsEvaluator) // Assuming `E_Evaluation` has a foreign key to `E_Evaluator`
-                .WithMany(ev => ev.EthicsEvaluation) // Assuming one `E_Evaluator` can have many `E_Evaluations`
-                .HasForeignKey(e => e.ethicsEvaluatorId)  // Foreign key in `E_Evaluation` that points to `E_Evaluator`
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+                .HasOne(e => e.EthicsEvaluator)
+                .WithMany(ev => ev.EthicsEvaluation)
+                .HasForeignKey(e => e.ethicsEvaluatorId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<EthicsEvaluatorExpertise>()
                 .HasOne(ee => ee.EthicsEvaluator)
                 .WithMany(ev => ev.EthicsEvaluatorExpertise)
                 .HasForeignKey(ee => ee.ethicsEvaluatorId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<EthicsEvaluatorExpertise>()
                 .HasOne(ee => ee.Expertise)
                 .WithMany(ex => ex.EthicsEvaluatorExpertise)
                 .HasForeignKey(ee => ee.expertiseId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Existing relationships should stay the same
+            modelBuilder.Entity<EthicsReport>()
+                .HasOne(e => e.AppUser)
+                .WithMany(u => u.EthicsReport)
+                .HasForeignKey(e => e.userid)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Additional relationships
             modelBuilder.Entity<NonFundedResearchInfo>()
                 .HasOne(g => g.AppUser)
                 .WithMany(u => u.NonFundedResearchInfo)
@@ -78,14 +84,15 @@ namespace CRE.Data
 
             modelBuilder.Entity<EthicsApplicationLog>()
                 .HasOne(e => e.EthicsApplication)
-                .WithMany(u => u.EthicsApplicationLog) // Adjust based on the actual relationship
-                .HasForeignKey(e => e.urecNo); // Explicitly set urec_No as the FK
+                .WithMany(u => u.EthicsApplicationLog)
+                .HasForeignKey(e => e.urecNo);
 
             modelBuilder.Entity<InitialReview>()
-                .HasOne(ir => ir.Secretariat)
-                .WithMany(s => s.InitialReview) // assuming Secretariat has a collection of Initial_Reviews
-                .HasForeignKey(ir => ir.secretariatId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading delete
+                .HasOne(ir => ir.AppUser)
+                .WithMany(u => u.InitialReview)
+                .HasForeignKey(ir => ir.userId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(modelBuilder);
         }
     }

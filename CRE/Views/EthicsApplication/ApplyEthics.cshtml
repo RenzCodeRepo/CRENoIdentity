@@ -94,7 +94,7 @@
 
                     <!-- Project Leader -->
                     <div class="row mb-3">
-                        @* <label asp-for="User.userId" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Project Proponent: </label> *@
+                        <label asp-for="User.Id" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">Project Proponent: </label>
                         <div class="col-sm-8">
                             @if (Model.User != null)
                             {
@@ -169,7 +169,7 @@
                             }
                             else
                             {
-                                @Html.DropDownListFor(model => model.NonFundedResearchInfo.campus, new SelectList(campuses), "Select College", new { @class = "form-control" })
+                                @Html.DropDownListFor(model => model.NonFundedResearchInfo.campus, new SelectList(campuses), "Select Campus", new { @class = "form-control" })
                             }
                             @Html.ValidationMessageFor(model => model.NonFundedResearchInfo.campus, "", new { @class = "text-danger" })
                         </div>
@@ -201,7 +201,7 @@
                             }
                             else
                             {
-                                @Html.DropDownListFor(model => model.NonFundedResearchInfo.university, new SelectList(universities), "Select University", new { @class = "form-control" })
+                                @Html.DropDownListFor(model => model.NonFundedResearchInfo.university, new SelectList(universities), "Select Univeristy", new { @class = "form-control" })
                             }
                             @Html.ValidationMessageFor(model => model.NonFundedResearchInfo.university, "", new { @class = "text-danger" })
                         </div>

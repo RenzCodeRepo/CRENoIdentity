@@ -64,7 +64,7 @@ namespace CRE.Services
                 .FirstOrDefaultAsync(r => r.urecNo == urecNo);
         }
 
-        public async Task<IEnumerable<NonFundedResearchInfo>> GetNonFundedResearchByUserAsync(int userId)
+        public async Task<IEnumerable<NonFundedResearchInfo>> GetNonFundedResearchByUserAsync(string userId)
         {
             return await _context.NonFundedResearchInfo
                 //.Where(r => r.userId == userId) // Assuming UserId is the foreign key to the User

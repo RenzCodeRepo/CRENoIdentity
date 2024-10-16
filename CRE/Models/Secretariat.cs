@@ -7,12 +7,11 @@ namespace CRE.Models
     {
         [Key]
         public int secretariatId { get; set; }
-        [ForeignKey(nameof(Faculty))]
-        public int facultyId { get; set; }
+        [ForeignKey(nameof(AppUser))]
+        public string userId { get; set; }
         [Required]
 
         //navigation property
-        public Faculty Faculty { get; set; }
-        public ICollection<InitialReview> InitialReview { get; set; } = new List<InitialReview>();
+        public AppUser AppUser { get; set; }
     }
 }

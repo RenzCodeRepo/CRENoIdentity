@@ -3,6 +3,7 @@ using CRE.Models;
 using CRE.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
+using System.Security.Claims;
 
 namespace CRE.Controllers
 {
@@ -51,11 +52,12 @@ namespace CRE.Controllers
                 return View("Error"); // Return an error view with appropriate error message
             }
 
-            // Retrieve the development user ID from the configuration
-            var devUserIdString = _configuration["DevelopmentUserId"];
-            if (!int.TryParse(devUserIdString, out int devUserId))
+            // Retrieve the logged-in user's ID from Identity
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
             {
-                ModelState.AddModelError("", "Invalid user ID in configuration.");
+                ModelState.AddModelError("", "Invalid user ID.");
                 return View("Error"); // Return an error view
             }
 
@@ -65,7 +67,7 @@ namespace CRE.Controllers
             var receiptInfo = await _receiptInfoServices.GetReceiptInfoByUrecNoAsync(urecNo);
             var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
             var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
-            var user = await _userServices.GetByIdAsync(devUserId);
+            var user = await _userServices.GetByIdAsync(userId); // Use Identity UserId (string)
 
             // Ensure all necessary data exists
             if (ethicsApplication == null || nonFundedResearchInfo == null || user == null)
@@ -82,7 +84,7 @@ namespace CRE.Controllers
             {
                 User = new AppUser
                 {
-                    //userId = user.userId,
+                    Id = user.Id, // Use Identity user ID (string)
                     fName = user.fName,
                     mName = user.mName,
                     lName = user.lName,
@@ -94,21 +96,23 @@ namespace CRE.Controllers
                 EthicsApplicationForms = ethicsApplicationForms,
                 EthicsApplicationLog = ethicsApplicationLogs,
                 CoProponent = coProponents.ToList() // Ensure it's a List
-
             };
 
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> UploadForms(UploadFormsViewModel model)
         {
-            var devUserIdString = _configuration["DevelopmentUserId"]; // or get it from logged-in user context
+            // Retrieve the logged-in user's ID from Identity
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!int.TryParse(devUserIdString, out int devUserId))
+            if (string.IsNullOrEmpty(userId))
             {
                 ModelState.AddModelError("", "Invalid user ID.");
-                return View(); // return view with some error handling
+                return View("Error"); // Return view with some error handling
             }
+
             // Removed unnecessary properties from ModelState
             ModelState.Remove("User");
             ModelState.Remove("CoProponent");
@@ -123,6 +127,7 @@ namespace CRE.Controllers
             ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
             ModelState.Remove("EthicsApplicationForms");
             ModelState.Remove("EthicsApplication.EthicsClearance");
+            ModelState.Remove("EthicsApplication.userId");
             ModelState.Remove("EthicsApplication.CompletionReport");
 
             // Handle logic based on whether the research involves humans or minors
@@ -151,17 +156,17 @@ namespace CRE.Controllers
 
             // Validate the model
             var fileProperties = new List<(string PropertyName, IFormFile File)>
-            {
-                (nameof(model.FORM9), model.FORM9),
-                (nameof(model.FORM10), model.FORM10),
-                (nameof(model.FORM10_1), model.FORM10_1),
-                (nameof(model.FORM11), model.FORM11),
-                (nameof(model.FORM12), model.FORM12),
-                (nameof(model.CAA), model.CAA),
-                (nameof(model.RCV), model.RCV),
-                (nameof(model.CV), model.CV),
-                (nameof(model.LI), model.LI)
-            };
+    {
+        (nameof(model.FORM9), model.FORM9),
+        (nameof(model.FORM10), model.FORM10),
+        (nameof(model.FORM10_1), model.FORM10_1),
+        (nameof(model.FORM11), model.FORM11),
+        (nameof(model.FORM12), model.FORM12),
+        (nameof(model.CAA), model.CAA),
+        (nameof(model.RCV), model.RCV),
+        (nameof(model.CV), model.CV),
+        (nameof(model.LI), model.LI)
+    };
 
             if (!ModelState.IsValid)
             {
@@ -184,7 +189,7 @@ namespace CRE.Controllers
                             ethicsFormId = propertyName,
                             dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow),
                             file = memoryStream.ToArray(),
-                             // Generate and set the filename based on your format
+                            // Generate and set the filename based on your format
                             fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf" // Assuming you want a PDF extension
                         };
 
@@ -193,21 +198,24 @@ namespace CRE.Controllers
                     }
                 }
             }
+
+            // Create a log entry for the forms upload
             var uploadFormLog = new EthicsApplicationLog
             {
                 urecNo = model.EthicsApplication.urecNo,
-                //userId = devUserId,
+                userId = userId,  // Using logged-in user's ID
                 status = "Forms Uploaded",
                 changeDate = DateTime.Now
             };
             await _ethicsApplicationLogServices.AddLogAsync(uploadFormLog);
 
-            //log that the user has uploaded their forms
+            // Log that the user has uploaded their forms
             TempData["SuccessMessage"] = "Forms uploaded successfully!";
 
             // After processing, redirect to a confirmation page or return the view
             return RedirectToAction("UploadForms", new { urecNo = model.EthicsApplication.urecNo });
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ViewFile(string formId, string urecNo)

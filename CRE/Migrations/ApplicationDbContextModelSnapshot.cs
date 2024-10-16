@@ -467,6 +467,33 @@ namespace CRE.Migrations
                     b.ToTable("EthicsForm");
                 });
 
+            modelBuilder.Entity("CRE.Models.EthicsReport", b =>
+                {
+                    b.Property<string>("reportId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("dateGenerated")
+                        .HasColumnType("date");
+
+                    b.Property<byte[]>("reportFile")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("reportName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("userid")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("reportId");
+
+                    b.HasIndex("userid");
+
+                    b.ToTable("EthicsReport");
+                });
+
             modelBuilder.Entity("CRE.Models.Expertise", b =>
                 {
                     b.Property<int>("expertiseId")
@@ -530,9 +557,6 @@ namespace CRE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("secretariatId")
-                        .HasColumnType("int");
-
                     b.Property<string>("status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -541,14 +565,18 @@ namespace CRE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("initalReviewId");
 
                     b.HasIndex("chiefId");
 
-                    b.HasIndex("secretariatId");
-
                     b.HasIndex("urecNo")
                         .IsUnique();
+
+                    b.HasIndex("userId");
 
                     b.ToTable("InitialReview");
                 });
@@ -652,12 +680,13 @@ namespace CRE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("secretariatId"));
 
-                    b.Property<int>("facultyId")
-                        .HasColumnType("int");
+                    b.Property<string>("userId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("secretariatId");
 
-                    b.HasIndex("facultyId")
+                    b.HasIndex("userId")
                         .IsUnique();
 
                     b.ToTable("Secretariat");
@@ -945,6 +974,17 @@ namespace CRE.Migrations
                     b.Navigation("Expertise");
                 });
 
+            modelBuilder.Entity("CRE.Models.EthicsReport", b =>
+                {
+                    b.HasOne("CRE.Models.AppUser", "AppUser")
+                        .WithMany("EthicsReport")
+                        .HasForeignKey("userid")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("CRE.Models.Faculty", b =>
                 {
                     b.HasOne("CRE.Models.AppUser", "User")
@@ -958,14 +998,9 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.InitialReview", b =>
                 {
-                    b.HasOne("CRE.Models.Chief", "Chief")
+                    b.HasOne("CRE.Models.Chief", null)
                         .WithMany("InitialReview")
                         .HasForeignKey("chiefId");
-
-                    b.HasOne("CRE.Models.Secretariat", "Secretariat")
-                        .WithMany("InitialReview")
-                        .HasForeignKey("secretariatId")
-                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithOne("InitialReview")
@@ -973,11 +1008,15 @@ namespace CRE.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chief");
+                    b.HasOne("CRE.Models.AppUser", "AppUser")
+                        .WithMany("InitialReview")
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
 
                     b.Navigation("EthicsApplication");
-
-                    b.Navigation("Secretariat");
                 });
 
             modelBuilder.Entity("CRE.Models.NonFundedResearchInfo", b =>
@@ -1025,13 +1064,13 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.Secretariat", b =>
                 {
-                    b.HasOne("CRE.Models.Faculty", "Faculty")
+                    b.HasOne("CRE.Models.AppUser", "AppUser")
                         .WithOne("Secretariat")
-                        .HasForeignKey("CRE.Models.Secretariat", "facultyId")
+                        .HasForeignKey("CRE.Models.Secretariat", "userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Faculty");
+                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1093,9 +1132,15 @@ namespace CRE.Migrations
 
                     b.Navigation("EthicsApplicationLog");
 
+                    b.Navigation("EthicsReport");
+
                     b.Navigation("Faculty");
 
+                    b.Navigation("InitialReview");
+
                     b.Navigation("NonFundedResearchInfo");
+
+                    b.Navigation("Secretariat");
                 });
 
             modelBuilder.Entity("CRE.Models.Chief", b =>
@@ -1163,19 +1208,11 @@ namespace CRE.Migrations
 
                     b.Navigation("EthicsEvaluator")
                         .IsRequired();
-
-                    b.Navigation("Secretariat")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CRE.Models.NonFundedResearchInfo", b =>
                 {
                     b.Navigation("CoProponent");
-                });
-
-            modelBuilder.Entity("CRE.Models.Secretariat", b =>
-                {
-                    b.Navigation("InitialReview");
                 });
 #pragma warning restore 612, 618
         }

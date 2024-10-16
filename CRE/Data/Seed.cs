@@ -122,7 +122,6 @@ namespace CRE.Data
                         {
                             new Faculty { userId = users.First(u => u.fName == "Renz Niño" && u.lName == "Baladjay Internal").Id, userType = "Developer", salaryGrade = 15 },
                             new Faculty { userId = users.First(u => u.fName == "Renz Niño" && u.lName == "Baladjay External").Id, userType = "Developer", salaryGrade = 13 },
-                            new Faculty { userId = users.First(u => u.fName == "Elena" && u.lName == "Fa-ed").Id, userType = "Administrative", salaryGrade = 12 },
                             new Faculty { userId = users.First(u => u.fName == "Carlos" && u.lName == "Ramos").Id, userType = "Administrative", salaryGrade = 10 },
                             new Faculty { userId = users.First(u => u.fName == "David" && u.lName == "Gonzales").Id, userType = "Administrative", salaryGrade = 15 },
                             new Faculty { userId = users.First(u => u.fName == "Eva" && u.lName == "Mendez").Id, userType = "Instructor", salaryGrade = 10 },
@@ -156,7 +155,15 @@ namespace CRE.Data
                     context.Faculty.AddRange(facultyMembers);
                     context.SaveChanges(); // Save the faculty records
                 }
-
+                if (!context.Secretariat.Any())
+                {
+                    var secretariats = new List<Secretariat>
+                    {
+                        new Secretariat { userId = users.First(u => u.fName == "Elena" && u.lName == "Fa-ed").Id}
+                    };
+                    context.Secretariat.AddRange(secretariats);
+                    context.SaveChanges();
+                }
 
                 if (!context.Chief.Any())
                 {
@@ -178,13 +185,13 @@ namespace CRE.Data
                         {
                             new Chairperson { facultyId = 1},
                             new Chairperson { facultyId = 2},
+                            new Chairperson { facultyId = 3},
                             new Chairperson { facultyId = 4},
                             new Chairperson { facultyId = 5},
                             new Chairperson { facultyId = 6},
                             new Chairperson { facultyId = 7},
                             new Chairperson { facultyId = 8},
                             new Chairperson { facultyId = 9},
-                            new Chairperson { facultyId = 10}
                         };
 
                     context.Chairperson.AddRange(chairpersons);
@@ -213,6 +220,7 @@ namespace CRE.Data
                 {
                     new EthicsEvaluator { facultyId = 1, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
                     new EthicsEvaluator { facultyId = 2, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 10, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
                     new EthicsEvaluator { facultyId = 11, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
                     new EthicsEvaluator { facultyId = 12, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
                     new EthicsEvaluator { facultyId = 13, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
@@ -233,7 +241,6 @@ namespace CRE.Data
                     new EthicsEvaluator { facultyId = 28, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
                     new EthicsEvaluator { facultyId = 29, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
                     new EthicsEvaluator { facultyId = 30, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 31, completedEval = 0, pendingEval = 0, declinedAssignment = 0 }
                 };
 
                     context.EthicsEvaluator.AddRange(ethicsEvaluators);
@@ -266,7 +273,7 @@ namespace CRE.Data
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 20, expertiseId = 6 }, // Faculty 28 -> Social Sciences
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 21, expertiseId = 7 }, // Faculty 29 -> Science
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 22, expertiseId = 1 }, // Faculty 30 -> Education
-                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 23, expertiseId = 2 } // Faculty 30 -> Education
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 23, expertiseId = 2 }, // Faculty 30 -> Education
                     };
                     context.EthicsEvaluatorExpertise.AddRange(ethicsEvaluatorExpertises);
                     context.SaveChanges(); // Save the expertise relationships
@@ -372,7 +379,7 @@ namespace CRE.Data
             {
         ("Renz Niño S Baladjay Internal", new[] { "Chief", "Faculty", "Evaluator", "Secretariat", "Chairperson" }),
         ("Renz Niño S Baladjay External", new[] { "Chief", "Faculty", "Evaluator", "Secretariat", "Chairperson" }),
-        ("Elena N Fa-ed", new[] { "Faculty", "Secretariat" }),
+        ("Elena N Fa-ed", new[] { "Secretariat" }),
         ("Julie Charmain O Bonifacio", new[] { "Chief" }),
         ("Carlos E Ramos", new[] { "Faculty", "Chairperson" }),
         ("David A Gonzales", new[] { "Faculty", "Chairperson" }),

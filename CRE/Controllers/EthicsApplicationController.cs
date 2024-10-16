@@ -5,6 +5,7 @@ using CRE.ViewModels;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using static CRE.ViewModels.ApplicationRequirementsViewModel;
 
 namespace CRE.Controllers
@@ -51,24 +52,21 @@ namespace CRE.Controllers
             return View();
         }
 
-        public async Task<IActionResult> ApplicationsAsync()
+        public async Task<IActionResult> Applications()
         {
-            var devUserIdString = _configuration["DevelopmentUserId"]; // or get it from logged-in user context
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!int.TryParse(devUserIdString, out int devUserId))
+            if (string.IsNullOrEmpty(userId))
             {
-                ModelState.AddModelError("", "Invalid user ID.");
+                ModelState.AddModelError("", "User is not logged in.");
                 return View(); // return view with some error handling
             }
 
+            // Assuming your services are updated to accept the IdentityUser ID (string type)
+            var ethicsApplications = await _ethicsApplicationServices.GetApplicationsByUserAsync(userId);
+            var nonFundedResearchInfos = await _nonFundedResearchInfoServices.GetNonFundedResearchByUserAsync(userId);
 
-            // Fetch the user's ethics applications
-            var ethicsApplications = await _ethicsApplicationServices.GetApplicationsByUserAsync(devUserId);
-
-            // Fetch the related NonFundedResearchInfo
-            var nonFundedResearchInfos = await _nonFundedResearchInfoServices.GetNonFundedResearchByUserAsync(devUserId);
-
-            var ethicsApplicationIds = ethicsApplications.Select(a => a.urecNo).ToList(); // Assuming Id is the primary key
+            var ethicsApplicationIds = ethicsApplications.Select(a => a.urecNo).ToList();
 
             // Fetch the latest status from the logs for each application
             var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLatestLogsByApplicationIdsAsync(ethicsApplicationIds);
@@ -81,20 +79,19 @@ namespace CRE.Controllers
                 EthicsApplicationLog = ethicsApplicationLogs
             };
 
-
             // Return the view for the application form
             return View(model);
         }
-        //View Logic
+
         public async Task<IActionResult> ApplyEthics()
         {
-            // Retrieve the development user ID from configuration
-            var devUserIdString = _configuration["DevelopmentUserId"];
+            // Retrieve the logged-in user's ID from the Identity system
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (!int.TryParse(devUserIdString, out int devUserId))
+            if (!string.IsNullOrEmpty(userId))
             {
-                // Fetch the user record from the service asynchronously
-                var user = await _userServices.GetByIdAsync(devUserId);
+                // Fetch the user record using the IdentityUser ID (assumed to be string)
+                var user = await _userServices.GetByIdAsync(userId);
                 if (user != null)
                 {
                     // Create an instance of the ViewModel
@@ -102,7 +99,7 @@ namespace CRE.Controllers
                     {
                         User = new AppUser
                         {
-                            //userId = user.userId,
+                            // userId = user.Id, // Ensure this line matches your model definition
                             fName = user.fName,
                             mName = user.mName,
                             lName = user.lName,
@@ -110,12 +107,12 @@ namespace CRE.Controllers
                         },
                         EthicsApplication = new EthicsApplication
                         {
-                            //userId = user.userId
+                            // userId = user.Id // Make sure to map the Identity user ID correctly
                         },
                         EthicsApplicationLog = new List<EthicsApplicationLog>(),
                         NonFundedResearchInfo = new NonFundedResearchInfo
                         {
-                            //userId = user.userId
+                            // userId = user.Id // Similar adjustment here if needed
                         },
                         CoProponent = new List<CoProponent>() // Start with an empty list
                     };
@@ -135,7 +132,7 @@ namespace CRE.Controllers
                 }
             }
 
-            // If user not found, create an empty model
+            // If user not found or not logged in, create an empty model
             var emptyModel = new ApplyEthicsViewModel
             {
                 CoProponent = new List<CoProponent>()
@@ -152,62 +149,60 @@ namespace CRE.Controllers
             {
                 model.CoProponent = new List<CoProponent>();
             }
-            if (!int.TryParse(_configuration["DevelopmentUserId"], out int devUserId))
+
+            // Retrieve the logged-in user's ID from the Identity system
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
             {
                 ModelState.AddModelError("", "Invalid user ID.");
                 return View(model);
             }
 
-            var user = await _userServices.GetByIdAsync(devUserId);
+            // Fetch the user record using the IdentityUser ID (string type)
+            var user = await _userServices.GetByIdAsync(userId);
             if (user == null)
             {
                 ModelState.AddModelError("", "User ID does not exist.");
                 return View(model);
             }
 
-            //var userExists = await _userServices.UserExistsAsync(devUserId);
-            //if (!userExists)
-            //{
-            //    ModelState.AddModelError("", "User ID does not exist.");
-            //    return View(model);
-            //}
+            // Populate the user information in the model
             model.User = new AppUser
             {
-                //userId = user.userId,
+                Id = user.Id, // Ensure this line matches your model definition
                 fName = user.fName,
                 mName = user.mName,
                 lName = user.lName,
                 type = user.type
             };
 
-
             // Remove validation for fields that are not yet populated
             if (user.type == "internal")
             {
-                // If internal users don't need a receipt, remove validation errors related to ReceiptInfo
                 ModelState.Remove("ReceiptInfo.receiptNo");
                 ModelState.Remove("ReceiptInfo.amountPaid");
                 ModelState.Remove("receiptFile");
             }
 
-
-
+            // Populate ethics application details
             var ethicsApplication = model.EthicsApplication;
             ethicsApplication.urecNo = await _ethicsApplicationServices.GenerateUrecNoAsync();
-            //ethicsApplication.userId = devUserId;
+            ethicsApplication.userId = userId; // Use the logged-in user's ID
             ethicsApplication.submissionDate = DateOnly.FromDateTime(DateTime.Now);
 
+            // Populate non-funded research details
             var nonFundedResearchInfo = model.NonFundedResearchInfo;
             nonFundedResearchInfo.nonFundedResearchId = await _nonFundedResearchInfoServices.GenerateNonFundedResearchIdAsync();
-            //nonFundedResearchInfo.userId = devUserId;
+            nonFundedResearchInfo.userId = userId; // Use the logged-in user's ID
             nonFundedResearchInfo.urecNo = ethicsApplication.urecNo;
             nonFundedResearchInfo.dateSubmitted = DateTime.Now;
 
-
+            // Create a new application log entry
             var ethicsApplyLog = new EthicsApplicationLog
             {
                 urecNo = ethicsApplication.urecNo,
-                //userId = devUserId,
+                userId = userId, // Use the logged-in user's ID
                 status = "Applied",
                 changeDate = DateTime.Now
             };
@@ -216,13 +211,15 @@ namespace CRE.Controllers
             ModelState.Remove("User");
             ModelState.Remove("ReceiptInfo");
             ModelState.Remove("EthicsApplication.User");
+            ModelState.Remove("EthicsApplication.userId");
             ModelState.Remove("EthicsApplication.urecNo");
             ModelState.Remove("EthicsApplication.ReceiptInfo");
             ModelState.Remove("EthicsApplication.InitialReview");
             ModelState.Remove("EthicsApplication.EthicsClearance");
             ModelState.Remove("EthicsApplication.CompletionReport");
             ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
-            ModelState.Remove("NonFundedResearchInfo.User");
+            ModelState.Remove("NonFundedResearchInfo.AppUser");
+            ModelState.Remove("NonFundedResearchInfo.userId");
             ModelState.Remove("NonFundedResearchInfo.urecNo");
             ModelState.Remove("NonFundedResearchInfo.EthicsClearance");
             ModelState.Remove("NonFundedResearchInfo.EthicsApplication");
@@ -231,36 +228,36 @@ namespace CRE.Controllers
             ModelState.Remove("ReceiptInfo.urecNo");
             ModelState.Remove("ReceiptInfo.scanReceipt");
             ModelState.Remove("ReceiptInfo.EthicsApplication");
+
             // Clear existing ModelState errors for CoProponents
             for (int i = 0; i < model.CoProponent.Count; i++)
             {
                 ModelState.Remove($"CoProponent[{i}].NonFundedResearchInfo");
                 ModelState.Remove($"CoProponent[{i}].nonFundedResearchId");
             }
-            // Call the service method to check for a duplicate title
-            var existingResearch = await _nonFundedResearchInfoServices.SearchByTitleAsync(model.NonFundedResearchInfo.title);
 
-            // If a title match is found, add an error to the ModelState
+            // Check for duplicate titles
+            var existingResearch = await _nonFundedResearchInfoServices.SearchByTitleAsync(model.NonFundedResearchInfo.title);
             if (existingResearch != null)
             {
                 ModelState.AddModelError("NonFundedResearchInfo.title", "This title has already been used for another ethics application.");
                 return View(model);
             }
+
             // Check if the model state is valid
             if (!ModelState.IsValid)
             {
-
-                // If model state is invalid, return the view with the validation messages
                 return View(model);
             }
 
-
             try
             {
+                // Save the application
                 await _ethicsApplicationServices.ApplyForEthicsAsync(ethicsApplication);
                 await _nonFundedResearchInfoServices.AddNonFundedResearchAsync(nonFundedResearchInfo);
                 await _ethicsApplicationLogServices.AddLogAsync(ethicsApplyLog);
 
+                // Save CoProponents
                 if (model.CoProponent != null && model.CoProponent.Any())
                 {
                     foreach (var coProponent in model.CoProponent)
@@ -271,31 +268,27 @@ namespace CRE.Controllers
                             await _coProponentServices.AddCoProponentAsync(coProponent);
                         }
                     }
-
-
-
                 }
-                // Check if the user is internal
+
+                // Handle success messages and redirection
                 if (model.User != null && model.User.type == "internal")
                 {
-                    // Internal users do not need to upload a receipt
                     TempData["SuccessMessage"] = "Your application has been submitted successfully (no receipt required).";
                     return RedirectToAction("Applications");
                 }
 
-                // For external users, handle the receipt file upload
                 if (model.User != null && model.User.type == "external")
                 {
-                    // Handling the uploaded file (receiptFile)
+                    // Handle receipt upload
                     if (model.receiptFile != null && model.receiptFile.Length > 0)
                     {
                         using (var memoryStream = new MemoryStream())
                         {
-                            await model.receiptFile.CopyToAsync(memoryStream); // Converting IFormFile to byte[]
+                            await model.receiptFile.CopyToAsync(memoryStream);
                             model.ReceiptInfo.scanReceipt = memoryStream.ToArray();
                         }
 
-                        // Save ReceiptInfo if needed
+                        // Save receipt info
                         if (model.ReceiptInfo != null)
                         {
                             model.ReceiptInfo.urecNo = ethicsApplication.urecNo;
@@ -304,17 +297,15 @@ namespace CRE.Controllers
                     }
                     else
                     {
-                        // If no file is uploaded for an external user, show error
                         ModelState.AddModelError("receiptFile", "Please upload a scanned receipt.");
-                        return View(model); // Return to the view with validation error
+                        return View(model);
                     }
                 }
 
-                // If everything succeeds, show success message
+                // If everything succeeds
                 TempData["SuccessMessage"] = "Your application has been submitted successfully.";
                 return RedirectToAction("Applications");
             }
-
             catch (Exception ex)
             {
                 ModelState.AddModelError("", "There was an error saving your application. Please try again.");
@@ -322,6 +313,7 @@ namespace CRE.Controllers
                 return View(model);
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> ApplicationRequirements(string urecNo)
@@ -333,12 +325,13 @@ namespace CRE.Controllers
                 return View("Error"); // Return an error view with appropriate error message
             }
 
-            // Retrieve the development user ID from the configuration
-            var devUserIdString = _configuration["DevelopmentUserId"];
-            if (!int.TryParse(devUserIdString, out int devUserId))
+            // Retrieve the logged-in user's ID from Identity
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
             {
-                ModelState.AddModelError("", "Invalid user ID in configuration.");
-                return View("Error"); // Return an error view
+                ModelState.AddModelError("", "Invalid user ID.");
+                return View("Error"); // Return an error view if no user ID found
             }
 
             // Fetch all necessary data
@@ -347,7 +340,7 @@ namespace CRE.Controllers
             var receiptInfo = await _receiptInfoServices.GetReceiptInfoByUrecNoAsync(urecNo);
             var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
             var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
-            var user = await _userServices.GetByIdAsync(devUserId);
+            var user = await _userServices.GetByIdAsync(userId);
 
             // Ensure all necessary data exists
             if (ethicsApplication == null || nonFundedResearchInfo == null || user == null)
@@ -364,7 +357,7 @@ namespace CRE.Controllers
             {
                 User = new AppUser
                 {
-                    //userId = user.userId,
+                    //userId = user.Id, // Ensure that your model accepts Identity user ID (string)
                     fName = user.fName,
                     mName = user.mName,
                     lName = user.lName,
@@ -376,7 +369,6 @@ namespace CRE.Controllers
                 EthicsApplicationForms = ethicsApplicationForms,
                 EthicsApplicationLog = ethicsApplicationLogs,
                 CoProponent = coProponents.ToList() // Ensure it's a List
-              
             };
 
             return View(model); // Pass the populated model to the view

@@ -13,7 +13,7 @@ namespace CRE.Services
             _context = context;
         }
 
-        public async Task<AppUser> GetByIdAsync(int userId)
+        public async Task<AppUser> GetByIdAsync(string userId)
         {
             return await _context.AppUser.FindAsync(userId); // Retrieve user by user ID
         }

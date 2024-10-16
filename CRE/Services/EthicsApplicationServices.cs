@@ -73,7 +73,7 @@ namespace CRE.Services
             return await _context.EthicsApplication.FirstOrDefaultAsync(a => a.urecNo == urecNo);
         }
 
-        public async Task<IEnumerable<EthicsApplication>> GetApplicationsByUserAsync(int userId)
+        public async Task<IEnumerable<EthicsApplication>> GetApplicationsByUserAsync(string userId)
         {
             return await _context.EthicsApplication
                 //.Where(a => a.userId == userId)

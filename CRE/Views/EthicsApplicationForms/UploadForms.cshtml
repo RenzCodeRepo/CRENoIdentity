@@ -119,15 +119,16 @@
     <div class="card-header"><h2>Your Attachments</h2></div>
     <div class="card-body">
         @* Display receipt PDF link if it exists in the database *@
-        @if (Model.ReceiptInfo.scanReceipt != null)
+        @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
         {
             <div class="mb-3">
                 <label><strong>Receipt:</strong></label>
-                <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary btn-sm">
+                <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" target="_blank" class="btn btn-primary btn-sm">
                     View Receipt (PDF)
                 </a>
             </div>
         }
+
         <form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
             <input type="hidden" name="EthicsApplication.urecNo" value="@Model.EthicsApplication.urecNo" />
 

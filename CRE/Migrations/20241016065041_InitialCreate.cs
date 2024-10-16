@@ -245,6 +245,27 @@ namespace CRE.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EthicsReport",
+                columns: table => new
+                {
+                    reportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    userid = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    reportName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    reportFile = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    dateGenerated = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EthicsReport", x => x.reportId);
+                    table.ForeignKey(
+                        name: "FK_EthicsReport_AspNetUsers_userid",
+                        column: x => x.userid,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Faculty",
                 columns: table => new
                 {
@@ -259,6 +280,25 @@ namespace CRE.Migrations
                     table.PrimaryKey("PK_Faculty", x => x.facultyId);
                     table.ForeignKey(
                         name: "FK_Faculty_AspNetUsers_userId",
+                        column: x => x.userId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Secretariat",
+                columns: table => new
+                {
+                    secretariatId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Secretariat", x => x.secretariatId);
+                    table.ForeignKey(
+                        name: "FK_Secretariat_AspNetUsers_userId",
                         column: x => x.userId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -364,6 +404,41 @@ namespace CRE.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "InitialReview",
+                columns: table => new
+                {
+                    initalReviewId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    userId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
+                    dateReviewed = table.Column<DateOnly>(type: "date", nullable: true),
+                    status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    chiefId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InitialReview", x => x.initalReviewId);
+                    table.ForeignKey(
+                        name: "FK_InitialReview_AspNetUsers_userId",
+                        column: x => x.userId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_InitialReview_Chief_chiefId",
+                        column: x => x.chiefId,
+                        principalTable: "Chief",
+                        principalColumn: "chiefId");
+                    table.ForeignKey(
+                        name: "FK_InitialReview_EthicsApplication_urecNo",
+                        column: x => x.urecNo,
+                        principalTable: "EthicsApplication",
+                        principalColumn: "urecNo",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ReceiptInfo",
                 columns: table => new
                 {
@@ -419,25 +494,6 @@ namespace CRE.Migrations
                     table.PrimaryKey("PK_EthicsEvaluator", x => x.ethicsEvaluatorId);
                     table.ForeignKey(
                         name: "FK_EthicsEvaluator_Faculty_facultyId",
-                        column: x => x.facultyId,
-                        principalTable: "Faculty",
-                        principalColumn: "facultyId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Secretariat",
-                columns: table => new
-                {
-                    secretariatId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    facultyId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Secretariat", x => x.secretariatId);
-                    table.ForeignKey(
-                        name: "FK_Secretariat_Faculty_facultyId",
                         column: x => x.facultyId,
                         principalTable: "Faculty",
                         principalColumn: "facultyId",
@@ -541,41 +597,6 @@ namespace CRE.Migrations
                         column: x => x.expertiseId,
                         principalTable: "Expertise",
                         principalColumn: "expertiseId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "InitialReview",
-                columns: table => new
-                {
-                    initalReviewId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    secretariatId = table.Column<int>(type: "int", nullable: true),
-                    chiefId = table.Column<int>(type: "int", nullable: true),
-                    urecNo = table.Column<string>(type: "nvarchar(30)", nullable: false),
-                    dateReviewed = table.Column<DateOnly>(type: "date", nullable: true),
-                    status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    feedback = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InitialReview", x => x.initalReviewId);
-                    table.ForeignKey(
-                        name: "FK_InitialReview_Chief_chiefId",
-                        column: x => x.chiefId,
-                        principalTable: "Chief",
-                        principalColumn: "chiefId");
-                    table.ForeignKey(
-                        name: "FK_InitialReview_EthicsApplication_urecNo",
-                        column: x => x.urecNo,
-                        principalTable: "EthicsApplication",
-                        principalColumn: "urecNo",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_InitialReview_Secretariat_secretariatId",
-                        column: x => x.secretariatId,
-                        principalTable: "Secretariat",
-                        principalColumn: "secretariatId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -716,6 +737,11 @@ namespace CRE.Migrations
                 column: "expertiseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EthicsReport_userid",
+                table: "EthicsReport",
+                column: "userid");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Faculty_userId",
                 table: "Faculty",
                 column: "userId",
@@ -727,15 +753,15 @@ namespace CRE.Migrations
                 column: "chiefId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InitialReview_secretariatId",
-                table: "InitialReview",
-                column: "secretariatId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_InitialReview_urecNo",
                 table: "InitialReview",
                 column: "urecNo",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_InitialReview_userId",
+                table: "InitialReview",
+                column: "userId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_NonFundedResearchInfo_completionCertId",
@@ -769,9 +795,9 @@ namespace CRE.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Secretariat_facultyId",
+                name: "IX_Secretariat_userId",
                 table: "Secretariat",
-                column: "facultyId",
+                column: "userId",
                 unique: true);
         }
 
@@ -815,10 +841,16 @@ namespace CRE.Migrations
                 name: "EthicsEvaluatorExpertise");
 
             migrationBuilder.DropTable(
+                name: "EthicsReport");
+
+            migrationBuilder.DropTable(
                 name: "InitialReview");
 
             migrationBuilder.DropTable(
                 name: "ReceiptInfo");
+
+            migrationBuilder.DropTable(
+                name: "Secretariat");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -837,9 +869,6 @@ namespace CRE.Migrations
 
             migrationBuilder.DropTable(
                 name: "Chief");
-
-            migrationBuilder.DropTable(
-                name: "Secretariat");
 
             migrationBuilder.DropTable(
                 name: "CompletionCertificate");
