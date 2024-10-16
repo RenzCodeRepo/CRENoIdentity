@@ -472,6 +472,9 @@ namespace CRE.Migrations
                     b.Property<string>("reportId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("chiefId")
+                        .HasColumnType("int");
+
                     b.Property<DateOnly>("dateGenerated")
                         .HasColumnType("date");
 
@@ -483,13 +486,9 @@ namespace CRE.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("userid")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("reportId");
 
-                    b.HasIndex("userid");
+                    b.HasIndex("chiefId");
 
                     b.ToTable("EthicsReport");
                 });
@@ -976,13 +975,13 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.EthicsReport", b =>
                 {
-                    b.HasOne("CRE.Models.AppUser", "AppUser")
+                    b.HasOne("CRE.Models.Chief", "Chief")
                         .WithMany("EthicsReport")
-                        .HasForeignKey("userid")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("chiefId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
+                    b.Navigation("Chief");
                 });
 
             modelBuilder.Entity("CRE.Models.Faculty", b =>
@@ -1132,8 +1131,6 @@ namespace CRE.Migrations
 
                     b.Navigation("EthicsApplicationLog");
 
-                    b.Navigation("EthicsReport");
-
                     b.Navigation("Faculty");
 
                     b.Navigation("InitialReview");
@@ -1145,6 +1142,8 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.Chief", b =>
                 {
+                    b.Navigation("EthicsReport");
+
                     b.Navigation("InitialReview");
                 });
 

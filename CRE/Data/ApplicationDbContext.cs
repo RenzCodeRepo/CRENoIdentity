@@ -64,10 +64,10 @@ namespace CRE.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<EthicsReport>()
-                .HasOne(e => e.AppUser)
-                .WithMany(u => u.EthicsReport)
-                .HasForeignKey(e => e.userid)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(e => e.Chief)
+                .WithMany(c => c.EthicsReport)
+                .HasForeignKey(e => e.chiefId)
+                .HasPrincipalKey(c => c.chiefId); // Configure the principal key
 
             // Additional relationships
             modelBuilder.Entity<NonFundedResearchInfo>()

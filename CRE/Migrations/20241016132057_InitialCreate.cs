@@ -245,27 +245,6 @@ namespace CRE.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EthicsReport",
-                columns: table => new
-                {
-                    reportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    userid = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    reportName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    reportFile = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    dateGenerated = table.Column<DateOnly>(type: "date", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EthicsReport", x => x.reportId);
-                    table.ForeignKey(
-                        name: "FK_EthicsReport_AspNetUsers_userid",
-                        column: x => x.userid,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Faculty",
                 columns: table => new
                 {
@@ -302,6 +281,27 @@ namespace CRE.Migrations
                         column: x => x.userId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EthicsReport",
+                columns: table => new
+                {
+                    reportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    chiefId = table.Column<int>(type: "int", nullable: false),
+                    reportName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    reportFile = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    dateGenerated = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EthicsReport", x => x.reportId);
+                    table.ForeignKey(
+                        name: "FK_EthicsReport_Chief_chiefId",
+                        column: x => x.chiefId,
+                        principalTable: "Chief",
+                        principalColumn: "chiefId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -737,9 +737,9 @@ namespace CRE.Migrations
                 column: "expertiseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EthicsReport_userid",
+                name: "IX_EthicsReport_chiefId",
                 table: "EthicsReport",
-                column: "userid");
+                column: "chiefId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Faculty_userId",

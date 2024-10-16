@@ -23,6 +23,5 @@ namespace CRE.Models
         public ICollection<EthicsApplication> EthicsApplication { get; set; } = new List<EthicsApplication>();
         public ICollection<EthicsApplicationLog> EthicsApplicationLog { get; set; } = new List<EthicsApplicationLog>();
         public ICollection<NonFundedResearchInfo> NonFundedResearchInfo { get; set; } = new List<NonFundedResearchInfo>(); // Collection of research projects
-        public ICollection<EthicsReport> EthicsReport { get; set;} = new List<EthicsReport>();
     }
 }

@@ -12,6 +12,7 @@ namespace CRE.Models
         public string userId { get; set; }
         [Required]
         public DateOnly submissionDate { get; set; }
+        [RegularExpression(@"\d{4}-\d{4}-\d{2}", ErrorMessage = "DTS No. must be in the format xxxx-xxxx-xx.")]
         public string? dtsNo { get; set; }
         [Required(ErrorMessage ="Field of Study is Required.")]
         [Display(Name ="Field of Study: ")]

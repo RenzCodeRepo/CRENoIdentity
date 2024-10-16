@@ -41,8 +41,13 @@ namespace CRE.Services
 
             do
             {
-                // Generate the ID in the format NFID-XXXX, where XXXX are 4 random digits
-                id = "NFID-" + random.Next(1000, 9999);
+                // Get the current date
+                string year = DateTime.Now.Year.ToString();  // YYYY
+                string dayMonth = DateTime.Now.ToString("ddMM");  // DDMM
+
+                // Generate the ID in the format NFID-YYYY-DDMM-XXXX
+                string randomDigits = random.Next(1000, 9999).ToString();  // XXXX
+                id = $"NFID-{year}-{dayMonth}-{randomDigits}";
 
                 // Check if the generated ID already exists in the database
                 exists = await _context.NonFundedResearchInfo
@@ -52,6 +57,7 @@ namespace CRE.Services
 
             return id;
         }
+
 
         public async Task<IEnumerable<NonFundedResearchInfo>> GetAllNonFundedResearchAsync()
         {

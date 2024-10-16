@@ -4,6 +4,7 @@ using CRE.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace CRE.Controllers
 {
@@ -46,6 +47,13 @@ namespace CRE.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateDtsNo(string urecNo, string dtsNo)
         {
+            // Validate DTS No. format
+            var dtsPattern = @"^\d{4}-\d{4}-\d{2}$"; // Pattern: xxxx-xxxx-xx
+            if (!Regex.IsMatch(dtsNo, dtsPattern))
+            {
+                ModelState.AddModelError("dtsNo", "DTS No. must be in the format xxxx-xxxx-xx.");
+                return PartialView("_editDtsModal", new UploadFormsViewModel { EthicsApplication = new EthicsApplication { urecNo = urecNo, dtsNo = dtsNo } });
+            }
             // Check for required fields
             if (string.IsNullOrEmpty(urecNo) || string.IsNullOrEmpty(dtsNo))
             {
@@ -66,17 +74,16 @@ namespace CRE.Controllers
             if (existingDts != null)
             {
                 ModelState.AddModelError("dtsNo", "This DTS No. is already in use.");
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToArray(); // Collect all error messages
-                return Json(new { success = false, errors }); // Return the errors array
+                return PartialView("_editDtsModal", new UploadFormsViewModel { EthicsApplication = ethicsApplication });
             }
+
             // Update the DTS No.
             ethicsApplication.dtsNo = dtsNo;
 
             // Save the changes
             await _ethicsApplicationServices.SaveChangesAsync();
 
-            // Optionally, return the updated modal view or redirect as needed
-            return Json(new { success = true, dtsNo = ethicsApplication.dtsNo }); // Return JSON response on success
+            return RedirectToAction("UploadForms", "EthicsApplicationForms", new { urecNo = urecNo });
         }
 
 
