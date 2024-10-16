@@ -1,4 +1,5 @@
 ﻿using CRE.Models;
+using System.Threading.Tasks;
 
 namespace CRE.Interfaces
 {
@@ -14,5 +15,6 @@ namespace CRE.Interfaces
         Task<string> GenerateUrecNoAsync(); // Generate a unique record number for new applications
         Task<bool> IsUrecNoExistsAsync(string urecNo);
         Task SaveChangesAsync();
+        Task<EthicsApplication> GetApplicationByDtsNoAsync(string dtsNo);
     }
 }

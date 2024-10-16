@@ -42,6 +42,44 @@ namespace CRE.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateDtsNo(string urecNo, string dtsNo)
+        {
+            // Check for required fields
+            if (string.IsNullOrEmpty(urecNo) || string.IsNullOrEmpty(dtsNo))
+            {
+                ModelState.AddModelError("", "DTS No. and Urec No. are required.");
+                // Return the modal with the current state, including errors
+                return PartialView("_editDtsModal", new UploadFormsViewModel { EthicsApplication = new EthicsApplication { urecNo = urecNo, dtsNo = dtsNo } });
+            }
+
+            // Find the ethics application by urecNo
+            var ethicsApplication = await _ethicsApplicationServices.GetApplicationByUrecNoAsync(urecNo);
+            if (ethicsApplication == null)
+            {
+                return NotFound(); // Handle case where application doesn't exist
+            }
+
+            // Check if the DTS number already exists
+            var existingDts = await _ethicsApplicationServices.GetApplicationByDtsNoAsync(dtsNo);
+            if (existingDts != null)
+            {
+                ModelState.AddModelError("dtsNo", "This DTS No. is already in use.");
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToArray(); // Collect all error messages
+                return Json(new { success = false, errors }); // Return the errors array
+            }
+            // Update the DTS No.
+            ethicsApplication.dtsNo = dtsNo;
+
+            // Save the changes
+            await _ethicsApplicationServices.SaveChangesAsync();
+
+            // Optionally, return the updated modal view or redirect as needed
+            return Json(new { success = true, dtsNo = ethicsApplication.dtsNo }); // Return JSON response on success
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> UploadForms(string urecNo)
         {

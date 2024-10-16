@@ -91,5 +91,12 @@ namespace CRE.Services
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<EthicsApplication> GetApplicationByDtsNoAsync(string dtsNo)
+        {
+            return await _context.EthicsApplication
+                                 .FirstOrDefaultAsync(e => e.dtsNo == dtsNo);
+        }
+
     }
 }

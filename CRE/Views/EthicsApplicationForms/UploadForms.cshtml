@@ -64,53 +64,56 @@
                 <p><strong>Collge: </strong> @Model.NonFundedResearchInfo.college</p>
                 <p><strong>Branch/Campuses: </strong> @Model.NonFundedResearchInfo.campus</p>
             </div>
-
-            <!-- Display DTS No. or Edit Button -->
-            <div class="col text-end">
-                <p id="dtsNoText">
-                    <strong>DTS No.:</strong>
-                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+               <!-- Display DTS No. or Edit Button -->
+                <div class="col text-end">
+                    <p id="dtsNoText">
+                        <strong>DTS No.:</strong>
+                        @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                        {
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                        }
+                        else
+                        {
+                            @Model.EthicsApplication.dtsNo
+                        }
+                    </p>
+    
+                    <!-- Button to Copy DTS No. if it exists -->
+                    @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo)) // Ensure the button only shows if DTS No. exists
                     {
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                            Copy DTS No.
+                        </button>
                     }
-                    else
-                    {
-                        @Model.EthicsApplication.dtsNo
-                    }
-                </p>
-                <!-- Button to Copy DTS No. if it exists -->
-                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo)) // Ensure the button only shows if DTS No. exists
-                {
-                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                        Copy DTS No.
-                    </button>
-                }
-            </div>
+                </div>
 
-            <!-- Modal for Adding/Editing DTS No. -->
-            <div class="modal fade" id="editDtsModal" tabindex="-1" aria-labelledby="editDtsLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editDtsLabel">Edit DTS No.</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="editDtsForm" method="post" asp-action="UpdateDtsNo" asp-controller="EthicsApplication">
-                                <div class="mb-3">
-                                    <label for="dtsNoInput" class="form-label">DTS No.</label>
-                                    <input type="text" class="form-control" id="dtsNoInput" name="dtsNo" required />
-                                </div>
-                                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" form="editDtsForm" class="btn btn-primary">Save DTS No.</button>
+                <!-- Modal for Adding/Editing DTS No. -->
+                <div class="modal fade" id="editDtsModal" tabindex="-1" aria-labelledby="editDtsLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editDtsLabel">Edit DTS No.</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="errorMessages" class="text-danger mb-2"></div> <!-- Error message display -->
+                                <form id="editDtsForm" method="post" asp-action="UpdateDtsNo" asp-controller="EthicsApplicationForms">
+                                    <div class="mb-3">
+                                        <label for="dtsNoInput" class="form-label">DTS No.</label>
+                                        <input type="text" class="form-control" id="dtsNoInput" name="dtsNo" value="@Model.EthicsApplication.dtsNo" required />
+                                        @Html.ValidationMessage("dtsNo", "", new { @class = "text-danger" }) <!-- Display error message -->
+                                    </div>
+                                    <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="submitDtsForm">Save DTS No.</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
         </div>
     </div>
 </div>
@@ -386,6 +389,36 @@
             }
         });
     </script>
+<script>
+    $(document).ready(function () {
+        $('#submitDtsForm').click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("UpdateDtsNo", "EthicsApplicationForms")',
+                data: $('#editDtsForm').serialize(),
+                success: function (response) {
+                    if (response.success) {
+                        $('#editDtsModal').modal('hide');
+                        $('#dtsNoText').html('<strong>DTS No.:</strong> ' + response.dtsNo);
+                    } else {
+                        // Check if errors are defined and display them
+                        if (response.errors && response.errors.length > 0) {
+                            $('#errorMessages').html(response.errors.join('<br />'));
+                        } else {
+                            $('#errorMessages').html("An unexpected error occurred.");
+                        }
+                    }
+                },
+                error: function () {
+                    $('#errorMessages').html("An error occurred. Please try again.");
+                }
+            });
+        });
+    });
+</script>
+
+
     <script>
         $(document).ready(function () {
             // Initialize form states based on default selections

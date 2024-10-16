@@ -1,0 +1,10 @@
+﻿<div class="modal-body">
+    <div id="errorMessages" class="text-danger mb-2"></div> <!-- Error messages will be shown here -->
+    <form id="editDtsForm" method="post" asp-action="UpdateDtsNo" asp-controller="EthicsApplicationForms">
+        <div class="mb-3">
+            <label for="dtsNoInput" class="form-label">DTS No.</label>
+            <input type="text" class="form-control" id="dtsNoInput" name="dtsNo" value="@Model.EthicsApplication.dtsNo" required />
+        </div>
+        <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+    </form>
+</div>

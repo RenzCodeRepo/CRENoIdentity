@@ -76,11 +76,11 @@
                     <div class="row mb-3">
                         <label asp-for="EthicsApplication.dtsNo" class="text-danger fw-bold text-nowrap col-form-label col-sm-3 text-end">DTS No.:</label>
                         <div class="col-sm-8">
-                            @Html.TextBoxFor(model => model.EthicsApplication.dtsNo, new { @class = "form-control", placeholder = "DTS No. (Optional)" })
+                            @Html.TextBoxFor(model => model.EthicsApplication.dtsNo, new { @class = "form-control", id = "dtsNoInput", placeholder = "DTS No. (Optional)" })
+                            <span id="dtsNoError" class="text-danger"></span>
                             @Html.ValidationMessageFor(model => model.EthicsApplication.dtsNo, "", new { @class = "text-danger" })
                         </div>
                     </div>
-
                     <!-- Research Project Title -->
                     <div class="row mb-3">
                         @Html.LabelFor(model => model.NonFundedResearchInfo.title,
@@ -333,6 +333,29 @@
 
             // Initially bind remove buttons for existing co-proponents
             bindRemoveButtons();
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $('#dtsNoInput').on('change', function() {
+                var dtsNo = $(this).val();
+                if (dtsNo) {
+                    $.ajax({
+                        url: '@Url.Action("CheckDtsNumber", "EthicsApplication")',
+                        type: 'GET',
+                        data: { dtsNo: dtsNo },
+                        success: function(response) {
+                            if (!response.isValid) {
+                                $('#dtsNoError').text(response.message);
+                            } else {
+                                $('#dtsNoError').text('');
+                            }
+                        }
+                    });
+                } else {
+                    $('#dtsNoError').text('');
+                }
+            });
         });
     </script>
 }
