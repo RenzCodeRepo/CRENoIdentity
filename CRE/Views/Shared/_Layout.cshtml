@@ -36,15 +36,14 @@
                                 <a class="nav-link" asp-area="" asp-controller="EthicsForm" asp-action="DownloadForms">Forms</a>
                             </li>
 
-                            @* Determine the current role from TempData *@
-                            var currentRole = TempData["CurrentRole"]?.ToString() ?? "Researcher"; // Default to Researcher
+                            @* Determine the current role from session *@
+                            var currentRole = Context.Session.GetString("CurrentRole") ?? "Researcher"; // Default to Researcher
 
-                            // Role-specific navigation items
                             switch (currentRole)
                             {
                                 case "Secretariat":
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ReviewApplications">Review Applications</a>
+                                        <a class="nav-link" asp-area="" asp-controller="InitialReview" asp-action="InitialReview">Review Applications</a>
                                     </li>
                                     break;
                                 case "Chief":
@@ -65,7 +64,6 @@
                             }
                         }
                     </ul>
-
                     <!-- Login/Logout and dropdown Section -->
                     <ul class="navbar-nav">
                         @if (User.Identity.IsAuthenticated)
@@ -83,16 +81,16 @@
                                         var roles = await UserManager.GetRolesAsync(user);
 
                                         // Remove 'Faculty' role from the dropdown
-                                        var filteredRoles = roles.Where(r => r != "Faculty").ToList();
+                                        roles = roles.Where(r => r != "Faculty").ToList();
+                                    }
 
-                                        // Loop through roles and create dropdown items
-                                        foreach (var role in filteredRoles)
-                                        {
-                                            <form asp-action="SwitchRole" method="post" style="display:inline;">
-                                                <input type="hidden" name="roleName" value="@role" />
-                                                <button type="submit" class="dropdown-item">@role</button>
-                                            </form>
-                                        }
+                                    @* Loop through roles and create dropdown items *@
+                                    @foreach (var role in roles)
+                                    {
+                                        <form asp-controller="Home" asp-action="SwitchRole" method="post" style="display:inline;">
+                                            <input type="hidden" name="roleName" value="@role" />
+                                            <button type="submit" class="dropdown-item">@role</button>
+                                        </form>
                                     }
                                 </div>
                             </li>
@@ -119,7 +117,6 @@
             </div>
         </nav>
     </header>
-
 
     <div class="container">
         <main role="main" class="pb-3">

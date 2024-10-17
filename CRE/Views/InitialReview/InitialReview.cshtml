@@ -1,0 +1,42 @@
+﻿@model IEnumerable<CRE.ViewModels.InitialReviewViewModel>
+
+@{
+    ViewData["Title"] = "Initial Review Applications";
+}
+
+<h2>Initial Review Applications</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Application ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Date Submitted</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model == null || !Model.Any())
+        {
+            <tr>
+                <td colspan="5" class="text-center">No applications found.</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var application in Model)
+            {
+                <tr>
+                    <td>@application.EthicsApplication?.urecNo</td>
+                    <td>@application.NonFundedResearchInfo?.title</td>
+                    <td>@application.EthicsApplicationLog.FirstOrDefault()?.status</td>
+                    <td>@application.EthicsApplication?.submissionDate.ToShortDateString()</td> <!-- Adjust property names -->
+                    <td>
+                        <a asp-action="Details" asp-route-id="@application.EthicsApplication?.urecNo" class="btn btn-info">Details</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

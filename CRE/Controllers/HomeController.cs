@@ -39,19 +39,19 @@ namespace CRE.Controllers
                 var roles = await _userManager.GetRolesAsync(user);
                 ViewBag.UserRoles = roles; // Store roles in ViewBag for use in the view
 
-                // Determine the current role based on TempData or default to Researcher
-                string currentRole = TempData["CurrentRole"]?.ToString();
+                // Get the current role from the session or default to Researcher
+                string currentRole = HttpContext.Session.GetString("CurrentRole");
 
+                // Set the default if no current role is set
                 if (string.IsNullOrEmpty(currentRole))
                 {
-                    // If there's no role in TempData, check the available roles
                     if (!roles.Contains("Researcher") && roles.Contains("Chief"))
                     {
-                        TempData["CurrentRole"] = "Chief"; // Default to Chief if no Researcher
+                        HttpContext.Session.SetString("CurrentRole", "Chief"); // Default to Chief if no Researcher
                     }
                     else
                     {
-                        TempData["CurrentRole"] = roles.FirstOrDefault(r => r == "Researcher") ?? roles.FirstOrDefault();
+                        HttpContext.Session.SetString("CurrentRole", roles.FirstOrDefault(r => r == "Researcher") ?? roles.FirstOrDefault());
                     }
                 }
             }
@@ -64,6 +64,7 @@ namespace CRE.Controllers
             return View();
         }
 
+
         [HttpPost]
         public async Task<IActionResult> SwitchRole(string roleName)
         {
@@ -73,12 +74,13 @@ namespace CRE.Controllers
                 return BadRequest("Role name cannot be null or empty.");
             }
 
-            // Store the selected role in TempData
-            TempData["CurrentRole"] = roleName;
+            // Store the selected role in session instead of TempData
+            HttpContext.Session.SetString("CurrentRole", roleName);
 
             // Redirect back to the Index action
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Privacy()
         {
