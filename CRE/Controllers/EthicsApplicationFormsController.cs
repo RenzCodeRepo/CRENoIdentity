@@ -250,7 +250,7 @@ namespace CRE.Controllers
             {
                 urecNo = model.EthicsApplication.urecNo,
                 userId = userId,  // Using logged-in user's ID
-                status = "Forms Uploaded",
+                status = "Pending for Evaluation",
                 changeDate = DateTime.Now
             };
             await _ethicsApplicationLogServices.AddLogAsync(uploadFormLog);

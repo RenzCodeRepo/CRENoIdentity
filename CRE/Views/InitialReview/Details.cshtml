@@ -1,0 +1,141 @@
+﻿@model CRE.ViewModels.InitialReviewViewModel
+
+@{
+    ViewData["Title"] = "Application Details";
+}
+
+<h2>Application Details</h2>
+
+<div class="card border-light mb-3" style="width: contain;">
+    <div class="card-header">
+        <div class="row">
+            <div class="col text-start">
+                <p id="urecNoText">
+                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
+                </p>
+                <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
+                    Copy UREC No.
+                </button>
+
+                <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo?.title</h4>
+                <p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Proponent/s:</strong><br />
+                            @($"{Model.AppUser?.fName} {Model.AppUser?.mName} {Model.AppUser?.lName}")
+                            <br />
+                            @if (Model.CoProponent != null && Model.CoProponent.Any())
+                            {
+                                foreach (var proponent in Model.CoProponent)
+                                {
+                                    @proponent.coProponentName <br />
+                                }
+                            }
+                        </div>
+                    </div>
+                </p>
+                <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+                <p><strong>College: </strong> @Model.NonFundedResearchInfo?.college</p>
+                <p><strong>Branch/Campuses: </strong> @Model.NonFundedResearchInfo?.campus</p>
+            </div>
+
+            <!-- Display DTS No. or Edit Button -->
+            <div class="col text-end">
+                <p id="dtsNoText">
+                    <strong>DTS No.:</strong>
+                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                    {
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                    }
+                    else
+                    {
+                        @Model.EthicsApplication.dtsNo
+                    }
+                </p>
+
+                <!-- Button to Copy DTS No. if it exists -->
+                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                {
+                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                        Copy DTS No.
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p><strong>Submission Date:</strong> @Model.EthicsApplication?.submissionDate.ToShortDateString()</p>
+
+        @* Highlight status with a badge *@
+        <p>
+            <strong>Status:</strong>
+            <span class="badge @(Model.EthicsApplicationLog.FirstOrDefault()?.status == "Approved" ? "bg-success" : "bg-warning")">
+                @Model.EthicsApplicationLog.FirstOrDefault()?.status
+            </span>
+        </p>
+        
+
+        <h4>Application Forms</h4>
+        @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
+        {
+            <div class="mb-3">
+                <label><strong>Receipt:</strong></label>
+                <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" target="_blank" class="btn btn-primary btn-sm">
+                    View Receipt (PDF)
+                </a>
+            </div>
+        }
+        @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
+        {
+            <ul class="list-unstyled">
+                @foreach (var form in Model.EthicsApplicationForms)
+                {
+                    <li>
+                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                            @form.fileName
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No forms submitted.</p>
+        }
+
+        @* Action Buttons *@
+        <div class="mb-3">
+            <form asp-action="ApproveApplication" method="post" class="d-inline">
+                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                <button type="submit" class="btn btn-success">Approve</button>
+            </form>
+            <form asp-action="ReturnApplication" method="post" class="d-inline">
+                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                <button type="submit" class="btn btn-danger">Not Approved</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyUrecNo() {
+            const urecNoText = document.getElementById("urecNoText").innerText;
+            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
+                alert('UREC No. copied to clipboard!');
+            }, function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        function copyDtsNo() {
+            const dtsNoText = document.getElementById("dtsNoText").innerText;
+            navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
+                alert('DTS No. copied to clipboard!');
+            }, function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+}
