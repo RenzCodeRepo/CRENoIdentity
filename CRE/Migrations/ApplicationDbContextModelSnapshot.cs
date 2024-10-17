@@ -117,6 +117,10 @@ namespace CRE.Migrations
                     b.Property<int>("facultyId")
                         .HasColumnType("int");
 
+                    b.Property<string>("fieldOfStudy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("chairpersonId");
 
                     b.HasIndex("facultyId")

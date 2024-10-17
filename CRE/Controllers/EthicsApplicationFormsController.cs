@@ -147,6 +147,7 @@ namespace CRE.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]  
         public async Task<IActionResult> UploadForms(UploadFormsViewModel model)
         {
             // Retrieve the logged-in user's ID from Identity

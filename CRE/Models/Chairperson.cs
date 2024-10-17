@@ -9,7 +9,7 @@ namespace CRE.Models
         public int chairpersonId { get; set; }
         [ForeignKey(nameof(Faculty))]
         public int facultyId { get; set; }
-
+        public string fieldOfStudy { get; set; }
         //navigation properties
         public Faculty Faculty { get; set; }
     }

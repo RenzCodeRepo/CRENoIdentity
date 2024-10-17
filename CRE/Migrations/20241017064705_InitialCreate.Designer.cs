@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241016132057_InitialCreate")]
+    [Migration("20241017064705_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -119,6 +119,10 @@ namespace CRE.Migrations
 
                     b.Property<int>("facultyId")
                         .HasColumnType("int");
+
+                    b.Property<string>("fieldOfStudy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("chairpersonId");
 

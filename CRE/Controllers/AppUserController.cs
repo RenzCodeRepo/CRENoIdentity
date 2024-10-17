@@ -27,7 +27,6 @@ namespace CRE.Controllers
         }
 
         // Login action
-        
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
@@ -76,6 +75,20 @@ namespace CRE.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+        public async Task<IActionResult> SwitchRole(string roleName)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "AppUser");
+            }
+
+            // Here, you might set a claim or use TempData to remember the current role.
+            TempData["CurrentRole"] = roleName;
+
+            // Redirect to the homepage or the page that requires the new role
             return RedirectToAction("Index", "Home");
         }
 

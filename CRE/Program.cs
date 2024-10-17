@@ -69,7 +69,25 @@ var app = builder.Build();
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
     Seed.SeedDataAsync(app);
+}// Ensure the database is created
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    // Add roles
+    string[] roleNames = { "Researcher", "Chief", "Faculty", "Evaluator", "Secretariat", "Chairperson" };
+
+    foreach (var roleName in roleNames)
+    {
+        // Check if the role exists before creating it
+        if (!await roleManager.RoleExistsAsync(roleName))
+        {
+            await roleManager.CreateAsync(new IdentityRole(roleName));
+        }
+    }
 }
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

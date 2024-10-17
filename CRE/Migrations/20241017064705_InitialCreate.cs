@@ -465,7 +465,8 @@ namespace CRE.Migrations
                 {
                     chairpersonId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    facultyId = table.Column<int>(type: "int", nullable: false)
+                    facultyId = table.Column<int>(type: "int", nullable: false),
+                    fieldOfStudy = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

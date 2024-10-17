@@ -10,61 +10,117 @@
     <link rel="stylesheet" href="~/CRE.styles.css" asp-append-version="true" />
 </head>
 <body>
-   <header>
-    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CRE</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <!-- Home Link -->
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    
-                    <!-- Conditional Application Link (visible only if logged in) -->
+    <header>
+        <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CRE</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <!-- Home Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+
+                        <!-- Conditional Application Link (visible only if logged in) -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="Applications">Application</a>
+                            </li>
+                        }
+
+                        <!-- Forms Link -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="EthicsForm" asp-action="DownloadForms">Forms</a>
+                        </li>
+
+                        <!-- Role Switch Dropdown -->
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Switch Role
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    @* Get the user and their roles *@
+                                @using Microsoft.AspNetCore.Identity
+                                @inject UserManager<AppUser> UserManager
+                                    @{
+                                        var user = await UserManager.GetUserAsync(User);
+                                        var roles = await UserManager.GetRolesAsync(user);
+                                    }
+
+                                    @* Loop through roles and create dropdown items *@
+                                    @foreach (var role in roles)
+                                    {
+                                        <a class="dropdown-item" href="@Url.Action("SwitchRole", "Account", new { roleName = role })">@role</a>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="Applications">Application</a>
-                        </li>
+                        var currentRole = TempData["CurrentRole"]?.ToString();
+                        if (string.IsNullOrEmpty(currentRole))
+                        {
+                            @* currentRole = roles.FirstOrDefault(); // Fallback to the first role if TempData is not set *@
+                        }
+
+                        // Role-specific navigation items
+                        switch (currentRole)
+                        {
+                            case "Secretariat":
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ReviewApplications">Review Applications</a>
+                                </li>
+                                break;
+                            case "Chief":
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ChiefDashboard">Chief Dashboard</a>
+                                </li>
+                                break;
+                            case "Reviewer":
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ReviewerDashboard">Reviewer Dashboard</a>
+                                </li>
+                                break;
+                        }
                     }
 
-                    <!-- Forms Link -->
-                    <li class="nav-item">
-                        <a class="nav-link" asp-area="" asp-controller="EthicsForm" asp-action="DownloadForms">Forms</a>
-                    </li>
-                </ul>
-
-                <!-- Login/Logout Section -->
-                <ul class="navbar-nav">
-                    @if (User.Identity.IsAuthenticated)
-                    {
-                        <!-- Show Logout when user is logged in -->
-                        <li class="nav-item">
-                            <form asp-action="Logout" asp-controller="AppUser" method="post">
-                                <button type="submit" class="nav-link btn btn-link" style="color: white; text-decoration: none;">
-                                    Logout
-                                </button>
-                                @Html.AntiForgeryToken()
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <!-- Show Login link when no user is logged in -->
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="AppUser" asp-action="Login">Login</a>
-                        </li>
-                    }
-                </ul>
+                    <!-- Login/Logout Section -->
+                    <ul class="navbar-nav">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <!-- Show Logout when user is logged in -->
+                            <li class="nav-item">
+                                <form asp-action="Logout" asp-controller="AppUser" method="post">
+                                    <button type="submit" class="nav-link btn btn-link" style="color: white; text-decoration: none;">
+                                        Logout
+                                    </button>
+                                    @Html.AntiForgeryToken()
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <!-- Show Login link when no user is logged in -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="AppUser" asp-action="Login">Login</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
+
+
 
 
     <div class="container">
