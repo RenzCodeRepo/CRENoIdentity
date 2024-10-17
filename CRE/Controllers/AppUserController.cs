@@ -49,6 +49,7 @@ namespace CRE.Controllers
                     var roles = await _userManager.GetRolesAsync(user);
 
                     if (roles.Any(role =>
+                        role == UserRoles.Researcher ||
                         role == UserRoles.Chief ||
                         role == UserRoles.Faculty ||
                         role == UserRoles.Evaluator ||
@@ -77,25 +78,14 @@ namespace CRE.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
-        public async Task<IActionResult> SwitchRole(string roleName)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return RedirectToAction("Login", "AppUser");
-            }
-
-            // Here, you might set a claim or use TempData to remember the current role.
-            TempData["CurrentRole"] = roleName;
-
-            // Redirect to the homepage or the page that requires the new role
-            return RedirectToAction("Index", "Home");
-        }
 
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();
         }
+
+        
+
     }
 }

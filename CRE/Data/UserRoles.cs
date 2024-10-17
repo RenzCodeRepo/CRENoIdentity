@@ -2,6 +2,7 @@
 {
     public static class UserRoles
     {
+        public const string Researcher = "Researcher";
         public const string Chief = "Chief";
         public const string Faculty = "Faculty";
         public const string Evaluator = "Evaluator";

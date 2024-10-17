@@ -63,13 +63,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// Add session services
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Adjust as needed
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Essential for GDPR compliance
+});
+
 var app = builder.Build();
 
 // Seed data if specified
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
     Seed.SeedDataAsync(app);
-}// Ensure the database is created
+}
+
+// Ensure the database is created
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -88,7 +98,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -101,8 +110,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Ensure authentication middleware is included
-app.UseAuthentication(); // Added for authentication
+// Use session middleware before authentication
+app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

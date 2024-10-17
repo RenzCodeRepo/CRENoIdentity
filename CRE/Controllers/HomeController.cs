@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using CRE.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using CRE.Interfaces;
 
 namespace CRE.Controllers
 {
@@ -37,6 +38,22 @@ namespace CRE.Controllers
                 // Get user roles
                 var roles = await _userManager.GetRolesAsync(user);
                 ViewBag.UserRoles = roles; // Store roles in ViewBag for use in the view
+
+                // Determine the current role based on TempData or default to Researcher
+                string currentRole = TempData["CurrentRole"]?.ToString();
+
+                if (string.IsNullOrEmpty(currentRole))
+                {
+                    // If there's no role in TempData, check the available roles
+                    if (!roles.Contains("Researcher") && roles.Contains("Chief"))
+                    {
+                        TempData["CurrentRole"] = "Chief"; // Default to Chief if no Researcher
+                    }
+                    else
+                    {
+                        TempData["CurrentRole"] = roles.FirstOrDefault(r => r == "Researcher") ?? roles.FirstOrDefault();
+                    }
+                }
             }
             else
             {
@@ -47,6 +64,21 @@ namespace CRE.Controllers
             return View();
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SwitchRole(string roleName)
+        {
+            // Check if the roleName is not null or empty
+            if (string.IsNullOrEmpty(roleName))
+            {
+                return BadRequest("Role name cannot be null or empty.");
+            }
+
+            // Store the selected role in TempData
+            TempData["CurrentRole"] = roleName;
+
+            // Redirect back to the Index action
+            return RedirectToAction("Index");
+        }
 
         public IActionResult Privacy()
         {
