@@ -75,34 +75,52 @@
             </span>
         </p>
         
-
         <h4>Application Forms</h4>
+
         @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
         {
             <div class="mb-3">
                 <label><strong>Receipt:</strong></label>
-                <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" target="_blank" class="btn btn-primary btn-sm">
+                <button class="btn btn-primary btn-sm" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
                     View Receipt (PDF)
-                </a>
+                </button>
             </div>
         }
+
         @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
         {
             <ul class="list-unstyled">
                 @foreach (var form in Model.EthicsApplicationForms)
                 {
                     <li>
-                        <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                        <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
                             @form.fileName
-                        </a>
+                        </button>
                     </li>
                 }
             </ul>
         }
+
         else
         {
             <p>No forms submitted.</p>
         }
+        <!-- Modal for file view-->
+        <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         @* Action Buttons *@
         <div class="mb-3">
@@ -136,6 +154,15 @@
             }, function (err) {
                 console.error('Could not copy text: ', err);
             });
+        }
+    </script>
+    <script type="text/javascript">
+        function openPdfInModal(pdfUrl) {
+            // Set the iframe source to the selected PDF
+            document.getElementById("pdfViewer").src = pdfUrl;
+
+            // Show the modal
+            $('#pdfModal').modal('show');
         }
     </script>
 }
