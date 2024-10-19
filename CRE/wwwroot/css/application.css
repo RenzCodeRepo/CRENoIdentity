@@ -1,0 +1,215 @@
+﻿/*#applybutton {
+    padding-bottom: 20px;
+    position: fixed;
+    bottom: 100px;
+    right: 100px;
+    background-color: #8B0000;
+    color: white;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}*/
+
+/* Main container styles */
+.applications-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Search bar styles */
+.search-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px;
+    padding: 8px 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+    .search-bar input {
+        border: none;
+        outline: none;
+        width: 100%;
+        padding: 5px;
+    }
+
+/* View toggle styles */
+.view-toggle {
+    display: flex;
+    gap: 10px;
+}
+
+    .view-toggle button {
+        background: none;
+        border: none;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+/* Card styles */
+.research-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+    .research-card:hover {
+        transform: translateY(-2px);
+    }
+
+.research-preview {
+    background: #8B0000; /* Dark red background */
+    padding: 20px;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .research-preview img {
+        max-width: 100%;
+        height: auto;
+    }
+
+.research-info {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.research-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.research-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.status-completed {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.status-pending {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+/* View Application button styles */
+.view-application-btn {
+    background-color: #8B0000;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+    margin-top: auto; /* Pushes button to bottom of card */
+}
+
+    .view-application-btn:hover {
+        background-color: #690000;
+        text-decoration: none;
+        color: white;
+    }
+
+/* Floating action button styles */
+.floating-action-button {
+    padding-bottom: 20px;
+    position: fixed;
+    bottom: 100px;
+    right: 100px;
+    background-color: #8B0000;
+    color: white;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+    .floating-action-button:hover {
+        background-color: #690000;
+    }
+
+/* Inbox styles */
+.inbox-container {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 200px;
+}
+
+.inbox-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    padding: 40px;
+}
+
+/* Grid layout */
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.list-view {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .grid-view {
+        grid-template-columns: 1fr;
+    }
+
+    .search-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+}

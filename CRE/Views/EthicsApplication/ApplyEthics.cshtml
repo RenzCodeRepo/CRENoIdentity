@@ -65,7 +65,9 @@
 
     bool isExternalResearcher = Model.User.type == "external";
 }
-
+<head>
+    <link rel="stylesheet" href="~/css/applyethics.css" asp-append-version="true" />
+</head>
 <div class="container-fluid mt-3">
     <div class="d-flex justify-content-center">
         <form asp-action="ApplyEthics" method="post" enctype="multipart/form-data" style="width: 80%;">
@@ -270,7 +272,8 @@
             </div>
             }
             <div class="card-footer">
-                <div class="text-center">
+                <div class="button-group">
+                    <a asp-area="" asp-controller="EthicsApplication" asp-action="Applications" class="btn btn-cancel">Cancel</a>
                     <button type="submit" class="btn btn-danger">Submit</button>
                 </div>
             </div>

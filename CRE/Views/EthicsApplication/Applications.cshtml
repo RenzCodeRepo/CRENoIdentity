@@ -2,6 +2,101 @@
 @{
     ViewBag.Title = "Applications";
 }
+<head>
+    <link rel="stylesheet" href="~/css/application.css" asp-append-version="true" />
+</head>
+
+<div class="applications-container">
+    <h2>ETHICS CLEARANCE APPLICATIONS</h2>
+
+    @if (Model.EthicsApplication.Any())
+    {
+        <div class="grid-view">
+            @foreach (var application in Model.EthicsApplication)
+            {
+                var researchInfo = Model.NonFundedResearchInfo
+                .FirstOrDefault(nr => nr.urecNo == application.urecNo);
+                var latestLog = Model.EthicsApplicationLog
+                .FirstOrDefault(log => log.urecNo == application.urecNo);
+
+                <div class="research-card">
+                    <div class="research-preview">
+                       
+                    </div>
+                    <div class="research-info">
+                        <h3 class="research-title">@researchInfo?.title</h3>
+                        <div class="research-status">
+                            <strong>Status:</strong>
+                            <span class="status-@(latestLog?.status?.ToLower() ?? "pending")">
+                                @(latestLog?.status ?? "Pending")
+                            </span>
+                        </div>
+                        <p><strong>Submission Date:</strong> @application.submissionDate.ToShortDateString()</p>
+                        <a href="@Url.Action("UploadForms", "EthicsApplicationForms", new { urecNo = application.urecNo })"
+                           class="view-application-btn">
+                            View Application
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="inbox-container">
+            <div class="inbox-empty">
+                <i class="fas fa-inbox"></i>
+                <p>You have no applications submitted.</p>
+            </div>
+        </div>
+    }
+
+    <button class="floating-action-button" onclick="location.href='@Url.Action("ApplyEthics", "EthicsApplication")'">
+        +
+    </button>
+</div>
+
+<!-- Modal Structure -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">Application Submitted</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <p>@TempData["SuccessMessage"]</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+    $(document).ready(function () {
+        // Check if there is a success message in TempData
+        var successMessage = "@TempData["SuccessMessage"]";
+        if (successMessage) {
+            // Show the modal
+            $('#successModal').modal('show');
+        }
+    });
+</script>
+}
+
+
+
+@* 
+﻿@model CRE.ViewModels.ApplicationsViewModel
+@{
+    ViewBag.Title = "Applications";
+}
 
 <h2>Ethics Clearance Application</h2>
 
@@ -79,4 +174,4 @@ else
         }
     });
 </script>
-}
+} *@
