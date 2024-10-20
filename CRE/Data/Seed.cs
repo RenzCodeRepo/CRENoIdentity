@@ -319,7 +319,7 @@ namespace CRE.Data
                         },
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-15",
+                            ethicsFormId = "FORM15",
                             formName = "Application for Ethics Review of Amendments",
                             formDescription = "This form should be used for detail changes and addition with regards to the application.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-15-Application for Ethics Review of Amendments.docx")
@@ -334,7 +334,7 @@ namespace CRE.Data
                         //},
                         new EthicsForm
                         {
-                            ethicsFormId = "FORM-18",
+                            ethicsFormId = "FORM18",
                             formName = "Terminal Report Template",
                             formDescription = "This form should be submitted upon completion of the study.",
                             file = seed.ReadFileToByteArray("FormFiles\\FORM-18-Terminal-Report-Template.docx")

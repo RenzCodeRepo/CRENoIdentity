@@ -76,7 +76,7 @@ namespace CRE.Services
         public async Task<IEnumerable<EthicsApplication>> GetApplicationsByUserAsync(string userId)
         {
             return await _context.EthicsApplication
-                //.Where(a => a.userId == userId)
+                .Where(a => a.userId == userId)
                 .ToListAsync();
         }
 
