@@ -45,7 +45,7 @@
                     <strong>DTS No.:</strong>
                     @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                     {
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
                     }
                     else
                     {
@@ -56,9 +56,9 @@
                 <!-- Button to Copy DTS No. if it exists -->
                 @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                 {
-                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                        Copy DTS No.
-                    </button>
+                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                            Copy DTS No.
+                        </button>
                 }
             </div>
         </div>
@@ -74,95 +74,148 @@
                 @Model.EthicsApplicationLog.FirstOrDefault()?.status
             </span>
         </p>
-        
+
         <h4>Application Forms</h4>
 
         @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
         {
-            <div class="mb-3">
-                <label><strong>Receipt:</strong></label>
-                <button class="btn btn-primary btn-sm" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
-                    View Receipt (PDF)
-                </button>
-            </div>
+                <div class="mb-3">
+                    <label><strong>Receipt:</strong></label>
+                    <button class="btn btn-primary btn-sm" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
+                        View Receipt (PDF)
+                    </button>
+                </div>
         }
 
         @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
         {
-            <ul class="list-unstyled">
+                <ul class="list-unstyled">
                 @foreach (var form in Model.EthicsApplicationForms)
                 {
-                    <li>
-                        <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
+                            <li>
+                                <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
                             @form.fileName
-                        </button>
-                    </li>
+                                </button>
+                            </li>
                 }
-            </ul>
+                </ul>
         }
-
         else
         {
-            <p>No forms submitted.</p>
+                <p>No forms submitted.</p>
         }
-        <!-- Modal for file view-->
-        <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
-                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         @* Action Buttons *@
         <div class="mb-3">
-            <form asp-action="ApproveApplication" method="post" class="d-inline">
-                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                <button type="submit" class="btn btn-success">Approve</button>
-            </form>
-            <form asp-action="ReturnApplication" method="post" class="d-inline">
-                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                <button type="submit" class="btn btn-danger">Not Approved</button>
-            </form>
+            @if (Model.EthicsApplicationLog.FirstOrDefault()?.status != "Approved for Evaluation")
+            {
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                        Approve
+                    </button>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#returnModal">
+                        Return
+                    </button>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Approval Feedback -->
+<div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-labelledby="approveModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="approveModalLabel">Approval Feedback</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="approveForm" asp-action="ApproveApplication" method="post">
+                    <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label">Feedback</label>
+                        <textarea class="form-control" id="feedback" name="comments" rows="3">No Mistakes in Forms Found</textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Submit Approval</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Return Feedback -->
+<div class="modal fade" id="returnModal" tabindex="-1" role="dialog" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnModalLabel">Return Feedback</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="returnForm" asp-action="ReturnApplication" method="post">
+                    <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                    <div class="mb-3">
+                        <label for="returnFeedback" class="form-label">Feedback</label>
+                        <textarea class="form-control" id="returnFeedback" name="comments" rows="3" placeholder="Provide feedback on why the application is being returned..."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Submit Return</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal for file view-->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script>
-        function copyUrecNo() {
-            const urecNoText = document.getElementById("urecNoText").innerText;
-            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
-                alert('UREC No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
+        <script>
+            function copyUrecNo() {
+                const urecNoText = document.getElementById("urecNoText").innerText;
+                navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
+                    alert('UREC No. copied to clipboard!');
+                }, function (err) {
+                    console.error('Could not copy text: ', err);
+                });
+            }
 
-        function copyDtsNo() {
-            const dtsNoText = document.getElementById("dtsNoText").innerText;
-            navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
-                alert('DTS No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
-    </script>
-    <script type="text/javascript">
-        function openPdfInModal(pdfUrl) {
-            // Set the iframe source to the selected PDF
-            document.getElementById("pdfViewer").src = pdfUrl;
+            function copyDtsNo() {
+                const dtsNoText = document.getElementById("dtsNoText").innerText;
+                navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
+                    alert('DTS No. copied to clipboard!');
+                }, function (err) {
+                    console.error('Could not copy text: ', err);
+                });
+            }
 
-            // Show the modal
-            $('#pdfModal').modal('show');
-        }
-    </script>
+            function openPdfInModal(pdfUrl) {
+                // Set the iframe source to the selected PDF
+                document.getElementById("pdfViewer").src = pdfUrl;
+
+                // Show the modal
+                $('#pdfModal').modal('show');
+            }
+        </script>
 }

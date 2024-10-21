@@ -8,11 +8,13 @@ namespace CRE.Interfaces
         Task<IEnumerable<InitialReviewViewModel>> GetEthicsApplicationsForInitialReviewAsync();
         Task<InitialReviewViewModel> GetApplicationDetailsAsync(string urecNo);
         Task<IEnumerable<CoProponent>> GetCoProponentsByNonFundedResearchIdAsync(string nonFundedResearchId);
-        Task<ReceiptInfo> GetReceiptInfoByUrecNoAsync(string urecNo);
-        Task ApproveApplicationAsync(string urecNo, string comments);
-        Task ReturnApplicationAsync(string urecNo, string comments);
+        Task<InitialReview> GetInitialReviewByUrecNoAsync(string urecNo);
+        
+        Task ApproveApplicationAsync(string urecNo, string comments, string userId);
+        Task ReturnApplicationAsync(string urecNo, string comments, string userId);
         Task<IEnumerable<InitialReviewViewModel>> GetPendingApplicationsAsync();
         Task<IEnumerable<InitialReviewViewModel>> GetApprovedApplicationsAsync();
+        Task<IEnumerable<InitialReviewViewModel>> GetReturnedApplicationsAsync();
 
     }
 }

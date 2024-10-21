@@ -1,5 +1,6 @@
 ﻿using CRE.Interfaces;
 using CRE.Models;
+using CRE.Services;
 using CRE.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
@@ -18,6 +19,7 @@ namespace CRE.Controllers
         private readonly IEthicsApplicationLogServices _ethicsApplicationLogServices;
         private readonly ICoProponentServices _coProponentServices;
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
+        private readonly IInitialReviewServices _initialReviewServices;
 
         public EthicsApplicationFormsController(
             IConfiguration configuration,
@@ -27,7 +29,8 @@ namespace CRE.Controllers
             IReceiptInfoServices receiptInfoServices,
             IEthicsApplicationLogServices ethicsApplicationLogServices,
             ICoProponentServices coProponentServices,
-            IEthicsApplicationFormsServices ethicsApplicationFormsServices)
+            IEthicsApplicationFormsServices ethicsApplicationFormsServices,
+            IInitialReviewServices initialReviewServices)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -37,6 +40,7 @@ namespace CRE.Controllers
             _ethicsApplicationLogServices = ethicsApplicationLogServices;
             _coProponentServices = coProponentServices;
             _ethicsApplicationFormsServices = ethicsApplicationFormsServices;
+            _initialReviewServices = initialReviewServices;
         }
         public IActionResult Index()
         {
@@ -86,7 +90,6 @@ namespace CRE.Controllers
             return RedirectToAction("UploadForms", "EthicsApplicationForms", new { urecNo = urecNo });
         }
 
-
         [HttpGet]
         public async Task<IActionResult> UploadForms(string urecNo)
         {
@@ -99,7 +102,6 @@ namespace CRE.Controllers
 
             // Retrieve the logged-in user's ID from Identity
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             if (string.IsNullOrEmpty(userId))
             {
                 ModelState.AddModelError("", "Invalid user ID.");
@@ -111,7 +113,9 @@ namespace CRE.Controllers
             var nonFundedResearchInfo = await _nonFundedResearchInfoServices.GetNonFundedResearchByUrecNoAsync(urecNo);
             var receiptInfo = await _receiptInfoServices.GetReceiptInfoByUrecNoAsync(urecNo);
             var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
+            var latestComment = await _ethicsApplicationLogServices.GetLatestCommentByUrecNoAsync(urecNo); // Fetch the latest comment
             var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
+            var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo); // Get InitialReview data
             var user = await _userServices.GetByIdAsync(userId); // Use Identity UserId (string)
 
             // Ensure all necessary data exists
@@ -140,11 +144,14 @@ namespace CRE.Controllers
                 ReceiptInfo = receiptInfo,
                 EthicsApplicationForms = ethicsApplicationForms,
                 EthicsApplicationLog = ethicsApplicationLogs,
-                CoProponent = coProponents.ToList() // Ensure it's a List
+                LatestComment = latestComment, // Add the latest comment to the ViewModel
+                CoProponent = coProponents.ToList(),
+                InitialReview = initialReview// Ensure it's a List
             };
 
             return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]  
@@ -175,6 +182,7 @@ namespace CRE.Controllers
             ModelState.Remove("EthicsApplication.EthicsClearance");
             ModelState.Remove("EthicsApplication.userId");
             ModelState.Remove("EthicsApplication.CompletionReport");
+            ModelState.Remove("InitialReview");
 
             // Handle logic based on whether the research involves humans or minors
             if (model.InvolvesHumanSubjects)  // Assuming you have a boolean field in your model
@@ -202,17 +210,17 @@ namespace CRE.Controllers
 
             // Validate the model
             var fileProperties = new List<(string PropertyName, IFormFile File)>
-    {
-        (nameof(model.FORM9), model.FORM9),
-        (nameof(model.FORM10), model.FORM10),
-        (nameof(model.FORM10_1), model.FORM10_1),
-        (nameof(model.FORM11), model.FORM11),
-        (nameof(model.FORM12), model.FORM12),
-        (nameof(model.CAA), model.CAA),
-        (nameof(model.RCV), model.RCV),
-        (nameof(model.CV), model.CV),
-        (nameof(model.LI), model.LI)
-    };
+            {
+                (nameof(model.FORM9), model.FORM9),
+                (nameof(model.FORM10), model.FORM10),
+                (nameof(model.FORM10_1), model.FORM10_1),
+                (nameof(model.FORM11), model.FORM11),
+                (nameof(model.FORM12), model.FORM12),
+                (nameof(model.CAA), model.CAA),
+                (nameof(model.RCV), model.RCV),
+                (nameof(model.CV), model.CV),
+                (nameof(model.LI), model.LI)
+            };
 
             if (!ModelState.IsValid)
             {

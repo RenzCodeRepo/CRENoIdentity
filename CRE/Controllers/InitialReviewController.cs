@@ -2,6 +2,7 @@
 using CRE.Services;
 using CRE.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CRE.Controllers
 {
@@ -23,7 +24,8 @@ namespace CRE.Controllers
             var viewModel = new InitialReviewListViewModel
             {
                 PendingApplications = await _initialReviewServices.GetPendingApplicationsAsync(),
-                ApprovedApplications = await _initialReviewServices.GetApprovedApplicationsAsync()
+                ApprovedApplications = await _initialReviewServices.GetApprovedApplicationsAsync(),
+                ReturnedApplications = await _initialReviewServices.GetReturnedApplicationsAsync(),
             };
 
             return View(viewModel);
@@ -38,7 +40,8 @@ namespace CRE.Controllers
                 return BadRequest("Invalid UrecNo.");
             }
 
-            await _initialReviewServices.ApproveApplicationAsync(urecNo, comments);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _initialReviewServices.ApproveApplicationAsync(urecNo, comments, userId);
 
             return RedirectToAction("InitialReview");
         }
@@ -51,7 +54,8 @@ namespace CRE.Controllers
                 return BadRequest("Invalid UrecNo.");
             }
 
-            await _initialReviewServices.ReturnApplicationAsync(urecNo, comments);
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            await _initialReviewServices.ReturnApplicationAsync(urecNo, comments, userId);
 
             return RedirectToAction("InitialReview");
         }

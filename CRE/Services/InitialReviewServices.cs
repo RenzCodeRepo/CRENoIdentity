@@ -88,13 +88,7 @@ namespace CRE.Services
                 .ToListAsync();
         }
 
-        public async Task<ReceiptInfo> GetReceiptInfoByUrecNoAsync(string urecNo)
-        {
-            return await _context.ReceiptInfo
-                .FirstOrDefaultAsync(r => r.urecNo == urecNo);
-        }
-
-        public async Task ApproveApplicationAsync(string urecNo, string comments)
+        public async Task ApproveApplicationAsync(string urecNo, string comments, string userId)
         {
             // Find the existing initial review
             var initialReview = await _context.InitialReview
@@ -107,6 +101,7 @@ namespace CRE.Services
                 {
                     urecNo = urecNo,
                     status = "Approved",
+                    userId = userId,
                     feedback = comments,
                     dateReviewed = DateOnly.FromDateTime(DateTime.Now)
                 };
@@ -118,6 +113,7 @@ namespace CRE.Services
             {
                 // Update the existing initial review
                 initialReview.status = "Approved";
+                initialReview.userId = userId;
                 initialReview.feedback = comments;
                 initialReview.dateReviewed = DateOnly.FromDateTime(DateTime.Now);
 
@@ -130,6 +126,7 @@ namespace CRE.Services
             {
                 urecNo = urecNo,
                 status = "Approved for Evaluation",
+                userId = userId,
                 changeDate = DateTime.Now,
                 comments = comments
             };
@@ -141,7 +138,7 @@ namespace CRE.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task ReturnApplicationAsync(string urecNo, string comments)
+        public async Task ReturnApplicationAsync(string urecNo, string comments, string userId)
         {
             // Find the existing initial review
             var initialReview = await _context.InitialReview
@@ -153,8 +150,9 @@ namespace CRE.Services
                 initialReview = new InitialReview
                 {
                     urecNo = urecNo,
-                    status = "Not Approved",
+                    status = "Returned",
                     feedback = comments,
+                    userId = userId,
                     dateReviewed = DateOnly.FromDateTime(DateTime.Now)
                 };
 
@@ -166,6 +164,7 @@ namespace CRE.Services
                 // Update the existing initial review
                 initialReview.status = "Not Approved";
                 initialReview.feedback = comments;
+                initialReview.userId = userId; 
                 initialReview.dateReviewed = DateOnly.FromDateTime(DateTime.Now);
 
                 // Update the record
@@ -177,6 +176,7 @@ namespace CRE.Services
             {
                 urecNo = urecNo,
                 status = "Returned for Revisions", // Update the status to reflect the return
+                userId = userId,
                 changeDate = DateTime.Now,
                 comments = comments
             };
@@ -229,6 +229,33 @@ namespace CRE.Services
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<InitialReviewViewModel>> GetReturnedApplicationsAsync()
+        {
+            // Fetch applications that have been returned
+            return await _context.EthicsApplication
+                .Include(e => e.NonFundedResearchInfo)
+                .Include(e => e.EthicsApplicationLog)
+                .Where(e => e.EthicsApplicationLog
+                    .OrderByDescending(log => log.changeDate) // Order logs by changeDate
+                    .FirstOrDefault().status == "Returned for Revisions") // Check if the latest log's status is "Returned"
+                .Select(e => new InitialReviewViewModel
+                {
+                    EthicsApplication = e,
+                    NonFundedResearchInfo = e.NonFundedResearchInfo,
+                    // Fetch only the latest log with status "Returned"
+                    EthicsApplicationLog = e.EthicsApplicationLog
+                        .OrderByDescending(log => log.changeDate)
+                        .Take(1) // Take only the latest log entry
+                })
+                .ToListAsync();
+        }
+
+        public async Task<InitialReview> GetInitialReviewByUrecNoAsync(string urecNo)
+        {
+            return await _context.InitialReview
+            .Include(ir => ir.EthicsApplication)  // Include related data if needed
+            .FirstOrDefaultAsync(ir => ir.EthicsApplication.urecNo == urecNo);
+        }
     }
 
 }

@@ -58,5 +58,15 @@ namespace CRE.Services
                                  })
                                  .ToListAsync();
         }
+
+        public async Task<string> GetLatestCommentByUrecNoAsync(string urecNo)
+        {
+            var latestLog = await _context.EthicsApplicationLog
+                .Where(log => log.EthicsApplication.urecNo == urecNo)
+                .OrderByDescending(log => log.changeDate)
+                .FirstOrDefaultAsync();
+
+            return latestLog?.comments ?? "No comments available";
+        }
     }
 }
