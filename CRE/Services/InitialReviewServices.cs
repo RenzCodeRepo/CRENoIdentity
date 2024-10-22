@@ -262,6 +262,15 @@ namespace CRE.Services
             .Include(ir => ir.EthicsApplication)  // Include related data if needed
             .FirstOrDefaultAsync(ir => ir.EthicsApplication.urecNo == urecNo);
         }
+
+        public async Task<IEnumerable<EthicsApplication>> GetApprovedEthicsApplicationsAsync()
+        {
+            // Fetch the EthicsApplications from InitialReviews with status "Approved"
+            return await _context.InitialReview
+                .Where(a => a.status == "Approved")
+                .Select(a => a.EthicsApplication) // Assuming InitialReview has a navigation property to EthicsApplication
+                .ToListAsync();
+        }
     }
 
 }
