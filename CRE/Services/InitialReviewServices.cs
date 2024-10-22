@@ -48,6 +48,12 @@ namespace CRE.Services
 
             return ethicsApplications;
         }
+
+        public async Task UpdateInitialReviewAsync(InitialReview initialReview)
+        {
+            _context.InitialReview.Update(initialReview);
+            await _context.SaveChangesAsync();
+        }
         // New method for getting application details
         public async Task<InitialReviewViewModel> GetApplicationDetailsAsync(string urecNo)
         {
@@ -162,7 +168,7 @@ namespace CRE.Services
             else
             {
                 // Update the existing initial review
-                initialReview.status = "Not Approved";
+                initialReview.status = "Returned";
                 initialReview.feedback = comments;
                 initialReview.userId = userId; 
                 initialReview.dateReviewed = DateOnly.FromDateTime(DateTime.Now);

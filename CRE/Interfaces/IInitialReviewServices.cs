@@ -9,7 +9,8 @@ namespace CRE.Interfaces
         Task<InitialReviewViewModel> GetApplicationDetailsAsync(string urecNo);
         Task<IEnumerable<CoProponent>> GetCoProponentsByNonFundedResearchIdAsync(string nonFundedResearchId);
         Task<InitialReview> GetInitialReviewByUrecNoAsync(string urecNo);
-        
+        Task UpdateInitialReviewAsync(InitialReview initialReview);
+
         Task ApproveApplicationAsync(string urecNo, string comments, string userId);
         Task ReturnApplicationAsync(string urecNo, string comments, string userId);
         Task<IEnumerable<InitialReviewViewModel>> GetPendingApplicationsAsync();

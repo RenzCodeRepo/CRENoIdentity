@@ -1,19 +1,19 @@
 ﻿@model CRE.ViewModels.UploadFormsViewModel
 @{
     ViewBag.Title = "Upload Requirements";
-    var anyFormsUploaded = Model?.EthicsApplicationForms?.Any(f =>
-                (f.ethicsFormId == "FORM11" || f.ethicsFormId == "FORM12" || f.ethicsFormId == "FORM10_1") && f.file != null
-                ) == true;
 
-    // Check if at least one of Form 11, 12, or 10.1 is uploaded
-    var anyConditionalFormsUploaded = Model?.EthicsApplicationForms?.Any(f =>
+    // Check if the model and EthicsApplicationForms are not null before checking the files
+    var ethicsApplicationForms = Model?.EthicsApplicationForms;
+
+    // Check if the user is re-submitting any conditional form (only if a new file is uploaded for them)
+    var anyConditionalFormsReSubmitted = ethicsApplicationForms?.Any(f =>
         (f.ethicsFormId == "FORM11" ||
          f.ethicsFormId == "FORM12" ||
          f.ethicsFormId == "FORM10_1") &&
-         f.file != null) == true;
+         f.file != null && f.file.Length > 0) == true;
 
-    // Check if at least one of the required main forms is uploaded
-    var allMainFormsUploaded = Model?.EthicsApplicationForms?.Any(f =>
+    // Check if the main forms are uploaded (either from previous submission or newly uploaded)
+    var allMainFormsUploaded = ethicsApplicationForms?.Any(f =>
         f.file != null &&
         (f.ethicsFormId == "FORM9" ||
          f.ethicsFormId == "FORM10" ||
@@ -22,10 +22,9 @@
          f.ethicsFormId == "CV" ||
          f.ethicsFormId == "LI")) == true;
 
-
-    // Final condition: all main forms uploaded AND at least one conditional form uploaded
-    var allFormsUploaded = allMainFormsUploaded && anyConditionalFormsUploaded;
-
+    // The final condition checks that all main forms have been uploaded,
+    // but does not enforce resubmission of conditional forms unless new files are provided.
+    var allFormsUploaded = allMainFormsUploaded == true && (!anyConditionalFormsReSubmitted || anyConditionalFormsReSubmitted);
 }
 
 <h2>Application Requirements</h2>
@@ -457,6 +456,14 @@
                         }
                     }
                 </div>
+                @if (Model.InitialReview?.status == "Returned" || allFormsUploaded)
+                {
+                    <div class="form-group">
+                        <label for="Comment">Comments:</label>
+                        <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
+                    </div>
+                }
+
                 <!-- Track Application / Submit Button -->
                 @if (Model.InitialReview?.status == "Returned")
                 {
@@ -467,7 +474,7 @@
                         </a>
                     </div>
                 }
-                else if (allFormsUploaded)
+                else if (allFormsUploaded || Model.EthicsApplicationLog?.LastOrDefault()?.status == "Pending for Evaluation")
                 {
                     <!-- Show Track Application button if all forms are uploaded -->
                     <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success mt-2">

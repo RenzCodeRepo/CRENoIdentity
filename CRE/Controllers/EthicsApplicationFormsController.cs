@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http; // For IFormFile and FormFile
+using System.IO; // For MemoryStream
+using System.Linq; // For LINQ methods like FirstOrDefault
+
 
 namespace CRE.Controllers
 {
@@ -154,7 +158,7 @@ namespace CRE.Controllers
 
 
         [HttpPost]
-        [ValidateAntiForgeryToken]  
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadForms(UploadFormsViewModel model)
         {
             // Retrieve the logged-in user's ID from Identity
@@ -164,6 +168,34 @@ namespace CRE.Controllers
             {
                 ModelState.AddModelError("", "Invalid user ID.");
                 return View("Error"); // Return view with some error handling
+            }
+
+            // Retrieve existing forms for the specified application
+            var existingForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(model.EthicsApplication.urecNo);
+
+            // If this is a re-upload, populate the existing forms in the model
+            if (existingForms != null && existingForms.Any())
+            {
+                model.FORM9 = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "FORM9")?.file, "FORM9.pdf");
+                model.FORM10 = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "FORM10")?.file, "FORM10.pdf");
+                model.FORM10_1 = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "FORM10_1")?.file, "FORM10_1.pdf");
+                model.FORM11 = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "FORM11")?.file, "FORM11.pdf");
+                model.FORM12 = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "FORM12")?.file, "FORM12.pdf");
+                model.CAA = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "CAA")?.file, "CAA.pdf");
+                model.RCV = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "RCV")?.file, "RCV.pdf");
+                model.CV = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "CV")?.file, "CV.pdf");
+                model.LI = FileHelper.ConvertToFormFile(existingForms.FirstOrDefault(f => f.ethicsFormId == "LI")?.file, "LI.pdf");
+
+                // Clear validation errors for these properties
+                ModelState.Remove(nameof(model.FORM9));
+                ModelState.Remove(nameof(model.FORM10));
+                ModelState.Remove(nameof(model.FORM10_1));
+                ModelState.Remove(nameof(model.FORM11));
+                ModelState.Remove(nameof(model.FORM12));
+                ModelState.Remove(nameof(model.CAA));
+                ModelState.Remove(nameof(model.RCV));
+                ModelState.Remove(nameof(model.CV));
+                ModelState.Remove(nameof(model.LI));
             }
 
             // Removed unnecessary properties from ModelState
@@ -185,47 +217,43 @@ namespace CRE.Controllers
             ModelState.Remove("InitialReview");
 
             // Handle logic based on whether the research involves humans or minors
-            if (model.InvolvesHumanSubjects)  // Assuming you have a boolean field in your model
+            if (model.InvolvesHumanSubjects)
             {
-                // If the research involves humans
-                ModelState.Remove(nameof(model.FORM10_1)); // Remove Form 10.1 from validation
+                ModelState.Remove(nameof(model.FORM10_1));
 
-                if (model.InvolvesMinors)  // Assuming another boolean field
+                if (model.InvolvesMinors)
                 {
-                    // If research involves minors, also remove Form 10.1 but keep Form 12
-                    ModelState.Remove(nameof(model.FORM10_1)); // Already removed above, but redundant check
+                    ModelState.Remove(nameof(model.FORM10_1));
                 }
                 else
                 {
-                    // If no minors are involved, remove Form 12 from validation
                     ModelState.Remove(nameof(model.FORM12));
                 }
             }
             else
             {
-                // If research does not involve humans, only Form 10.1 is valid
-                ModelState.Remove(nameof(model.FORM11)); // Remove Form 11 from validation
-                ModelState.Remove(nameof(model.FORM12)); // Remove Form 12 from validation
+                ModelState.Remove(nameof(model.FORM11));
+                ModelState.Remove(nameof(model.FORM12));
             }
-
-            // Validate the model
-            var fileProperties = new List<(string PropertyName, IFormFile File)>
-            {
-                (nameof(model.FORM9), model.FORM9),
-                (nameof(model.FORM10), model.FORM10),
-                (nameof(model.FORM10_1), model.FORM10_1),
-                (nameof(model.FORM11), model.FORM11),
-                (nameof(model.FORM12), model.FORM12),
-                (nameof(model.CAA), model.CAA),
-                (nameof(model.RCV), model.RCV),
-                (nameof(model.CV), model.CV),
-                (nameof(model.LI), model.LI)
-            };
 
             if (!ModelState.IsValid)
             {
                 return View("UploadForms", model);
             }
+
+            // Prepare the list of forms in the view model
+            var fileProperties = new List<(string PropertyName, IFormFile File)>
+    {
+        (nameof(model.FORM9), model.FORM9),
+        (nameof(model.FORM10), model.FORM10),
+        (nameof(model.FORM10_1), model.FORM10_1),
+        (nameof(model.FORM11), model.FORM11),
+        (nameof(model.FORM12), model.FORM12),
+        (nameof(model.CAA), model.CAA),
+        (nameof(model.RCV), model.RCV),
+        (nameof(model.CV), model.CV),
+        (nameof(model.LI), model.LI)
+    };
 
             // Loop through the list of uploaded files
             foreach (var (propertyName, file) in fileProperties)
@@ -236,19 +264,32 @@ namespace CRE.Controllers
                     {
                         await file.CopyToAsync(memoryStream);
 
-                        // Create a new instance of the EthicsApplicationForms object
-                        var ethicsApplicationForm = new EthicsApplicationForms
-                        {
-                            urecNo = model.EthicsApplication.urecNo,
-                            ethicsFormId = propertyName,
-                            dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow),
-                            file = memoryStream.ToArray(),
-                            // Generate and set the filename based on your format
-                            fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf" // Assuming you want a PDF extension
-                        };
+                        // Check if the form already exists in the database
+                        var existingForm = await _ethicsApplicationFormsServices.GetFormByIdAndUrecNoAsync(propertyName, model.EthicsApplication.urecNo);
 
-                        // Save to database (example repository method)
-                        await _ethicsApplicationFormsServices.AddFormAsync(ethicsApplicationForm);
+                        if (existingForm != null)
+                        {
+                            // Update the existing form
+                            existingForm.file = memoryStream.ToArray();
+                            existingForm.dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow);
+                            existingForm.fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf";
+                            await _ethicsApplicationFormsServices.UpdateFormAsync(existingForm);
+                        }
+                        else
+                        {
+                            // Create a new instance of the EthicsApplicationForms object
+                            var ethicsApplicationForm = new EthicsApplicationForms
+                            {
+                                urecNo = model.EthicsApplication.urecNo,
+                                ethicsFormId = propertyName,
+                                dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow),
+                                file = memoryStream.ToArray(),
+                                fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf"
+                            };
+
+                            // Save to database
+                            await _ethicsApplicationFormsServices.AddFormAsync(ethicsApplicationForm);
+                        }
                     }
                 }
             }
@@ -257,16 +298,24 @@ namespace CRE.Controllers
             var uploadFormLog = new EthicsApplicationLog
             {
                 urecNo = model.EthicsApplication.urecNo,
-                userId = userId,  // Using logged-in user's ID
+                userId = userId,
                 status = "Pending for Evaluation",
                 changeDate = DateTime.Now
             };
             await _ethicsApplicationLogServices.AddLogAsync(uploadFormLog);
 
+            // Update the InitialReview status to "Pending"
+            var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(model.EthicsApplication.urecNo);
+            if (initialReview != null)
+            {
+                initialReview.status = "Pending";
+                await _initialReviewServices.UpdateInitialReviewAsync(initialReview);
+            }
+
             // Log that the user has uploaded their forms
             TempData["SuccessMessage"] = "Forms uploaded successfully!";
 
-            // After processing, redirect to a confirmation page or return the view
+            // Redirect after processing
             return RedirectToAction("UploadForms", new { urecNo = model.EthicsApplication.urecNo });
         }
 
@@ -279,9 +328,9 @@ namespace CRE.Controllers
 
             if (form.file == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
-           
+
             // Return the file with the specified filename
             return File(form.file, "application/pdf");
         }
@@ -306,3 +355,4 @@ namespace CRE.Controllers
 
     }
 }
+
