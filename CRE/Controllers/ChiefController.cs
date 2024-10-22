@@ -46,50 +46,59 @@ namespace CRE.Controllers
 
         public async Task<IActionResult> Applications()
         {
+            var approvedApplications = await _initialReviewServices.GetApprovedApplicationsAsync();
 
-            var viewModel = new InitialReviewListViewModel
+            var viewModel = new ApprovedApplicationListViewModel
             {
-                PendingApplications = await _initialReviewServices.GetPendingApplicationsAsync(),
-                ApprovedApplications = await _initialReviewServices.GetApprovedApplicationsAsync(),
-                ReturnedApplications = await _initialReviewServices.GetReturnedApplicationsAsync(),
+                ApprovedApplications = approvedApplications.Select(app => new ApprovedApplicationViewModel
+                {
+                    AppUser = app.AppUser,
+                    Secretariat = app.Secretariat,
+                    NonFundedResearchInfo = app.NonFundedResearchInfo,
+                    CoProponent = app.CoProponent,
+                    ReceiptInfo = app.ReceiptInfo,
+                    Chairperson = app.Chairperson,
+                    EthicsEvaluator = app.EthicsEvaluator,
+                    EthicsApplication = app.EthicsApplication,
+                    InitialReview = app.InitialReview,
+                    EthicsApplicationForms = app.EthicsApplicationForms,
+                    EthicsApplicationLog = app.EthicsApplicationLog
+                }).ToList()
             };
+
             return View(viewModel);
         }
+
 
         public async Task<IActionResult> Details(string urecNo)
         {
-            if (string.IsNullOrEmpty(urecNo))
+            var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(urecNo); // Assume this method fetches the application details
+
+            if (applicationDetails == null)
             {
                 return NotFound();
             }
 
-            // Fetch the specific EthicsApplication based on UREC number
-            var application = await _ethicsApplicationServices.GetApplicationByUrecNoAsync(urecNo);
-            if (application == null)
-            {
-                return NotFound();
-            }
-
-            // Fetch related data
-            var nonFundedResearchInfo = await _nonFundedResearchInfoServices.GetNonFundedResearchByUrecNoAsync(application.userId);
-            var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo);
-            var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
-            var ethicsApplicationLog = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
-
-            // Create and populate the ViewModel with related data
+            // Assuming you want to map this to AssignReviewTypeViewModel
             var viewModel = new AssignReviewTypeViewModel
             {
-                EthicsApplication = new List<EthicsApplication> { application },
-                
-                InitialReview = initialReview,
-                EthicsApplicationForms = ethicsApplicationForms,
-                EthicsApplicationLog = ethicsApplicationLog,
-                ReviewType = initialReview?.status ?? "Approved" 
+                AppUser = applicationDetails.AppUser,
+                Secretariat = applicationDetails.Secretariat,
+                NonFundedResearchInfo = applicationDetails.NonFundedResearchInfo,
+                CoProponent = applicationDetails.CoProponent,
+                ReceiptInfo = applicationDetails.ReceiptInfo,
+                Chairperson = applicationDetails.Chairperson,
+                EthicsEvaluator = applicationDetails.EthicsEvaluator,
+                EthicsApplication = applicationDetails.EthicsApplication,
+                InitialReview = applicationDetails.InitialReview,
+                EthicsApplicationForms = applicationDetails.EthicsApplicationForms,
+                EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
+               
             };
 
-            // Pass the view model to the Details view
             return View(viewModel);
         }
+
 
     }
 }

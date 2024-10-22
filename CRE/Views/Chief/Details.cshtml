@@ -1,0 +1,180 @@
+﻿@model CRE.ViewModels.AssignReviewTypeViewModel
+@{
+    ViewData["Title"] = "Application Details";
+
+}
+
+<h2>Application Details</h2>
+
+<div class="card border-light mb-3" style="width: contain;">
+    <div class="card-header">
+        <div class="row">
+            <div class="col text-start">
+                <p id="urecNoText">
+                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
+                </p>
+                <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
+                    Copy UREC No.
+                </button>
+
+                <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo?.title</h4>
+                <p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Proponent/s:</strong><br />
+                            @($"{Model.AppUser?.fName} {Model.AppUser?.mName} {Model.AppUser?.lName}")
+                            <br />
+                            @if (Model.CoProponent != null && Model.CoProponent.Any())
+                            {
+                                foreach (var proponent in Model.CoProponent)
+                                {
+                                    @proponent.coProponentName <br />
+                                }
+                            }
+                        </div>
+                    </div>
+                </p>
+                <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+                <p><strong>College: </strong> @Model.NonFundedResearchInfo?.college</p>
+                <p><strong>Branch/Campuses: </strong> @Model.NonFundedResearchInfo?.campus</p>
+            </div>
+
+            <!-- Display DTS No. or Edit Button -->
+            <div class="col text-end">
+                <p id="dtsNoText">
+                    <strong>DTS No.:</strong>
+                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                    {
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                    }
+                    else
+                    {
+                        @Model.EthicsApplication.dtsNo
+                    }
+                </p>
+
+                <!-- Button to Copy DTS No. if it exists -->
+                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                {
+                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                        Copy DTS No.
+                    </button>
+                }
+            </div>
+        </div>
+        <h4>Assign Review Type</h4>
+
+        <!-- Dropdown for selecting the review type -->
+        <div class="form-group">
+            <label for="reviewType">Review Type</label>
+            <select id="reviewType" name="ReviewType" class="form-control">
+                <option value="">-- Select Review Type --</option>
+                <option value="Exempt" selected="@(Model.ReviewType == "Exempt")">Exempt</option>
+                <option value="Expedited" selected="@(Model.ReviewType == "Expedited")">Expedited</option>
+                <option value="Full Review" selected="@(Model.ReviewType == "Full Review")">Full Review</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p><strong>Submission Date:</strong> @Model.EthicsApplication?.submissionDate.ToShortDateString()</p>
+
+        @* Highlight status with a badge *@
+        <p>
+            <strong>Status:</strong>
+            <span class="badge @(Model.EthicsApplicationLog.FirstOrDefault()?.status == "Approved" ? "bg-success" : "bg-warning")">
+                @Model.EthicsApplicationLog.FirstOrDefault()?.status
+            </span>
+        </p>
+
+        <h4>Application Forms</h4>
+
+        @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
+        {
+            <div class="mb-3">
+                <label><strong>Receipt:</strong></label>
+                <button class="btn btn-primary btn-sm" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
+                    View Receipt (PDF)
+                </button>
+            </div>
+        }
+
+        @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
+        {
+            <ul class="list-unstyled">
+                @foreach (var form in Model.EthicsApplicationForms)
+                {
+                    <li>
+                        <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
+                            @form.fileName
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No forms submitted.</p>
+        }
+
+        @* Action Buttons *@
+        <div class="mb-3">
+            @if (Model.EthicsApplicationLog.FirstOrDefault()?.status == "Pending for Evaluation")
+            {
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                    Approve
+                </button>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#returnModal">
+                    Return
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal for file view-->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function copyUrecNo() {
+            const urecNoText = document.getElementById("urecNoText").innerText;
+            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
+                alert('UREC No. copied to clipboard!');
+            }, function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        function copyDtsNo() {
+            const dtsNoText = document.getElementById("dtsNoText").innerText;
+            navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
+                alert('DTS No. copied to clipboard!');
+            }, function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        function openPdfInModal(pdfUrl) {
+            // Set the iframe source to the selected PDF
+            document.getElementById("pdfViewer").src = pdfUrl;
+
+            // Show the modal
+            $('#pdfModal').modal('show');
+        }
+    </script>
+}

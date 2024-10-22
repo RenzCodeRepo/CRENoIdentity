@@ -1,4 +1,4 @@
-﻿@model CRE.ViewModels.InitialReviewListViewModel
+﻿@model CRE.ViewModels.ApprovedApplicationListViewModel
 
 <h2>Approved Ethics Applications</h2>
 
@@ -6,7 +6,7 @@
     <table class="table table-bordered mt-3">
         <thead>
             <tr>
-                <th>Urec No</th>
+                <th>UREC No</th>
                 <th>Title</th>
                 <th>Status</th>
                 <th>Submission Date</th>
@@ -25,14 +25,20 @@
                 {
                     <tr>
                         <td>
-                            <!-- Make urecNo a clickable button that leads to the Details page -->
-                            <a asp-action="Details" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-primary">
+                            <!-- Make UREC No. a clickable button that leads to the Details page -->
+                            <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-primary">
                                 @application.EthicsApplication?.urecNo
                             </a>
                         </td>
                         <td>@application.NonFundedResearchInfo?.title</td>
-                        <td>@application.EthicsApplicationLog.FirstOrDefault()?.status</td>
-                        <td>@application.EthicsApplication?.submissionDate.ToShortDateString()</td>
+                        <td>
+                            @* Accessing the status from the EthicsApplicationLog *@
+                            @application.EthicsApplicationLog?.FirstOrDefault()?.status ?? "No Status"
+                        </td>
+                        <td>
+                            @* Formatting the submission date for better readability *@
+                            @application.EthicsApplication?.submissionDate.ToShortDateString() ?? "N/A"
+                        </td>
                     </tr>
                 }
             }

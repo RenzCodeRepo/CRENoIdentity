@@ -2,7 +2,7 @@
 
 namespace CRE.ViewModels
 {
-    public class AssignReviewTypeViewModel
+    public class ApprovedApplicationViewModel
     {
         public AppUser AppUser { get; set; }
         public Secretariat Secretariat { get; set; }
