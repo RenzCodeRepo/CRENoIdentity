@@ -107,7 +107,7 @@
 
         @* Action Buttons *@
         <div class="mb-3">
-            @if (Model.EthicsApplicationLog.FirstOrDefault()?.status != "Approved for Evaluation")
+            @if (Model.EthicsApplicationLog.FirstOrDefault()?.status == "Pending for Evaluation")
             {
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
                         Approve
