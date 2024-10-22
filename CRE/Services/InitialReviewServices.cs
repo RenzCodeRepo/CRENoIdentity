@@ -3,6 +3,7 @@ using CRE.Interfaces;
 using CRE.Models;
 using CRE.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CRE.Services
 {
@@ -261,9 +262,16 @@ namespace CRE.Services
 
         public async Task<InitialReview> GetInitialReviewByUrecNoAsync(string urecNo)
         {
-            return await _context.InitialReview
-            .Include(ir => ir.EthicsApplication)  // Include related data if needed
-            .FirstOrDefaultAsync(ir => ir.EthicsApplication.urecNo == urecNo);
+            var application = await _context.InitialReview
+              .Include(ir => ir.EthicsApplication)
+              .FirstOrDefaultAsync(ir => ir.EthicsApplication.urecNo == urecNo);
+
+            if (application == null)
+            {
+                throw new Exception("Application not found.");
+            }
+
+            return application;
         }
 
         public async Task<IEnumerable<EthicsApplication>> GetApprovedEthicsApplicationsAsync()

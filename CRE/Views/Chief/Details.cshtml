@@ -1,7 +1,6 @@
 ﻿@model CRE.ViewModels.AssignReviewTypeViewModel
 @{
     ViewData["Title"] = "Application Details";
-
 }
 
 <h2>Application Details</h2>
@@ -62,18 +61,34 @@
                 }
             </div>
         </div>
-        <h4>Assign Review Type</h4>
 
-        <!-- Dropdown for selecting the review type -->
-        <div class="form-group">
-            <label for="reviewType">Review Type</label>
-            <select id="reviewType" name="ReviewType" class="form-control">
-                <option value="">-- Select Review Type --</option>
-                <option value="Exempt" selected="@(Model.ReviewType == "Exempt")">Exempt</option>
-                <option value="Expedited" selected="@(Model.ReviewType == "Expedited")">Expedited</option>
-                <option value="Full Review" selected="@(Model.ReviewType == "Full Review")">Full Review</option>
-            </select>
-        </div>
+
+        <!-- If ReviewType is already set, display it. Otherwise, show the dropdown and button -->
+        @if (!string.IsNullOrEmpty(Model.InitialReview.ReviewType) && 
+            (Model.InitialReview.ReviewType == "Exempt" || Model.InitialReview.ReviewType == "Expedited" || Model.InitialReview.ReviewType == "Full Review"))
+        {
+            <div class="form-group">
+                <label>Review Type</label>
+                <p><strong>@Model.InitialReview.ReviewType</strong></p>
+            </div>
+        }
+        else
+        {
+            <h4>Assign Review Type</h4>
+            <!-- Dropdown for selecting the review type -->
+            <div class="form-group">
+                <label for="reviewType">Review Type</label>
+                <select id="reviewType" name="ReviewType" class="form-control">
+                    <option value="">-- Select Review Type --</option>
+                    <option value="Exempt" selected="@(Model.ReviewType == "Exempt")">Exempt</option>
+                    <option value="Expedited" selected="@(Model.ReviewType == "Expedited")">Expedited</option>
+                    <option value="Full Review" selected="@(Model.ReviewType == "Full Review")">Full Review</option>
+                </select>
+            </div>
+            <div class="form-group mt-3">
+                <button type="button" class="btn btn-primary" onclick="submitReviewType()">Submit Review Type</button>
+            </div>
+        }
     </div>
 
     <div class="card-body">
@@ -116,7 +131,6 @@
         {
             <p>No forms submitted.</p>
         }
-       
     </div>
 </div>
 
@@ -164,5 +178,41 @@
             // Show the modal
             $('#pdfModal').modal('show');
         }
+    </script>
+    <script>
+    function submitReviewType() {
+        const reviewType = document.getElementById("reviewType").value;
+        
+        // Ensure the user has selected a review type
+        if (!reviewType) {
+            alert("Please select a review type.");
+            return;
+        }
+
+        const confirmSubmit = confirm(`Are you sure you want to submit the review type as "${reviewType}"?`);
+        if (confirmSubmit) {
+            
+            const form = document.createElement("form");
+            form.method = "post"; 
+            form.action = '@Url.Action("SubmitReviewType", "Chief")'; // Use the correct action and controller
+
+            // Add the review type as a hidden input field
+            const reviewTypeInput = document.createElement("input");
+            reviewTypeInput.type = "hidden";
+            reviewTypeInput.name = "ReviewType";
+            reviewTypeInput.value = reviewType;
+            form.appendChild(reviewTypeInput);
+
+            // Add the UREC No. as a hidden input field
+            const urecNoInput = document.createElement("input");
+            urecNoInput.type = "hidden";
+            urecNoInput.name = "urecNo";
+            urecNoInput.value = "@Model.EthicsApplication.urecNo";
+            form.appendChild(urecNoInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
     </script>
 }

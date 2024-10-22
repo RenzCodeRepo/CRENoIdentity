@@ -99,6 +99,30 @@ namespace CRE.Controllers
             return View(viewModel);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> SubmitReviewType(string ReviewType, string urecNo)
+        {
+            if (string.IsNullOrEmpty(urecNo))
+            {
+                return BadRequest("UREC No. is required.");
+            }
 
+            if (string.IsNullOrEmpty(ReviewType))
+            {
+                return BadRequest("Review Type is required.");
+            }
+            // Assuming you're using the InitialReview model to store the review type
+            var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo);
+
+            if (initialReview != null)
+            {
+                // Update the review type
+                initialReview.ReviewType = ReviewType;
+                await _initialReviewServices.UpdateInitialReviewAsync(initialReview);
+            }
+
+            // Redirect to the details page or any other page
+            return RedirectToAction("Details", new { urecNo = urecNo });
+        }
     }
 }
