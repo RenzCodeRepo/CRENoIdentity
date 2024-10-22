@@ -33,11 +33,11 @@
                         <td>@application.NonFundedResearchInfo?.title</td>
                         <td>
                             @* Accessing the status from the EthicsApplicationLog *@
-                            @application.EthicsApplicationLog?.FirstOrDefault()?.status ?? "No Status"
+                            @application.EthicsApplicationLog?.FirstOrDefault()?.status
                         </td>
                         <td>
                             @* Formatting the submission date for better readability *@
-                            @application.EthicsApplication?.submissionDate.ToShortDateString() ?? "N/A"
+                            @application.EthicsApplication?.submissionDate.ToShortDateString()
                         </td>
                     </tr>
                 }

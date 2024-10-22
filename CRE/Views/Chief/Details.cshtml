@@ -116,19 +116,7 @@
         {
             <p>No forms submitted.</p>
         }
-
-        @* Action Buttons *@
-        <div class="mb-3">
-            @if (Model.EthicsApplicationLog.FirstOrDefault()?.status == "Pending for Evaluation")
-            {
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
-                    Approve
-                </button>
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#returnModal">
-                    Return
-                </button>
-            }
-        </div>
+       
     </div>
 </div>
 

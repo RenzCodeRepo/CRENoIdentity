@@ -242,34 +242,37 @@ namespace CRE.Controllers
             }
 
             // Prepare the list of forms in the view model
-            var fileProperties = new List<(string PropertyName, IFormFile File)>
-    {
-        (nameof(model.FORM9), model.FORM9),
-        (nameof(model.FORM10), model.FORM10),
-        (nameof(model.FORM10_1), model.FORM10_1),
-        (nameof(model.FORM11), model.FORM11),
-        (nameof(model.FORM12), model.FORM12),
-        (nameof(model.CAA), model.CAA),
-        (nameof(model.RCV), model.RCV),
-        (nameof(model.CV), model.CV),
-        (nameof(model.LI), model.LI)
-    };
+            var fileProperties = new List<(string PropertyName, IFormFile NewFile, IFormFile EditFile)>
+            {
+                (nameof(model.FORM9), model.FORM9, model.editFORM9),
+                (nameof(model.FORM10), model.FORM10, model.editFORM10),
+                (nameof(model.FORM10_1), model.FORM10_1, model.editFORM10_1),
+                (nameof(model.FORM11), model.FORM11, model.editFORM11),
+                (nameof(model.FORM12), model.FORM12, model.editFORM12),
+                (nameof(model.CAA), model.CAA, model.editCAA),
+                (nameof(model.RCV), model.RCV, model.editRCV),
+                (nameof(model.CV), model.CV, model.editCV),
+                (nameof(model.LI), model.LI, model.editLI)
+            };
 
             // Loop through the list of uploaded files
-            foreach (var (propertyName, file) in fileProperties)
+            foreach (var (propertyName, newFile, editFile) in fileProperties)
             {
-                if (file != null && file.Length > 0)
+                // Use the edit form if it's populated, otherwise use the new file
+                var fileToUpload = editFile != null && editFile.Length > 0 ? editFile : newFile;
+
+                if (fileToUpload != null && fileToUpload.Length > 0)
                 {
                     using (var memoryStream = new MemoryStream())
                     {
-                        await file.CopyToAsync(memoryStream);
+                        await fileToUpload.CopyToAsync(memoryStream);
 
                         // Check if the form already exists in the database
                         var existingForm = await _ethicsApplicationFormsServices.GetFormByIdAndUrecNoAsync(propertyName, model.EthicsApplication.urecNo);
 
                         if (existingForm != null)
                         {
-                            // Update the existing form
+                            // Update the existing form with the new or edited file
                             existingForm.file = memoryStream.ToArray();
                             existingForm.dateUploaded = DateOnly.FromDateTime(DateTime.UtcNow);
                             existingForm.fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf";
@@ -287,7 +290,7 @@ namespace CRE.Controllers
                                 fileName = $"{propertyName}_{model.EthicsApplication.urecNo}.pdf"
                             };
 
-                            // Save to database
+                            // Save the new form to the database
                             await _ethicsApplicationFormsServices.AddFormAsync(ethicsApplicationForm);
                         }
                     }

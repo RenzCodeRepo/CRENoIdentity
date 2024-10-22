@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241017064705_InitialCreate")]
+    [Migration("20241022174647_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -552,6 +552,10 @@ namespace CRE.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("initalReviewId"));
+
+                    b.Property<string>("ReviewType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("chiefId")
                         .HasColumnType("int");

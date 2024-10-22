@@ -109,7 +109,8 @@ namespace CRE.Services
                     status = "Approved",
                     userId = userId,
                     feedback = comments,
-                    dateReviewed = DateOnly.FromDateTime(DateTime.Now)
+                    dateReviewed = DateOnly.FromDateTime(DateTime.Now),
+                    ReviewType = "Pending"
                 };
 
                 // Add the new initial review to the context
@@ -122,6 +123,7 @@ namespace CRE.Services
                 initialReview.userId = userId;
                 initialReview.feedback = comments;
                 initialReview.dateReviewed = DateOnly.FromDateTime(DateTime.Now);
+                initialReview.ReviewType = "Pending";
 
                 // Update the record
                 _context.InitialReview.Update(initialReview);
@@ -159,7 +161,8 @@ namespace CRE.Services
                     status = "Returned",
                     feedback = comments,
                     userId = userId,
-                    dateReviewed = DateOnly.FromDateTime(DateTime.Now)
+                    dateReviewed = DateOnly.FromDateTime(DateTime.Now),
+                    ReviewType = "Pending"
                 };
 
                 // Add the new initial review to the context

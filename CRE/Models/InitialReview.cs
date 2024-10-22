@@ -16,7 +16,8 @@ namespace CRE.Models
         [Required]
         public string status { get; set; }
         public string feedback { get; set; }
-
+        [Required]
+        public string ReviewType { get; set; }
         //navigation properties
         public AppUser AppUser { get; set; }
         public EthicsApplication EthicsApplication { get; set; }

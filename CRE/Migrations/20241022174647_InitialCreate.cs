@@ -414,6 +414,7 @@ namespace CRE.Migrations
                     dateReviewed = table.Column<DateOnly>(type: "date", nullable: true),
                     status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReviewType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     chiefId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>

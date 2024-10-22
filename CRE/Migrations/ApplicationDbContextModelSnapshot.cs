@@ -550,6 +550,10 @@ namespace CRE.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("initalReviewId"));
 
+                    b.Property<string>("ReviewType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("chiefId")
                         .HasColumnType("int");
 
