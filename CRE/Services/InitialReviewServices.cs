@@ -85,7 +85,22 @@ namespace CRE.Services
 
             return viewModel;
         }
-
+        public async Task<IEnumerable<ChiefEvaluationViewModel>> GetExemptApplicationsAsync()
+        {
+            return await _context.EthicsApplication
+                .Where(app => app.InitialReview.ReviewType == "Exempt")
+                .Select(app => new ChiefEvaluationViewModel
+                {
+                    AppUser = app.User,
+                    NonFundedResearchInfo = app.NonFundedResearchInfo,
+                    ReceiptInfo = app.ReceiptInfo,
+                    EthicsApplication = app,
+                    InitialReview = app.InitialReview,
+                    EthicsApplicationForms = app.EthicsApplicationForms,
+                    EthicsApplicationLog = app.EthicsApplicationLog,
+                })
+                .ToListAsync();
+        }
 
 
         public async Task<IEnumerable<CoProponent>> GetCoProponentsByNonFundedResearchIdAsync(string nonFundedResearchId)

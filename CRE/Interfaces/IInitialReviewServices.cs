@@ -17,5 +17,6 @@ namespace CRE.Interfaces
         Task<IEnumerable<InitialReviewViewModel>> GetApprovedApplicationsAsync();
         Task<IEnumerable<InitialReviewViewModel>> GetReturnedApplicationsAsync();
         Task<IEnumerable<EthicsApplication>> GetApprovedEthicsApplicationsAsync();
+        Task<IEnumerable<ChiefEvaluationViewModel>> GetExemptApplicationsAsync();
     }
 }

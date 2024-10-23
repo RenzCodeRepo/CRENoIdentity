@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using CRE.ViewModels;
 using CRE.Services;
 using CRE.Models;
+using System.Security.Claims;
 namespace CRE.Controllers
 {
     public class ChiefController : Controller
@@ -16,6 +17,7 @@ namespace CRE.Controllers
         private readonly ICoProponentServices _coProponentServices;
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
         private readonly IInitialReviewServices _initialReviewServices;
+        private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
 
         public ChiefController(
             IConfiguration configuration,
@@ -26,7 +28,8 @@ namespace CRE.Controllers
             IEthicsApplicationLogServices ethicsApplicationLogServices,
             ICoProponentServices coProponentServices,
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
-            IInitialReviewServices initialReviewServices)
+            IInitialReviewServices initialReviewServices,
+            IEthicsEvaluationServices ethicsEvaluationServices)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -37,6 +40,7 @@ namespace CRE.Controllers
             _coProponentServices = coProponentServices;
             _ethicsApplicationFormsServices = ethicsApplicationFormsServices;
             _initialReviewServices = initialReviewServices;
+            _ethicsEvaluationServices = ethicsEvaluationServices;
         }
 
         public IActionResult Index()
@@ -111,7 +115,8 @@ namespace CRE.Controllers
             {
                 return BadRequest("Review Type is required.");
             }
-            // Assuming you're using the InitialReview model to store the review type
+
+            // Fetch the InitialReview based on the urecNo
             var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo);
 
             if (initialReview != null)
@@ -119,10 +124,66 @@ namespace CRE.Controllers
                 // Update the review type
                 initialReview.ReviewType = ReviewType;
                 await _initialReviewServices.UpdateInitialReviewAsync(initialReview);
+
+                // Log the review type assignment
+                var logEntry = new EthicsApplicationLog
+                {
+                    urecNo = initialReview.urecNo,  // Assuming you have a link to EthicsApplication
+                    userId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    changeDate = DateTime.Now,
+                    status = "Review Type Assigned"
+
+                };
+
+                // Save the log entry (ensure you have a service or repository to handle logs)
+                await _ethicsApplicationLogServices.AddLogAsync(logEntry);
             }
 
             // Redirect to the details page or any other page
             return RedirectToAction("Details", new { urecNo = urecNo });
         }
+
+        public async Task<IActionResult> ExemptApplications()
+        {
+            var exemptApplications = await _initialReviewServices.GetExemptApplicationsAsync();
+
+            var viewModel = new ExemptApplicationListViewModel
+            {
+                ExemptApplications = exemptApplications
+            };
+
+            return View(viewModel);
+        }
+
+
+        public async Task<IActionResult> EvaluateApplication(string urecNo)
+        {
+            // Fetch the application details using the same service method as in Details
+            var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(urecNo);
+
+            if (applicationDetails == null)
+            {
+                return NotFound();
+            }
+
+            // Create the view model
+            var viewModel = new ChiefEvaluationViewModel
+            {
+                AppUser = applicationDetails.AppUser,
+                Secretariat = applicationDetails.Secretariat,
+                NonFundedResearchInfo = applicationDetails.NonFundedResearchInfo,
+                CoProponent = applicationDetails.CoProponent,
+                ReceiptInfo = applicationDetails.ReceiptInfo,
+                Chairperson = applicationDetails.Chairperson,
+                EthicsEvaluator = applicationDetails.EthicsEvaluator,
+                EthicsApplication = applicationDetails.EthicsApplication,
+                InitialReview = applicationDetails.InitialReview,
+                EthicsApplicationForms = applicationDetails.EthicsApplicationForms,
+                EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
+            };
+
+            return View(viewModel);
+        }
+
     }
 }

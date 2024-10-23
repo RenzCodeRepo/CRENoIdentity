@@ -1,0 +1,44 @@
+﻿@model CRE.ViewModels.ExemptApplicationListViewModel
+
+<h2>Exempt Ethics Applications</h2>
+
+<div>
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>UREC No</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Submission Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ExemptApplications == null || !Model.ExemptApplications.Any())
+            {
+                <tr>
+                    <td colspan="4" class="text-center">No exempt applications found.</td>
+                </tr>
+            }
+            else
+            {
+                foreach (var application in Model.ExemptApplications)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="Chief" asp-action="EvaluateApplication" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-primary">
+                                @application.EthicsApplication?.urecNo
+                            </a>
+                        </td>
+                        <td>@application.NonFundedResearchInfo?.title</td>
+                        <td>
+                            @application.EthicsApplicationLog?.FirstOrDefault()?.status
+                        </td>
+                        <td>
+                            @application.EthicsApplication?.submissionDate.ToShortDateString()
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
