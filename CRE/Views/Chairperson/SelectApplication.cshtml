@@ -1,0 +1,46 @@
+﻿@model CRE.ViewModels.ChairpersonApplicationsViewModel
+
+@{
+    ViewData["Title"] = "Applications";
+}
+
+<h2>Applications</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>UREC No.</th>
+            <th>Submission Date</th>
+            <th>Field of Study</th>
+            <th>Status</th>
+            <th>Review Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.EthicsApplications != null && Model.EthicsApplications.Any())
+        {
+            foreach (var application in Model.EthicsApplications)
+            {
+                <tr>
+                    <td>@application.urecNo</td>
+                    <td>@application.submissionDate.ToShortDateString()</td>
+                    <td>@application.fieldOfStudy</td>
+                    <td>@application.InitialReview?.status</td> <!-- Use ?. to handle nulls -->
+                    <td>@application.InitialReview?.ReviewType</td>
+                    <td>
+                        <a href="@Url.Action("AssignEvaluators", "Chairperson", new { urecNo = application.urecNo })" class="btn btn-primary">
+                            Assign Evaluators
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">No applications found.</td>
+            </tr>
+        }
+    </tbody>
+</table>

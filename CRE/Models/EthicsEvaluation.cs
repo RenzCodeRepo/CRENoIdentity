@@ -11,17 +11,15 @@ namespace CRE.Models
         public string urecNo { get; set; }
         [ForeignKey(nameof(EthicsEvaluator))]
         public int ethicsEvaluatorId { get; set; }
-        [Required]
-        public DateOnly startDate { get; set; }
+        public DateOnly? startDate { get; set; }
         public DateOnly? endDate { get; set; }
+        public string? recommendation { get; set; }
+        public string? remarks { get; set; }
         [Required]
-        public string recommendation { get; set; }
-        [Required]
-        public string remarks { get; set; }
+        public string evaluationStatus { get; set; } = "Pending";
 
         //generated pdf answersheets
         public byte[]? protocolReviewSheet { get; set; }
-
         public byte[]? informedConsentForm { get; set; }
 
 

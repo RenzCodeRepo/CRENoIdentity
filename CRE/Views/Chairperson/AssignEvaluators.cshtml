@@ -1,0 +1,32 @@
+﻿@model CRE.ViewModels.AssignEvaluatorsViewModel
+
+@{
+    ViewData["Title"] = "Assign Evaluators";
+}
+
+<h2>Assign Evaluators for Application @Model.EthicsApplication.urecNo</h2>
+
+<div>
+    <h4>Application Details</h4>
+    <p><strong>Submission Date:</strong> @Model.EthicsApplication.submissionDate</p>
+    <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+</div>
+
+<form asp-action="SubmitEvaluators" method="post">
+    <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+
+    <h4>Select Evaluators</h4>
+    <div>
+        @foreach (var evaluator in Model.AvailableEvaluators)
+        {
+            <div>
+                <input type="checkbox" name="SelectedEvaluatorIds" value="@evaluator.ethicsEvaluatorId" />
+                <label>@evaluator.Faculty.User.fName @evaluator.Faculty.User.lName</label>
+            </div>
+        }
+    </div>  
+
+    <button type="submit" class="btn btn-primary">Assign Evaluators</button>
+</form>
+
+<a asp-controller="Chairperson" asp-action="Index">Back to Applications</a>
