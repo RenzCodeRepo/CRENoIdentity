@@ -52,11 +52,14 @@ namespace CRE.Services
         public async Task<List<EthicsEvaluator>> GetAvailableEvaluatorsAsync(string fieldOfStudy)
         {
             return await _context.EthicsEvaluator
-               .Include(e => e.Faculty) // Include Faculty to access Faculty info
-                .ThenInclude(f => f.Chairperson) // Include Chairperson to access Chairperson's field of study
-                .Where(e => e.Faculty.User.Faculty.Chairperson.fieldOfStudy == fieldOfStudy) // Matching Field of Study
+                .Include(e => e.Faculty)
+                .ThenInclude(f => f.User)  // Include User
+                .Include(e => e.EthicsEvaluatorExpertise)
+                .ThenInclude(ee => ee.Expertise)
+                .Where(e => e.Faculty != null && e.Faculty.User != null)  // Check for non-null Faculty and User
+                .Where(e => e.EthicsEvaluatorExpertise.Any(ee => ee.Expertise.expertiseName == fieldOfStudy))  // Match expertise
                 .ToListAsync();
-        }
 
+        }
     }
 }

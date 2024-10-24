@@ -4,18 +4,9 @@ namespace CRE.ViewModels
 {
     public class ChairpersonApplicationsViewModel
     {
-        public AppUser AppUser { get; set; }
-        public Secretariat Secretariat { get; set; }
-        public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
-        public ICollection<CoProponent> CoProponents { get; set; } // Plural to indicate collection
-        public ReceiptInfo ReceiptInfo { get; set; }
-        public Chairperson Chairperson { get; set; }
-        public EthicsEvaluator EthicsEvaluator { get; set; }
-        public Expertise Expertise { get; set; }
-        public IEnumerable<EthicsApplication> EthicsApplications { get; set; }
-        public InitialReview InitialReview { get; set; }
-        public IEnumerable<EthicsApplicationForms> EthicsApplicationForms { get; set; }
-        public IEnumerable<EthicsApplicationLog> EthicsApplicationLogs { get; set; } // Plural for consistency
+        public IEnumerable<EthicsApplication> UnassignedApplications { get; set; }
+        public IEnumerable<EthicsApplication> UnderEvaluationApplications { get; set; }
+        public IEnumerable<EthicsApplication> EvaluationResultApplications { get; set; }
     }
 
 }

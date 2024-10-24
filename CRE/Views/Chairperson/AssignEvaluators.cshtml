@@ -4,29 +4,66 @@
     ViewData["Title"] = "Assign Evaluators";
 }
 
-<h2>Assign Evaluators for Application @Model.EthicsApplication.urecNo</h2>
+<h2>Assign Evaluators</h2>
 
-<div>
-    <h4>Application Details</h4>
-    <p><strong>Submission Date:</strong> @Model.EthicsApplication.submissionDate</p>
-    <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+<div class="card border-light mb-3" style="width: contain;">
+    <div class="card-header">
+        <div class="row">
+            <div class="col text-start">
+                <p id="urecNoText">
+                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
+                </p>
+                <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
+                    Copy UREC No.
+                </button>
+                <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
+                <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+                <p><strong>Submission Date:</strong> @Model.EthicsApplication.submissionDate.ToShortDateString()</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <h4>Assign Evaluators</h4>
+        <form asp-action="SubmitEvaluators" method="post">
+            <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+
+            <div>
+                @if (Model.AvailableEvaluators != null && Model.AvailableEvaluators.Any())
+                {
+                    @foreach (var evaluator in Model.AvailableEvaluators)
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="SelectedEvaluatorIds" value="@evaluator.ethicsEvaluatorId" />
+                            <label class="form-check-label">
+                                @($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")
+                            </label>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>No available evaluators.</p>
+                }
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Assign Evaluators</button>
+                <a asp-controller="Chairperson" asp-action="Index" class="btn btn-secondary">Back to Applications</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<form asp-action="SubmitEvaluators" method="post">
-    <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-
-    <h4>Select Evaluators</h4>
-    <div>
-        @foreach (var evaluator in Model.AvailableEvaluators)
-        {
-            <div>
-                <input type="checkbox" name="SelectedEvaluatorIds" value="@evaluator.ethicsEvaluatorId" />
-                <label>@evaluator.Faculty.User.fName @evaluator.Faculty.User.lName</label>
-            </div>
+@section Scripts {
+    <script>
+        function copyUrecNo() {
+            const urecNoText = document.getElementById("urecNoText").innerText;
+            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
+                alert('UREC No. copied to clipboard!');
+            }, function (err) {
+                console.error('Could not copy text: ', err);
+            });
         }
-    </div>  
-
-    <button type="submit" class="btn btn-primary">Assign Evaluators</button>
-</form>
-
-<a asp-controller="Chairperson" asp-action="Index">Back to Applications</a>
+    </script>
+}

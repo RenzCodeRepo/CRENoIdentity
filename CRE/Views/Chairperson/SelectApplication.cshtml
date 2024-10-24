@@ -1,46 +1,107 @@
 ﻿@model CRE.ViewModels.ChairpersonApplicationsViewModel
 
 @{
-    ViewData["Title"] = "Applications";
+    ViewData["Title"] = "Select Application";
 }
 
-<h2>Applications</h2>
+<h2>Select Application</h2>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>UREC No.</th>
-            <th>Submission Date</th>
-            <th>Field of Study</th>
-            <th>Status</th>
-            <th>Review Type</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.EthicsApplications != null && Model.EthicsApplications.Any())
-        {
-            foreach (var application in Model.EthicsApplications)
-            {
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="unassigned-tab" data-bs-toggle="tab" href="#unassigned" role="tab" aria-controls="unassigned" aria-selected="true">Unassigned Applications</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="under-evaluation-tab" data-bs-toggle="tab" href="#under-evaluation" role="tab" aria-controls="under-evaluation" aria-selected="false">Under Evaluation</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="evaluation-result-tab" data-bs-toggle="tab" href="#evaluation-result" role="tab" aria-controls="evaluation-result" aria-selected="false">Evaluation Result</a>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="myTabContent">
+    <!-- Unassigned Applications Tab -->
+    <div class="tab-pane fade show active" id="unassigned" role="tabpanel" aria-labelledby="unassigned-tab">
+        <h4>Unassigned Applications</h4>
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <td>@application.urecNo</td>
-                    <td>@application.submissionDate.ToShortDateString()</td>
-                    <td>@application.fieldOfStudy</td>
-                    <td>@application.InitialReview?.status</td> <!-- Use ?. to handle nulls -->
-                    <td>@application.InitialReview?.ReviewType</td>
-                    <td>
-                        <a href="@Url.Action("AssignEvaluators", "Chairperson", new { urecNo = application.urecNo })" class="btn btn-primary">
-                            Assign Evaluators
-                        </a>
-                    </td>
+                    <th>UREC No</th>
+                    <th>Submission Date</th>
+                    <th>Field of Study</th>
+                    <th></th>
                 </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="6" class="text-center">No applications found.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                @foreach (var application in Model.UnassignedApplications)
+                {
+                    <tr>
+                        <td>@application.urecNo</td>
+                        <td>@application.submissionDate</td>
+                        <td>@application.fieldOfStudy</td>
+                        <td>
+                            <a asp-action="AssignEvaluators" asp-route-urecNo="@application.urecNo" class="btn btn-primary">Assign Evaluators</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Under Evaluation Tab -->
+    <div class="tab-pane fade" id="under-evaluation" role="tabpanel" aria-labelledby="under-evaluation-tab">
+        <h4>Under Evaluation</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>UREC No</th>
+                    <th>Submission Date</th>
+                    <th>Field of Study</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var application in Model.UnderEvaluationApplications)
+                {
+                    <tr>
+                        <td>@application.urecNo</td>
+                        <td>@application.submissionDate</td>
+                        <td>@application.fieldOfStudy</td>
+                        <td>
+                            <!-- You can add a button here to check evaluation progress if needed -->
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Evaluation Result Tab -->
+    <div class="tab-pane fade" id="evaluation-result" role="tabpanel" aria-labelledby="evaluation-result-tab">
+        <h4>Evaluation Result</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>UREC No</th>
+                    <th>Submission Date</th>
+                    <th>Field of Study</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var application in Model.EvaluationResultApplications)
+                {
+                    <tr>
+                        <td>@application.urecNo</td>
+                        <td>@application.submissionDate</td>
+                        <td>@application.fieldOfStudy</td>
+                        <td>
+                            <!-- You can add a button here to view the evaluation results if needed -->
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
