@@ -11,20 +11,89 @@
         <div class="row">
             <div class="col text-start">
                 <p id="urecNoText">
-                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
+                    <strong>UREC No.: </strong> <span id="urecNoValue">@Model.EthicsApplication.urecNo</span>
                 </p>
                 <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
                     Copy UREC No.
                 </button>
-                <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
+
+                <h4><strong>Research Title:</strong>@Model.NonFundedResearchInfo.title</h4>
+                <p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Proponent/s:</strong><br />
+                            @($"{Model.User.fName} {Model.User.mName} {Model.User.lName}")
+                            <br />
+                            @if (Model.CoProponent != null && Model.CoProponent.Any())
+                            {
+                                foreach (var proponent in Model.CoProponent)
+                                {
+                                    @proponent.coProponentName <br />
+                                }
+                            }
+                        </div>
+                    </div>
+                </p>
                 <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
-                <p><strong>Submission Date:</strong> @Model.EthicsApplication.submissionDate.ToShortDateString()</p>
+                <p><strong>College:</strong> @Model.NonFundedResearchInfo.college</p>
+                <p><strong>Branch/Campuses: </strong> @Model.NonFundedResearchInfo.campus</p>
+            </div>
+            <div class="col text-end">
+                <p id="dtsNoText">
+                    <strong>DTS No.:</strong>
+                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                    {
+                           
+                    }
+                    else
+                    {
+                            <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
+                    }
+                </p>
+
+                <!-- Button to Copy DTS No. if it exists -->
+                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                {
+                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                            Copy DTS No.
+                        </button>
+                }
             </div>
         </div>
     </div>
 
     <div class="card-body">
+        <h4>Application Forms</h4>
+
+        @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
+        {
+                <div class="mb-3">
+                    <label><strong>Receipt:</strong></label>
+                    <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
+                        View Receipt (PDF)
+                    </button>
+                </div>
+        }
+
+        @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
+        {
+                <ul class="list-unstyled">
+                @foreach (var form in Model.EthicsApplicationForms)
+                {
+                            <li>
+                                <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
+                            @form.fileName
+                                </button>
+                            </li>
+                }
+                </ul>
+        }
+        else
+        {
+                <p>No forms submitted.</p>
+        }
         <h4>Assign Evaluators</h4>
+           
         <form asp-action="SubmitEvaluators" method="post">
             <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
 
@@ -46,7 +115,6 @@
                     <p>No available evaluators.</p>
                 }
             </div>
-
             <div class="mt-3">
                 <button type="submit" class="btn btn-primary">Assign Evaluators</button>
                 <a asp-controller="Chairperson" asp-action="Index" class="btn btn-secondary">Back to Applications</a>
@@ -54,7 +122,22 @@
         </form>
     </div>
 </div>
-
+<!-- Modal for file view-->
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         function copyUrecNo() {
@@ -65,5 +148,22 @@
                 console.error('Could not copy text: ', err);
             });
         }
+        function copyDtsNo() {
+            const dtsNo = document.getElementById("dtsNoValue").innerText; // Get the DTS No directly
+            navigator.clipboard.writeText(dtsNo).then(() => {
+                alert("DTS No. copied to clipboard!");
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        }
+
+        function openPdfInModal(pdfUrl) {
+        // Set the iframe source to the selected PDF
+        document.getElementById("pdfViewer").src = pdfUrl;
+
+        // Show the modal
+        $('#pdfModal').modal('show');
+        }
+
     </script>
 }

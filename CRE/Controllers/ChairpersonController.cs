@@ -15,22 +15,30 @@ namespace CRE.Controllers
     public class ChairpersonController : Controller
     {
 
-        private readonly IChairpersonServices _chairpersonService;
-        private readonly IEthicsEvaluationServices _ethicsEvaluationService;
+        private readonly IChairpersonServices _chairpersonServices;
+        private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
         private readonly INonFundedResearchInfoServices _nonFundedResearchInfoServices;
+        private readonly ICoProponentServices _coProponentServices;
+        private readonly IAppUserServices _userServices;
 
 
-        public ChairpersonController(IChairpersonServices chairpersonService, IEthicsEvaluationServices ethicsEvaluationService, INonFundedResearchInfoServices nonFundedResearchInfoServices)
+        public ChairpersonController(IChairpersonServices chairpersonServices,
+            IEthicsEvaluationServices ethicsEvaluationServices,
+            INonFundedResearchInfoServices nonFundedResearchInfoServices,
+            ICoProponentServices coProponentServices,
+            IAppUserServices userServices)
         {
-            _chairpersonService = chairpersonService;
-            _ethicsEvaluationService = ethicsEvaluationService;
+            _chairpersonServices = chairpersonServices;
+            _ethicsEvaluationServices = ethicsEvaluationServices;
             _nonFundedResearchInfoServices = nonFundedResearchInfoServices;
+            _coProponentServices = coProponentServices;
+            _userServices = userServices;
         }
 
         public async Task<IActionResult> SelectApplication()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var applications = await _chairpersonService.GetApplicationsByFieldOfStudyAsync(userId);
+            var applications = await _chairpersonServices.GetApplicationsByFieldOfStudyAsync(userId);
 
             var unassignedApplications = applications.Where(a =>
                 !a.EthicsEvaluation.Any() // No evaluators assigned
@@ -51,21 +59,17 @@ namespace CRE.Controllers
 
             return View(viewModel);
         }
+        [HttpGet]
         public async Task<IActionResult> AssignEvaluators(string urecNo)
         {
-            var application = await _chairpersonService.GetApplicationAsync(urecNo);
-            var availableEvaluators = await _ethicsEvaluationService.GetAvailableEvaluatorsAsync(application.fieldOfStudy);
-            var nonFundedResearchInfo = await _nonFundedResearchInfoServices.GetNonFundedResearchByUrecNoAsync(urecNo);
+            var viewModel = await _ethicsEvaluationServices.GetApplicationDetailsForEvaluationAsync(urecNo);
 
+            var availableEvaluators = await _ethicsEvaluationServices.GetAvailableEvaluatorsAsync(viewModel.EthicsApplication.fieldOfStudy);
 
-            var viewModel = new AssignEvaluatorsViewModel
-            {
-                EthicsApplication = application,
-                AvailableEvaluators = availableEvaluators,
-                NonFundedResearchInfo = nonFundedResearchInfo
-            };
+            // Set the available evaluators
+            viewModel.AvailableEvaluators = availableEvaluators;
 
-            return View(viewModel); 
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -73,7 +77,7 @@ namespace CRE.Controllers
         {
             foreach (var evaluatorId in evaluatorIds)
             {
-                await _ethicsEvaluationService.AssignEvaluatorAsync(urecNo, evaluatorId);
+                await _ethicsEvaluationServices.AssignEvaluatorAsync(urecNo, evaluatorId);
             }
 
             return RedirectToAction("ApplicationDetails", new { urecNo = urecNo });

@@ -1,4 +1,5 @@
 ﻿using CRE.Models;
+using CRE.ViewModels;
 
 namespace CRE.Interfaces
 {
@@ -9,5 +10,7 @@ namespace CRE.Interfaces
         Task UpdateEvaluationStatusAsync(int evaluationId, string status);
         Task CreateEvaluation(EthicsEvaluation ethicsEvaluation);
         Task AssignEvaluatorAsync(string urecNo, int evaluatorId);
+        Task<AssignEvaluatorsViewModel> GetApplicationDetailsForEvaluationAsync(string urecNo);
+        
     }
 }

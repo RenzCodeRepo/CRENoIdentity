@@ -1,6 +1,7 @@
 ﻿using CRE.Data;
 using CRE.Interfaces;
 using CRE.Models;
+using CRE.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -61,5 +62,36 @@ namespace CRE.Services
                 .ToListAsync();
 
         }
+
+        public async Task<AssignEvaluatorsViewModel> GetApplicationDetailsForEvaluationAsync(string urecNo)
+        {
+            var application = await _context.EthicsApplication
+                .Include(e => e.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent)
+                .Include(e => e.EthicsApplicationLog)
+                .Include(e => e.ReceiptInfo)
+                .Include(e => e.EthicsApplicationForms)
+                .FirstOrDefaultAsync(e => e.urecNo == urecNo);
+
+            if (application == null)
+            {
+                throw new Exception("Application not found.");
+            }
+
+            var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == application.userId);
+
+            var viewModel = new AssignEvaluatorsViewModel
+            {
+                EthicsApplication = application,
+                User = appUser, // Set User here
+                NonFundedResearchInfo = application.NonFundedResearchInfo,
+                CoProponent = application.NonFundedResearchInfo?.CoProponent,
+                EthicsApplicationForms = application.EthicsApplicationForms,
+                ReceiptInfo = application.ReceiptInfo
+            };
+
+            return viewModel;
+        }
+
     }
 }
