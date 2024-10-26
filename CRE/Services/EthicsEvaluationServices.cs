@@ -47,9 +47,10 @@ namespace CRE.Services
                 evaluationStatus = "Assigned"
             };
 
-            _context.EthicsEvaluation.Add(ethicsEvaluation);
+            _context.EthicsEvaluation.AddAsync(ethicsEvaluation);
             await _context.SaveChangesAsync();
         }
+
         public async Task<List<EthicsEvaluator>> GetAvailableEvaluatorsAsync(string fieldOfStudy)
         {
             return await _context.EthicsEvaluator

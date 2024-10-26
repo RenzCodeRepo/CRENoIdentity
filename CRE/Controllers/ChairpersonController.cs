@@ -62,25 +62,40 @@ namespace CRE.Controllers
         [HttpGet]
         public async Task<IActionResult> AssignEvaluators(string urecNo)
         {
+            // Fetch application details and evaluators
             var viewModel = await _ethicsEvaluationServices.GetApplicationDetailsForEvaluationAsync(urecNo);
 
+            // Get all available evaluators for the application’s field of study
             var availableEvaluators = await _ethicsEvaluationServices.GetAvailableEvaluatorsAsync(viewModel.EthicsApplication.fieldOfStudy);
 
-            // Set the available evaluators
+            // Set both the available and recommended evaluators in the viewModel
             viewModel.AvailableEvaluators = availableEvaluators;
+            viewModel.RecommendedEvaluators = availableEvaluators
+                .OrderBy(e => e.pendingEval) // Order by least pending evaluations
+                .Take(3) // Take the top 3 as recommended
+                .ToList();
 
+            // Pass the viewModel to the view
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AssignEvaluators(string urecNo, List<int> evaluatorIds)
+        public async Task<IActionResult> AssignEvaluators(string urecNo, List<int> selectedEvaluatorIds)
         {
-            foreach (var evaluatorId in evaluatorIds)
+            if (string.IsNullOrEmpty(urecNo) || selectedEvaluatorIds == null || selectedEvaluatorIds.Count == 0)
+            {
+                // You can add some error handling here
+                return BadRequest("Invalid parameters.");
+            }
+
+            // Assign evaluators asynchronously
+            foreach (var evaluatorId in selectedEvaluatorIds)
             {
                 await _ethicsEvaluationServices.AssignEvaluatorAsync(urecNo, evaluatorId);
             }
 
-            return RedirectToAction("ApplicationDetails", new { urecNo = urecNo });
+            // Redirect to a specific action after assignment
+            return RedirectToAction("SelectApplication", new { urecNo = urecNo });
         }
     }
 }

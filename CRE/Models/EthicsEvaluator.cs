@@ -15,6 +15,8 @@ namespace CRE.Models
         public int pendingEval { get; set; }
         [Required]
         public int declinedAssignment { get; set; }
+        [Required]
+        public string accountStatus { get; set; } = "Active";
 
 
         //navigation property

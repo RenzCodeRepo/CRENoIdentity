@@ -17,7 +17,7 @@
                     Copy UREC No.
                 </button>
 
-                <h4><strong>Research Title:</strong>@Model.NonFundedResearchInfo.title</h4>
+                <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
                 <p>
                     <div class="row">
                         <div class="col-md-6">
@@ -43,20 +43,20 @@
                     <strong>DTS No.:</strong>
                     @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                     {
-                           
+                        // No DTS No available
                     }
                     else
                     {
-                            <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
+                        <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
                     }
                 </p>
 
                 <!-- Button to Copy DTS No. if it exists -->
                 @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                 {
-                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                            Copy DTS No.
-                        </button>
+                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                        Copy DTS No.
+                    </button>
                 }
             </div>
         </div>
@@ -67,103 +67,209 @@
 
         @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
         {
-                <div class="mb-3">
-                    <label><strong>Receipt:</strong></label>
-                    <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
-                        View Receipt (PDF)
-                    </button>
-                </div>
+            <div class="mb-3">
+                <label><strong>Receipt:</strong></label>
+                <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
+                    View Receipt (PDF)
+                </button>
+            </div>
         }
 
         @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
         {
-                <ul class="list-unstyled">
+            <ul class="list-unstyled">
                 @foreach (var form in Model.EthicsApplicationForms)
                 {
-                            <li>
-                                <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
+                    <li>
+                        <button class="btn btn-primary" onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication.urecNo })')">
                             @form.fileName
-                                </button>
-                            </li>
+                        </button>
+                    </li>
                 }
-                </ul>
+            </ul>
         }
         else
         {
-                <p>No forms submitted.</p>
+            <p>No forms submitted.</p>
         }
-        <h4>Assign Evaluators</h4>
-           
-        <form asp-action="SubmitEvaluators" method="post">
-            <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
 
-            <div>
-                @if (Model.AvailableEvaluators != null && Model.AvailableEvaluators.Any())
-                {
-                    @foreach (var evaluator in Model.AvailableEvaluators)
-                    {
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="SelectedEvaluatorIds" value="@evaluator.ethicsEvaluatorId" />
-                            <label class="form-check-label">
-                                @($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")
-                            </label>
+        <!-- Display selected evaluators directly on the page -->
+        <div id="selectedEvaluators" class="mt-4">
+            <h6>Selected Evaluators:</h6>
+            <ul id="selectedEvaluatorsList"></ul>
+        </div>
+
+        <!-- Button to open the modal -->
+        <button type="button" id="assignButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignEvaluatorsModal">
+            Assign Evaluators
+        </button>
+
+        <!-- Modal for selecting evaluators -->
+        <div class="modal fade" id="assignEvaluatorsModal" tabindex="-1" aria-labelledby="assignEvaluatorsModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="assignEvaluatorsModalLabel">Assign Evaluators</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <!-- Recommended Evaluators Section -->
+                            @if (Model.RecommendedEvaluators != null && Model.RecommendedEvaluators.Any())
+                            {
+                                <h6>Recommended Evaluators (Least Pending)</h6>
+                                <div class="row mb-4">
+                                    @foreach (var evaluator in Model.RecommendedEvaluators
+                                   .OrderBy(e => e.pendingEval) // Order by least pending
+                                   .Take(3)) // Take only top 3
+                                    {
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input evaluator-checkbox"
+                                                       type="checkbox"
+                                                       name="selectedEvaluatorIds"
+                                                       value="@evaluator.ethicsEvaluatorId"
+                                                       data-name="@($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")" />
+                                                <label class="form-check-label">
+                                                    @($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")
+                                                </label>
+                                                <div>
+                                                    <p class="mb-0"><strong>Completed:</strong> @evaluator.completedEval</p>
+                                                    <p class="mb-0"><strong>Pending:</strong> @evaluator.pendingEval</p>
+                                                    <p class="mb-0"><strong>Declined:</strong> @evaluator.declinedAssignment</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p>No recommended evaluators available.</p>
+                            }
+
+                            <!-- All Available Evaluators Section -->
+                            <h6>All Available Evaluators</h6>
+                            @if (Model.AvailableEvaluators != null && Model.AvailableEvaluators.Any())
+                            {
+                                <div class="row">
+                                    @foreach (var evaluator in Model.AvailableEvaluators
+                                   .Where(e => !Model.RecommendedEvaluators.Select(r => r.ethicsEvaluatorId).Contains(e.ethicsEvaluatorId)))
+                                    {
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input evaluator-checkbox" type="checkbox"
+                                                       name="SelectedEvaluatorIds"
+                                                       value="@evaluator.ethicsEvaluatorId"
+                                                       data-name="@($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")" />
+                                                <label class="form-check-label">
+                                                    @($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")
+                                                </label>
+                                                <div>
+                                                    <p class="mb-0"><strong>Completed:</strong> @evaluator.completedEval</p>
+                                                    <p class="mb-0"><strong>Pending:</strong> @evaluator.pendingEval</p>
+                                                    <p class="mb-0"><strong>Declined:</strong> @evaluator.declinedAssignment</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p>No available evaluators.</p>
+                            }
                         </div>
-                    }
-                }
-                else
-                {
-                    <p>No available evaluators.</p>
-                }
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
             </div>
-            <div class="mt-3">
-                <button type="submit" class="btn btn-primary">Assign Evaluators</button>
-                <a asp-controller="Chairperson" asp-action="Index" class="btn btn-secondary">Back to Applications</a>
-            </div>
+        </div>
+        <!-- Submit Button to submit selected evaluators -->
+        <form id="evaluatorForm" asp-action="AssignEvaluators" method="post" class="mt-4">
+            <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+            <button type="submit" class="btn btn-success" id="submitEvaluators" style="display: none;">Submit Selected Evaluators</button>
         </form>
     </div>
 </div>
-<!-- Modal for file view-->
-<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+
+<!-- Modal for Viewing PDF -->
+<div class="modal fade" id="pdfModal" tabindex="-1" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <h5 class="modal-title" id="pdfModalLabel">View PDF</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+                <iframe id="pdfViewer" src="" width="100%" height="700px" style="border: none;"></iframe>
             </div>
         </div>
     </div>
 </div>
-@section Scripts {
-    <script>
-        function copyUrecNo() {
-            const urecNoText = document.getElementById("urecNoText").innerText;
-            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
-                alert('UREC No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
-        function copyDtsNo() {
-            const dtsNo = document.getElementById("dtsNoValue").innerText; // Get the DTS No directly
-            navigator.clipboard.writeText(dtsNo).then(() => {
-                alert("DTS No. copied to clipboard!");
-            }).catch(err => {
-                console.error("Failed to copy: ", err);
-            });
-        }
 
-        function openPdfInModal(pdfUrl) {
-        // Set the iframe source to the selected PDF
+<script>
+    function copyUrecNo() {
+        var urecNo = document.getElementById("urecNoValue").innerText;
+        navigator.clipboard.writeText(urecNo).then(function () {
+            alert("UREC No. copied to clipboard!");
+        });
+    }
+
+    function copyDtsNo() {
+        var dtsNo = document.getElementById("dtsNoValue").innerText;
+        navigator.clipboard.writeText(dtsNo).then(function () {
+            alert("DTS No. copied to clipboard!");
+        });
+    }
+
+    function openPdfInModal(pdfUrl) {
         document.getElementById("pdfViewer").src = pdfUrl;
+        var modal = new bootstrap.Modal(document.getElementById('pdfModal'));
+        modal.show();
+    }
 
-        // Show the modal
-        $('#pdfModal').modal('show');
+    function updateSelectedEvaluatorsDisplay() {
+        var selectedEvaluatorsList = document.getElementById("selectedEvaluatorsList");
+        var evaluatorCheckboxes = document.querySelectorAll(".evaluator-checkbox");
+        var selectedCount = 0;
+        selectedEvaluatorsList.innerHTML = ""; // Clear the list
+
+        evaluatorCheckboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selectedCount++;
+                var evaluatorName = checkbox.getAttribute("data-name");
+                var listItem = document.createElement("li");
+                listItem.textContent = evaluatorName;
+
+                // Add the "Remove" button for each selected evaluator
+                var removeButton = document.createElement("button");
+                removeButton.textContent = "Remove";
+                removeButton.className = "btn btn-danger btn-sm ms-2";
+                removeButton.onclick = function () {
+                    checkbox.checked = false; // Uncheck the checkbox
+                    updateSelectedEvaluatorsDisplay(); // Update the display
+                };
+
+                listItem.appendChild(removeButton); // Add the remove button to the list item
+                selectedEvaluatorsList.appendChild(listItem);
+            }
+        });
+
+        // Show the submit button only if exactly three evaluators are selected
+        var submitButton = document.getElementById("submitEvaluators");
+        if (selectedCount === 3) {
+            submitButton.style.display = "block";
+        } else {
+            submitButton.style.display = "none";
         }
+    }
 
-    </script>
-}
+    // Add event listeners to checkboxes
+    document.querySelectorAll(".evaluator-checkbox").forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateSelectedEvaluatorsDisplay);
+    });
+</script>
