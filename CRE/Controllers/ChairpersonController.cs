@@ -40,25 +40,40 @@ namespace CRE.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var applications = await _chairpersonServices.GetApplicationsByFieldOfStudyAsync(userId);
 
+            // Debugging: Log applications and evaluations
+            foreach (var application in applications)
+            {
+                Console.WriteLine($"Application: {application.urecNo}");
+                foreach (var eval in application.EthicsEvaluation)
+                {
+                    Console.WriteLine($"  Evaluation ID: {eval.evaluationId}, End Date: {eval.endDate}, Status: {eval.evaluationStatus}, Recommendation: {eval.recommendation}");
+                }
+            }
+
             var unassignedApplications = applications.Where(a =>
-                !a.EthicsEvaluation.Any() // No evaluators assigned
-                || a.EthicsEvaluation.All(e => e.endDate == null && e.EthicsEvaluator.declinedAssignment > 0));
+                !a.EthicsEvaluation.Any() || // No evaluations assigned
+                (a.EthicsEvaluation.All(e => e.endDate == null) &&
+                 a.EthicsEvaluation.All(e => e.EthicsEvaluator.declinedAssignment > 0)) || // All evaluations pending and declined
+                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned")); // Exclude those with assigned evaluations
 
             var underEvaluationApplications = applications.Where(a =>
-                a.EthicsEvaluation.Any(e => e.endDate == null && e.EthicsEvaluator.declinedAssignment == 0));
+                (a.EthicsEvaluation.Count == 3 &&
+                 a.EthicsEvaluation.All(e => e.recommendation == "Pending")) || // Exactly three evaluations with Pending recommendation
+                a.EthicsEvaluation.Any(e => e.endDate == null || e.evaluationStatus == "Assigned")); // At least one evaluation ongoing or assigned
 
             var evaluationResultApplications = applications.Where(a =>
-                a.EthicsEvaluation.Count == 3 && a.EthicsEvaluation.All(e => e.endDate != null));
+                a.EthicsEvaluation.Count == 3 && a.EthicsEvaluation.All(e => e.endDate != null)); // All evaluations completed
 
             var viewModel = new ChairpersonApplicationsViewModel
             {
-                UnassignedApplications = unassignedApplications,
-                UnderEvaluationApplications = underEvaluationApplications,
-                EvaluationResultApplications = evaluationResultApplications
+                UnassignedApplications = unassignedApplications.ToList(), // Convert to List
+                UnderEvaluationApplications = underEvaluationApplications.ToList(), // Convert to List
+                EvaluationResultApplications = evaluationResultApplications.ToList() // Convert to List
             };
 
             return View(viewModel);
         }
+
         [HttpGet]
         public async Task<IActionResult> AssignEvaluators(string urecNo)
         {

@@ -26,9 +26,11 @@ namespace CRE.Services
             if (chairperson == null)
                 return new List<EthicsApplication>(); // Return an empty list if chairperson not found
 
-            // Retrieve applications matching the chairperson's field of study and specific review types
+            // Retrieve applications matching the chairperson's field of study and specific review types, including evaluations and evaluators
             var applications = await _context.EthicsApplication
                 .Include(e => e.InitialReview)
+                .Include(e => e.EthicsEvaluation) // Include EthicsEvaluation entities
+                    .ThenInclude(e => e.EthicsEvaluator) // Include the related EthicsEvaluator entities
                 .Where(e => e.fieldOfStudy == chairperson.fieldOfStudy
                              && (e.InitialReview.ReviewType == "Full Review"
                              || e.InitialReview.ReviewType == "Expedited"))
@@ -36,6 +38,8 @@ namespace CRE.Services
 
             return applications;
         }
+
+
         public async Task AssignEvaluatorsAsync(string urecNo, List<int> evaluatorIds)
         {
             foreach (var evaluatorId in evaluatorIds)

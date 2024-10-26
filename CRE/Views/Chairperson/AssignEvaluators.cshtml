@@ -103,7 +103,8 @@
         <button type="button" id="assignButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignEvaluatorsModal">
             Assign Evaluators
         </button>
-
+        <form id="evaluatorForm" asp-action="AssignEvaluators" method="post" class="mt-4">
+            <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
         <!-- Modal for selecting evaluators -->
         <div class="modal fade" id="assignEvaluatorsModal" tabindex="-1" aria-labelledby="assignEvaluatorsModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -112,7 +113,7 @@
                         <h5 class="modal-title" id="assignEvaluatorsModalLabel">Assign Evaluators</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                        <div class="modal-body">
                         <div class="container">
                             <!-- Recommended Evaluators Section -->
                             @if (Model.RecommendedEvaluators != null && Model.RecommendedEvaluators.Any())
@@ -120,16 +121,15 @@
                                 <h6>Recommended Evaluators (Least Pending)</h6>
                                 <div class="row mb-4">
                                     @foreach (var evaluator in Model.RecommendedEvaluators
-                                   .OrderBy(e => e.pendingEval) // Order by least pending
-                                   .Take(3)) // Take only top 3
+                                           .OrderBy(e => e.pendingEval) // Order by least pending
+                                           .Take(3)) // Take only top 3
                                     {
                                         <div class="col-md-4 mb-3">
                                             <div class="form-check">
-                                                <input class="form-check-input evaluator-checkbox"
-                                                       type="checkbox"
-                                                       name="selectedEvaluatorIds"
-                                                       value="@evaluator.ethicsEvaluatorId"
-                                                       data-name="@($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")" />
+                                                <input class="form-check-input evaluator-checkbox" type="checkbox"
+                                                        name="selectedEvaluatorIds"
+                                                        value="@evaluator.ethicsEvaluatorId"
+                                                        data-name="@($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")" />
                                                 <label class="form-check-label">
                                                     @($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")
                                                 </label>
@@ -154,12 +154,12 @@
                             {
                                 <div class="row">
                                     @foreach (var evaluator in Model.AvailableEvaluators
-                                   .Where(e => !Model.RecommendedEvaluators.Select(r => r.ethicsEvaluatorId).Contains(e.ethicsEvaluatorId)))
+                                           .Where(e => !Model.RecommendedEvaluators.Select(r => r.ethicsEvaluatorId).Contains(e.ethicsEvaluatorId)))
                                     {
                                         <div class="col-md-4 mb-3">
                                             <div class="form-check">
                                                 <input class="form-check-input evaluator-checkbox" type="checkbox"
-                                                       name="SelectedEvaluatorIds"
+                                                       name="selectedEvaluatorIds"
                                                        value="@evaluator.ethicsEvaluatorId"
                                                        data-name="@($"{evaluator.Faculty.User.fName} {evaluator.Faculty.User.lName}")" />
                                                 <label class="form-check-label">
@@ -184,16 +184,16 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    </div>
+                    
                 </div>
             </div>
         </div>
-        <!-- Submit Button to submit selected evaluators -->
-        <form id="evaluatorForm" asp-action="AssignEvaluators" method="post" class="mt-4">
+        
+    </div>
+            <!-- Submit Button to submit selected evaluators -->
             <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
             <button type="submit" class="btn btn-success" id="submitEvaluators" style="display: none;">Submit Selected Evaluators</button>
         </form>
-    </div>
 </div>
 
 <!-- Modal for Viewing PDF -->
