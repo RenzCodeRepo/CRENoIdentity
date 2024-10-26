@@ -15,5 +15,7 @@ namespace CRE.ViewModels
         public InitialReview InitialReview { get; set; }
         public IEnumerable<EthicsApplicationForms> EthicsApplicationForms { get; set; }
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; }
+        public EthicsEvaluation EthicsEvaluation { get; set; }
+        public string ChiefName { get; set; }
     }
 }

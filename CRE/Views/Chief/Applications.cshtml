@@ -8,7 +8,7 @@
             <tr>
                 <th>UREC No</th>
                 <th>Title</th>
-                <th>Status</th>
+                <th>Review Type</th>
                 <th>Submission Date</th>
             </tr>
         </thead>
@@ -32,8 +32,8 @@
                         </td>
                         <td>@application.NonFundedResearchInfo?.title</td>
                         <td>
-                            @* Accessing the status from the EthicsApplicationLog *@
-                            @application.EthicsApplicationLog?.FirstOrDefault()?.status
+                            @* Displaying ReviewType only if InitialReview is not null *@
+                            @(application.InitialReview != null ? application.InitialReview.ReviewType : "N/A")
                         </td>
                         <td>
                             @* Formatting the submission date for better readability *@

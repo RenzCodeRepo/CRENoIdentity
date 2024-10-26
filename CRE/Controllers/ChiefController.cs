@@ -4,6 +4,7 @@ using CRE.ViewModels;
 using CRE.Services;
 using CRE.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 namespace CRE.Controllers
 {
     public class ChiefController : Controller
@@ -18,6 +19,7 @@ namespace CRE.Controllers
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
+        private readonly UserManager<AppUser> _userManager;
 
         public ChiefController(
             IConfiguration configuration,
@@ -29,7 +31,8 @@ namespace CRE.Controllers
             ICoProponentServices coProponentServices,
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
             IInitialReviewServices initialReviewServices,
-            IEthicsEvaluationServices ethicsEvaluationServices)
+            IEthicsEvaluationServices ethicsEvaluationServices,
+            UserManager<AppUser> userManager)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -41,6 +44,7 @@ namespace CRE.Controllers
             _ethicsApplicationFormsServices = ethicsApplicationFormsServices;
             _initialReviewServices = initialReviewServices;
             _ethicsEvaluationServices = ethicsEvaluationServices;
+            _userManager = userManager; 
         }
 
         public IActionResult Index()
@@ -158,15 +162,22 @@ namespace CRE.Controllers
 
         public async Task<IActionResult> EvaluateApplication(string urecNo)
         {
-            // Fetch the application details using the same service method as in Details
-            var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(urecNo);
+            // Fetch the exempt applications using the specified urecNo
+            var exemptApplications = await _initialReviewServices.GetExemptApplicationsAsync();
+
+            // Check if there are any exempt applications
+            var applicationDetails = exemptApplications.FirstOrDefault(app => app.EthicsApplication.urecNo == urecNo);
 
             if (applicationDetails == null)
             {
-                return NotFound();
+                return NotFound(); // Return a 404 if the application is not found
             }
 
-            // Create the view model
+            // Get the current user (chief) from the User context
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUser = await _userManager.FindByIdAsync(currentUserId); // Assuming _userManager is injected
+
+            // Create the view model from the retrieved application details
             var viewModel = new ChiefEvaluationViewModel
             {
                 AppUser = applicationDetails.AppUser,
@@ -180,6 +191,8 @@ namespace CRE.Controllers
                 InitialReview = applicationDetails.InitialReview,
                 EthicsApplicationForms = applicationDetails.EthicsApplicationForms,
                 EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
+                EthicsEvaluation = applicationDetails.EthicsEvaluation,
+                ChiefName = currentUser != null ? $"{currentUser.fName} {currentUser.lName}" : "Not Assigned" // Set the ChiefName from the current user
             };
 
             return View(viewModel);
