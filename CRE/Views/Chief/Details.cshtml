@@ -203,8 +203,6 @@
             // Show the modal
             $('#pdfModal').modal('show');
         }
-    </script>
-    <script>
         function submitReviewType() {
             const reviewType = document.getElementById("reviewType").value;
 
@@ -214,21 +212,19 @@
                 return;
             }
 
-            const confirmSubmit = confirm(Are you sure you want to submit the review type as "${reviewType}"?);
+            const confirmSubmit = confirm(`Are you sure you want to submit the review type as "${reviewType}"?`);
             if (confirmSubmit) {
-
                 const form = document.createElement("form");
                 form.method = "post";
-                form.action = '@Url.Action("SubmitReviewType", "Chief")'; // Use the correct action and controller
+                form.action = '@Url.Action("SubmitReviewType", "Chief")'; // Ensure this matches your route
 
-                // Add the review type as a hidden input field
+                // Hidden input fields
                 const reviewTypeInput = document.createElement("input");
                 reviewTypeInput.type = "hidden";
                 reviewTypeInput.name = "ReviewType";
                 reviewTypeInput.value = reviewType;
                 form.appendChild(reviewTypeInput);
 
-                // Add the UREC No. as a hidden input field
                 const urecNoInput = document.createElement("input");
                 urecNoInput.type = "hidden";
                 urecNoInput.name = "urecNo";
@@ -239,5 +235,6 @@
                 form.submit();
             }
         }
+
     </script>
 }
