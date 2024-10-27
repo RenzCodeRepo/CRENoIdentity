@@ -119,10 +119,7 @@ namespace CRE.Controllers
             var ethicsApplicationLogs = await _ethicsApplicationLogServices.GetLogsByUrecNoAsync(urecNo);
             var latestComment = await _ethicsApplicationLogServices.GetLatestCommentByUrecNoAsync(urecNo); // Fetch the latest comment
             var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
-
-            // Check if InitialReview data exists
-            var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo);
-
+            var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo); // Get InitialReview data
             var user = await _userServices.GetByIdAsync(userId); // Use Identity UserId (string)
 
             // Ensure all necessary data exists
@@ -135,7 +132,7 @@ namespace CRE.Controllers
             // Retrieve co-proponents based on the research ID
             var coProponents = await _coProponentServices.GetCoProponentsByResearchIdAsync(nonFundedResearchInfo.nonFundedResearchId);
 
-            // Populate ViewModel, only adding InitialReview if it exists
+            // Populate ViewModel
             var model = new UploadFormsViewModel
             {
                 User = new AppUser
@@ -153,12 +150,11 @@ namespace CRE.Controllers
                 EthicsApplicationLog = ethicsApplicationLogs,
                 LatestComment = latestComment, // Add the latest comment to the ViewModel
                 CoProponent = coProponents.ToList(),
-                InitialReview = initialReview // Include only if not null
+                InitialReview = initialReview// Ensure it's a List
             };
 
             return View(model);
         }
-
 
 
         [HttpPost]

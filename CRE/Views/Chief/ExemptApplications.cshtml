@@ -31,7 +31,7 @@
                         </td>
                         <td>@application.NonFundedResearchInfo?.title</td>
                         <td>
-                            @application.InitialReview?.ReviewType
+                            @application.EthicsApplicationLog?.FirstOrDefault()?.status
                         </td>
                         <td>
                             @application.EthicsApplication?.submissionDate.ToShortDateString()

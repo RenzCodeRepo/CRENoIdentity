@@ -15,7 +15,7 @@ namespace CRE.ViewModels
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; } // For new logs when uploading the forms
         public ReceiptInfo ReceiptInfo { get; set; } // To display the PDF receipt
         public List<CoProponent> CoProponent { get; set; } // To display other proponents 
-        public InitialReview? InitialReview { get; set; } // Add InitialReview to track status
+        public InitialReview InitialReview { get; set; } // Add InitialReview to track status
         public string? LatestComment { get; set; } // To hold the latest comment from logs
         public string? NewComment { get; set; } // For the new comment input
 
