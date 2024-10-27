@@ -59,32 +59,37 @@ namespace CRE.Services
         public async Task<InitialReviewViewModel> GetApplicationDetailsAsync(string urecNo)
         {
             var application = await _context.EthicsApplication
-                .Include(e => e.NonFundedResearchInfo)  // Load NonFundedResearchInfo
-                    .ThenInclude(nf => nf.CoProponent)  // Load CoProponents from NonFundedResearchInfo
+                .Include(e => e.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent)
                 .Include(e => e.ReceiptInfo)
                 .Include(e => e.EthicsApplicationLog)
                 .Include(e => e.EthicsApplicationForms)
+                .Include(e => e.InitialReview) // Include InitialReview directly
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo);
 
             if (application == null)
             {
                 throw new Exception("Application not found.");
             }
+
             var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == application.userId);
+
+            // Create the ViewModel
             var viewModel = new InitialReviewViewModel
             {
                 EthicsApplication = application,
                 NonFundedResearchInfo = application.NonFundedResearchInfo,
-                CoProponent = application.NonFundedResearchInfo.CoProponent, // Now fetching CoProponents from NonFundedResearchInfo
+                CoProponent = application.NonFundedResearchInfo?.CoProponent ?? new List<CoProponent>(), // Handle potential null
                 ReceiptInfo = application.ReceiptInfo,
                 EthicsApplicationLog = application.EthicsApplicationLog.OrderByDescending(log => log.changeDate),
-                EthicsApplicationForms = application.EthicsApplicationForms,
+                EthicsApplicationForms = application.EthicsApplicationForms ?? new List<EthicsApplicationForms>(), // Handle potential null
                 InitialReview = await _context.InitialReview.FirstOrDefaultAsync(ir => ir.urecNo == urecNo),
                 AppUser = appUser
             };
 
             return viewModel;
         }
+
         public async Task<IEnumerable<ChiefEvaluationViewModel>> GetExemptApplicationsAsync()
         {
             return await _context.EthicsApplication
