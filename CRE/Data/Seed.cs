@@ -45,6 +45,7 @@ namespace CRE.Data
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Expertise', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('EthicsEvaluator', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('EthicsApplicationForms', RESEED, 1);");
+                context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('EvaluationForms', RESEED, 1);");
 
                 context.Database.EnsureCreated();
 
@@ -246,7 +247,23 @@ namespace CRE.Data
                     context.EthicsEvaluator.AddRange(ethicsEvaluators);
                     context.SaveChanges(); // Save the ethics evaluator records
                 }
-
+                // Seed EvaluationForms
+                if (!context.EvaluationForms.Any())
+                {
+                    context.EvaluationForms.AddRange(
+                        new EvaluationForms
+                        {
+                            evalFormName = "Informed Consent Form",
+                            evalFormFile = seed.ReadFileToByteArray("EvaluationTemplates\\Informed-Consent-Form-Evaluation-Sheet-TEMPLATE.docx")
+                        },
+                        new EvaluationForms
+                        {
+                            evalFormName = "Protocol Review Sheet",
+                            evalFormFile = seed.ReadFileToByteArray("EvaluationTemplates\\ProtocolReviewSheet-TEMPLATE.docx")
+                        }
+                    );
+                    await context.SaveChangesAsync(); // Save changes to the context
+                }
                 // Seed EthicsEvaluatorExpertise with specific expertise assignments
                 if (!context.EthicsEvaluatorExpertise.Any())
                 {
@@ -370,6 +387,7 @@ namespace CRE.Data
                     );
                     context.SaveChanges();
                 }
+
             }
         }
         // Method to assign roles based on full name

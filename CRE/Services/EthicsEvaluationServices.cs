@@ -2,17 +2,26 @@
 using CRE.Interfaces;
 using CRE.Models;
 using CRE.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Collections.Generic;
 using System;
 
 namespace CRE.Services
 {
     public class EthicsEvaluationServices : IEthicsEvaluationServices
     {
+        private readonly IConfiguration _configuration;
         private readonly ApplicationDbContext _context;
-        public EthicsEvaluationServices(ApplicationDbContext context)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public EthicsEvaluationServices(ApplicationDbContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task CreateEvaluation(EthicsEvaluation ethicsEvaluation)
@@ -96,3 +105,4 @@ namespace CRE.Services
 
     }
 }
+

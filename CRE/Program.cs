@@ -57,6 +57,9 @@ builder.Services.AddScoped<IReceiptInfoServices, ReceiptInfoServices>();
 builder.Services.AddScoped<ISecretariatServices, SecretariatServices>();
 builder.Services.AddScoped<IAppUserServices, AppUserServices>();
 
+// Register IHttpContextAccessor
+builder.Services.AddHttpContextAccessor(); // Add this line
+
 // Configure the database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {

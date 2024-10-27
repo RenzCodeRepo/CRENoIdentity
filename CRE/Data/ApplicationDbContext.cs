@@ -32,6 +32,7 @@ namespace CRE.Data
         public DbSet<ReceiptInfo> ReceiptInfo { get; set; }
         public DbSet<Secretariat> Secretariat { get; set; }
         public DbSet<AppUser> AppUser { get; set; }
+        public DbSet<EvaluationForms> EvaluationForms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -275,19 +275,16 @@ namespace CRE.Services
                 .ToListAsync();
         }
 
-        public async Task<InitialReview> GetInitialReviewByUrecNoAsync(string urecNo)
+        public async Task<InitialReview?> GetInitialReviewByUrecNoAsync(string urecNo)
         {
             var application = await _context.InitialReview
-              .Include(ir => ir.EthicsApplication)
-              .FirstOrDefaultAsync(ir => ir.EthicsApplication.urecNo == urecNo);
+                .Include(ir => ir.EthicsApplication)
+                .FirstOrDefaultAsync(ir => ir.EthicsApplication.urecNo == urecNo);
 
-            if (application == null)
-            {
-                throw new Exception("Application not found.");
-            }
-
-            return application;
+            // Return null if the application is not found instead of throwing an exception
+            return application; // This will return null if no match is found
         }
+
 
         public async Task<IEnumerable<EthicsApplication>> GetApprovedEthicsApplicationsAsync()
         {

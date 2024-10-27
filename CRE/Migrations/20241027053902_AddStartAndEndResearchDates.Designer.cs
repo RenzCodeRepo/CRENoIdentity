@@ -4,6 +4,7 @@ using CRE.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241027053902_AddStartAndEndResearchDates")]
+    partial class AddStartAndEndResearchDates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -508,27 +511,6 @@ namespace CRE.Migrations
                     b.HasIndex("chiefId");
 
                     b.ToTable("EthicsReport");
-                });
-
-            modelBuilder.Entity("CRE.Models.EvaluationForms", b =>
-                {
-                    b.Property<int>("evalFormId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("evalFormId"));
-
-                    b.Property<byte[]>("evalFormFile")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("evalFormName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("evalFormId");
-
-                    b.ToTable("EvaluationForms");
                 });
 
             modelBuilder.Entity("CRE.Models.Expertise", b =>

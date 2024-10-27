@@ -13,6 +13,10 @@ namespace CRE.Models
         public DateOnly submissionDate { get; set; }
         [Required]
         public byte[] terminalReport { get; set; }
+        [Required]
+        public DateOnly researchStartDate { get; set; }
+        [Required]
+        public DateOnly? researchEndDate { get; set; } //issuenace date of certificaate
 
 
         //navigation properties
