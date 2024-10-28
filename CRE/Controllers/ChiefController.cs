@@ -244,6 +244,7 @@ namespace CRE.Controllers
             {
                 urecNo = model.EthicsApplication.urecNo, // Ensure this property exists in your model
                 chiefId = chiefId, // Use the chiefId from the retrieved Chief
+                evaluationStatus = "Evaluated",
                 ProtocolRecommendation = model.EthicsEvaluation.ProtocolRecommendation,
                 ProtocolRemarks = model.EthicsEvaluation.ProtocolRemarks,
                 ConsentRecommendation = model.EthicsEvaluation.ConsentRecommendation,

@@ -20,19 +20,22 @@ namespace CRE.Controllers
         private readonly INonFundedResearchInfoServices _nonFundedResearchInfoServices;
         private readonly ICoProponentServices _coProponentServices;
         private readonly IAppUserServices _userServices;
+        private readonly IEthicsApplicationLogServices _ethicsApplicationLogServices;
 
 
         public ChairpersonController(IChairpersonServices chairpersonServices,
             IEthicsEvaluationServices ethicsEvaluationServices,
             INonFundedResearchInfoServices nonFundedResearchInfoServices,
             ICoProponentServices coProponentServices,
-            IAppUserServices userServices)
+            IAppUserServices userServices,
+            IEthicsApplicationLogServices ethicsApplicationLogServices)
         {
             _chairpersonServices = chairpersonServices;
             _ethicsEvaluationServices = ethicsEvaluationServices;
             _nonFundedResearchInfoServices = nonFundedResearchInfoServices;
             _coProponentServices = coProponentServices;
             _userServices = userServices;
+            _ethicsApplicationLogServices = ethicsApplicationLogServices;
         }
 
         public async Task<IActionResult> SelectApplication()
@@ -40,22 +43,45 @@ namespace CRE.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var applications = await _chairpersonServices.GetApplicationsByFieldOfStudyAsync(userId);
 
-            // Debugging: Log applications and evaluations
+            var applicationEvaluatorNames = new Dictionary<string, List<string>>();
+
             foreach (var application in applications)
             {
-                Console.WriteLine($"Application: {application.urecNo}");
-                foreach (var eval in application.EthicsEvaluation)
+                // Initialize evaluator names for this application
+                var evaluatorNames = new List<string>();
+
+                // Retrieve the evaluators for the application
+                foreach (var evaluation in application.EthicsEvaluation)
                 {
-                    Console.WriteLine($"  Evaluation ID: {eval.evaluationId}, End Date: {eval.endDate}, Status: {eval.evaluationStatus}, " +
-                                      $"Protocol Recommendation: {eval.ProtocolRecommendation}, Consent Recommendation: {eval.ConsentRecommendation}");
+                    // Ensure the evaluator exists and retrieve their full name
+                    var evaluator = evaluation.EthicsEvaluator; // Assuming EthicsEvaluator is a navigation property
+                    if (evaluator != null)
+                    {
+                        // Make sure to include Faculty and User in your query to avoid null reference
+                        var faculty = evaluator.Faculty;
+                        if (faculty != null)
+                        {
+                            var user = faculty.User; // Assuming User is a navigation property in Faculty
+                            if (user != null)
+                            {
+                                var userName = $"{user.fName} {user.lName}"; // Construct full name
+                                evaluatorNames.Add(userName);
+                            }
+                        }
+                    }
                 }
+
+                // Add evaluator names to the dictionary with the application urecNo as the key
+                applicationEvaluatorNames[application.urecNo] = evaluatorNames;
             }
 
             var unassignedApplications = applications.Where(a =>
                 !a.EthicsEvaluation.Any() || // No evaluations assigned
                 (a.EthicsEvaluation.All(e => e.endDate == null) &&
-                 a.EthicsEvaluation.All(e => e.EthicsEvaluator.declinedAssignment > 0)) || // All evaluations pending and declined
-                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned")); // Exclude those with assigned evaluations
+                 a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0)) || // All evaluations pending and declined
+                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned")) // Exclude those with assigned evaluations
+                .Where(a => a.InitialReview != null && // Ensure InitialReview is not null
+                        (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review")); // Check for review type
 
             var underEvaluationApplications = applications.Where(a =>
                 (a.EthicsEvaluation.Count == 3 &&
@@ -65,15 +91,19 @@ namespace CRE.Controllers
             var evaluationResultApplications = applications.Where(a =>
                 a.EthicsEvaluation.Count == 3 && a.EthicsEvaluation.All(e => e.endDate != null)); // All evaluations completed
 
+            var nonFundedResearchInfos = await _nonFundedResearchInfoServices.GetNonFundedResearchInfosAsync(applications.Select(a => a.urecNo).ToList());
             var viewModel = new ChairpersonApplicationsViewModel
             {
                 UnassignedApplications = unassignedApplications.ToList(), // Convert to List
                 UnderEvaluationApplications = underEvaluationApplications.ToList(), // Convert to List
-                EvaluationResultApplications = evaluationResultApplications.ToList() // Convert to List
+                EvaluationResultApplications = evaluationResultApplications.ToList(), // Convert to List
+                ApplicationEvaluatorNames = applicationEvaluatorNames, // Assign evaluator names to the ViewModel
+                NonFundedResearchInfo = nonFundedResearchInfos // Assign NonFundedResearchInfo to the ViewModel
             };
 
             return View(viewModel);
         }
+
 
 
         [HttpGet]
@@ -99,11 +129,14 @@ namespace CRE.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignEvaluators(string urecNo, List<int> selectedEvaluatorIds)
         {
+            // Validate input parameters
             if (string.IsNullOrEmpty(urecNo) || selectedEvaluatorIds == null || selectedEvaluatorIds.Count == 0)
             {
-                // You can add some error handling here
                 return BadRequest("Invalid parameters.");
             }
+
+            // Get the user ID of the logged-in chairperson
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             // Assign evaluators asynchronously
             foreach (var evaluatorId in selectedEvaluatorIds)
@@ -111,8 +144,22 @@ namespace CRE.Controllers
                 await _ethicsEvaluationServices.AssignEvaluatorAsync(urecNo, evaluatorId);
             }
 
+            // Create a new log entry
+            var logEntry = new EthicsApplicationLog
+            {
+                urecNo = urecNo,
+                userId = userId,
+                status = "Evaluators Assigned",
+                changeDate = DateTime.UtcNow
+            };
+
+            // Save the log entry using the EthicsApplicationLogServices
+            await _ethicsApplicationLogServices.AddLogAsync(logEntry); // Ensure you have this method in your service
+
             // Redirect to a specific action after assignment
             return RedirectToAction("SelectApplication", new { urecNo = urecNo });
         }
+
+
     }
 }

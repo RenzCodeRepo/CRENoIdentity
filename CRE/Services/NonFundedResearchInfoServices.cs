@@ -31,7 +31,15 @@ namespace CRE.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<NonFundedResearchInfo>> GetNonFundedResearchInfosAsync(List<string> urecNos)
+        {
+            // Fetch NonFundedResearchInfo entries based on the provided urecNo list
+            var nonFundedResearchInfos = await _context.NonFundedResearchInfo
+                .Where(info => urecNos.Contains(info.urecNo)) // Assuming UrecNo is the property in NonFundedResearchInfo
+                .ToListAsync();
 
+            return nonFundedResearchInfos;
+        }
         // Method to generate a unique primary key (NFID-XXXX)
         public async Task<string> GenerateNonFundedResearchIdAsync()
         {

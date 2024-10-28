@@ -192,7 +192,7 @@
     </div>
             <!-- Submit Button to submit selected evaluators -->
             <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-            <button type="submit" class="btn btn-success" id="submitEvaluators" style="display: none;">Submit Selected Evaluators</button>
+            <button type="button" class="btn btn-success" id="submitEvaluators" style="display: none;" onclick="confirmSubmission()">Submit Selected Evaluators</button>
         </form>
 </div>
 
@@ -267,9 +267,15 @@
             submitButton.style.display = "none";
         }
     }
-
+    function confirmSubmission() {
+        if (window.confirm("Are you sure you want to submit the selected evaluators?")) {
+            // If the user confirms, submit the form
+            document.getElementById("evaluatorForm").submit();
+        }
+    }
     // Add event listeners to checkboxes
     document.querySelectorAll(".evaluator-checkbox").forEach(function (checkbox) {
         checkbox.addEventListener("change", updateSelectedEvaluatorsDisplay);
     });
+
 </script>

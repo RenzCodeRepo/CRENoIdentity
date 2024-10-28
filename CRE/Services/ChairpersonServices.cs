@@ -20,24 +20,27 @@ namespace CRE.Services
             // Get the chairperson's faculty using the user ID
             var chairperson = await _context.Chairperson
                 .Include(c => c.Faculty)
-                .ThenInclude(f => f.User)
-                .FirstOrDefaultAsync(c => c.Faculty.userId == userId);
+                    .ThenInclude(f => f.User)
+                .FirstOrDefaultAsync(c => c.Faculty.userId == userId); // Adjusted to match your userId
 
             if (chairperson == null)
                 return new List<EthicsApplication>(); // Return an empty list if chairperson not found
 
             // Retrieve applications matching the chairperson's field of study and specific review types, including evaluations and evaluators
             var applications = await _context.EthicsApplication
-                .Include(e => e.InitialReview)
+                .Include(e => e.InitialReview) // Include InitialReview
                 .Include(e => e.EthicsEvaluation) // Include EthicsEvaluation entities
                     .ThenInclude(e => e.EthicsEvaluator) // Include the related EthicsEvaluator entities
-                .Where(e => e.fieldOfStudy == chairperson.fieldOfStudy
+                        .ThenInclude(ev => ev.Faculty) // Include Faculty for each EthicsEvaluator
+                            .ThenInclude(f => f.User) // Include User for each Faculty
+                .Where(e => e.fieldOfStudy == chairperson.fieldOfStudy // Ensure correct casing for FieldOfStudy
                              && (e.InitialReview.ReviewType == "Full Review"
                              || e.InitialReview.ReviewType == "Expedited"))
                 .ToListAsync();
 
             return applications;
         }
+
 
 
         public async Task AssignEvaluatorsAsync(string urecNo, List<int> evaluatorIds)

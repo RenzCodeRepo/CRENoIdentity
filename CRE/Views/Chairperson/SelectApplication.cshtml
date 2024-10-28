@@ -21,33 +21,46 @@
 
 <!-- Tab Content -->
 <div class="tab-content" id="myTabContent">
-    <!-- Unassigned Applications Tab -->
-    <div class="tab-pane fade show active" id="unassigned" role="tabpanel" aria-labelledby="unassigned-tab">
-        <h4>Unassigned Applications</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>UREC No</th>
-                    <th>Submission Date</th>
-                    <th>Field of Study</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var application in Model.UnassignedApplications)
-                {
+        <!-- Unassigned Applications Tab -->
+        <div class="tab-pane fade show active" id="unassigned" role="tabpanel" aria-labelledby="unassigned-tab">
+            <h4>Unassigned Applications</h4>
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>@application.urecNo</td>
-                        <td>@application.submissionDate</td>
-                        <td>@application.fieldOfStudy</td>
-                        <td>
-                            <a asp-action="AssignEvaluators" asp-route-urecNo="@application.urecNo" class="btn btn-primary">Assign Evaluators</a>
-                        </td>
+                        <th>UREC No</th>
+                        <th>Details</th>
+                        <th>Assigned Date</th>
+                        <th>Evaluators</th> <!-- New column for Evaluators -->
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var application in Model.UnassignedApplications)
+                    {
+                        <tr>
+                        <td>@application.urecNo</td>
+                        <td>@application.NonFundedResearchInfo.title</td> <!-- Changed to nonfundedresearchtitle -->
+                        <td>
+                            @if (application.EthicsEvaluation.Any())
+                            {
+                                // Assuming you want the assigned date of the first evaluator
+                                @foreach (var evaluation in application.EthicsEvaluation)
+                                {
+                                    <div>@evaluation.startDate?.ToString("MM/dd/yyyy")</div>
+                                }
+                            }
+                            else
+                            {
+                                <span>No assigned date</span> <!-- Fallback message -->
+                            }
+                        </td>
+                            <td>
+                                <a asp-action="AssignEvaluators" asp-route-urecNo="@application.urecNo" class="btn btn-primary">Assign Evaluators</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
     <!-- Under Evaluation Tab -->
     <div class="tab-pane fade" id="under-evaluation" role="tabpanel" aria-labelledby="under-evaluation-tab">
@@ -56,9 +69,9 @@
             <thead>
                 <tr>
                     <th>UREC No</th>
-                    <th>Submission Date</th>
-                    <th>Field of Study</th>
-                    <th></th>
+                    <th>Details</th>
+                    <th>Assigned Date</th>
+                    <th>Evaluators</th> <!-- New column for Evaluators -->
                 </tr>
             </thead>
             <tbody>
@@ -66,16 +79,42 @@
                 {
                     <tr>
                         <td>@application.urecNo</td>
-                        <td>@application.submissionDate</td>
-                        <td>@application.fieldOfStudy</td>
+                        <td>@application.NonFundedResearchInfo.title</td> <!-- Changed to nonfundedresearchtitle -->
                         <td>
-                            <!-- You can add a button here to check evaluation progress if needed -->
+                            @if (application.EthicsEvaluation.Any())
+                            {
+                                // Assuming you want the assigned date of the first evaluator
+                                @foreach (var evaluation in application.EthicsEvaluation)
+                                {
+                                    <div>@evaluation.startDate?.ToString("MM/dd/yyyy")</div>
+                                }
+                            }
+                            else
+                            {
+                                <span>No assigned date</span> <!-- Fallback message -->
+                            }
+                        </td>
+                        <td>
+                            @if (Model.ApplicationEvaluatorNames.ContainsKey(application.urecNo))
+                            {
+                                var evaluatorNames = Model.ApplicationEvaluatorNames[application.urecNo];
+                                foreach (var name in evaluatorNames)
+                                {
+                                    <div>@name</div> <!-- Display each evaluator name on a new line -->
+                                }
+                            }
+                            else
+                            {
+                                <span>No evaluators assigned</span> <!-- Fallback message -->
+                            }
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
+
+
 
     <!-- Evaluation Result Tab -->
     <div class="tab-pane fade" id="evaluation-result" role="tabpanel" aria-labelledby="evaluation-result-tab">
