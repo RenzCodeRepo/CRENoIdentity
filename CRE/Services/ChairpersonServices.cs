@@ -49,14 +49,24 @@ namespace CRE.Services
                     urecNo = urecNo,
                     ethicsEvaluatorId = evaluatorId,
                     startDate = DateOnly.FromDateTime(DateTime.Now),
-                    recommendation = string.Empty, // Initialize empty, evaluators will fill this
-                    remarks = string.Empty, // Initialize empty
+
+                    // Initialize fields for protocol evaluation
+                    ProtocolRecommendation = "Pending", // Default status
+                    ProtocolRemarks = string.Empty,
+
+                    // Initialize fields for consent evaluation
+                    ConsentRecommendation = "Pending", // Default status
+                    ConsentRemarks = string.Empty,
+
+                    // Set initial status
+                    evaluationStatus = "Assigned" // Mark as assigned since evaluators are assigned
                 };
 
                 _context.EthicsEvaluation.Add(evaluation);
             }
             await _context.SaveChangesAsync();
         }
+
 
         public async Task<EthicsApplication> GetApplicationAsync(string urecNo)
         {

@@ -11,5 +11,9 @@ namespace CRE.Interfaces
         Task CreateEvaluation(EthicsEvaluation ethicsEvaluation);
         Task AssignEvaluatorAsync(string urecNo, int evaluatorId);
         Task<AssignEvaluatorsViewModel> GetApplicationDetailsForEvaluationAsync(string urecNo);
+        Task<EvaluatedExemptApplication> GetEvaluationDetailsAsync(string urecNo, int evaluationId);
+        Task SaveEvaluationAsync(EthicsEvaluation ethicsEvaluation);
+        Task<EthicsEvaluation> GetEvaluationByUrecNoAndIdAsync(string urecNo, int evaluationId);
+        Task<List<string>> GetEvaluatedUrecNosAsync();
     }
 }

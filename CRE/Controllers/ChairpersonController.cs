@@ -46,7 +46,8 @@ namespace CRE.Controllers
                 Console.WriteLine($"Application: {application.urecNo}");
                 foreach (var eval in application.EthicsEvaluation)
                 {
-                    Console.WriteLine($"  Evaluation ID: {eval.evaluationId}, End Date: {eval.endDate}, Status: {eval.evaluationStatus}, Recommendation: {eval.recommendation}");
+                    Console.WriteLine($"  Evaluation ID: {eval.evaluationId}, End Date: {eval.endDate}, Status: {eval.evaluationStatus}, " +
+                                      $"Protocol Recommendation: {eval.ProtocolRecommendation}, Consent Recommendation: {eval.ConsentRecommendation}");
                 }
             }
 
@@ -58,7 +59,7 @@ namespace CRE.Controllers
 
             var underEvaluationApplications = applications.Where(a =>
                 (a.EthicsEvaluation.Count == 3 &&
-                 a.EthicsEvaluation.All(e => e.recommendation == "Pending")) || // Exactly three evaluations with Pending recommendation
+                 a.EthicsEvaluation.All(e => e.ProtocolRecommendation == "Pending" && e.ConsentRecommendation == "Pending")) || // Exactly three evaluations with Pending recommendations
                 a.EthicsEvaluation.Any(e => e.endDate == null || e.evaluationStatus == "Assigned")); // At least one evaluation ongoing or assigned
 
             var evaluationResultApplications = applications.Where(a =>
@@ -73,6 +74,7 @@ namespace CRE.Controllers
 
             return View(viewModel);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> AssignEvaluators(string urecNo)

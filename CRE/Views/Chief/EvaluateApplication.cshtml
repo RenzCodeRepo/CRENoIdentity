@@ -5,7 +5,7 @@
 
 <h2>Application Details</h2>
 
-<div class="card border-light mb-3" style="width: contain;">
+<div class="card border-light mb-3" style="width: 100%;">
     <div class="card-header">
         <div class="row">
             <div class="col text-start">
@@ -69,7 +69,7 @@
 
     <div class="card-body">
         <div class="row">
-            <div class="col-md-9">
+            <div class="col-md-8">
                 <h4>Application Forms</h4>
 
                 @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
@@ -113,23 +113,64 @@
                 }
             </div>
 
-            <div class="col-md-2">
-                <h4>Evaluation Questions</h4>
-                <!-- Add your questions here -->
-                <div class="form-group">
-                    <label for="question1">Question 1</label>
-                    <input type="text" id="question1" class="form-control" placeholder="Enter your response here" />
-                </div>
-                <div class="form-group">
-                    <label for="question2">Question 2</label>
-                    <input type="text" id="question2" class="form-control" placeholder="Enter your response here" />
-                </div>
-                <div class="form-group">
-                    <label for="question3">Question 3</label>
-                    <input type="text" id="question3" class="form-control" placeholder="Enter your response here" />
-                </div>
-                <!-- Add more questions as needed -->
+            <div class="col-md-4">
+                <h4>Evaluation Inputs</h4>
+                <form asp-action="EvaluateApplication" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmission()">
+                    <!-- Hidden Input for urecNo -->
+                    <input type="hidden" asp-for="EthicsApplication.urecNo" />
+
+                    <!-- Protocol Recommendation and Remarks -->
+                    <div class="form-group">
+                        <label for="protocolRecommendation">Protocol Recommendation</label>
+                        <select id="protocolRecommendation" asp-for="EthicsEvaluation.ProtocolRecommendation" class="form-control">
+                            <option value="Approved">Approved</option>
+                            <option value="Major Revisions Required">Major Revisions Required</option>
+                            <option value="Minor Revisions Required">Minor Revisions Required</option>
+                            <option value="Disapproved">Disapproved</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="protocolRemarks">Protocol Remarks</label>
+                        <textarea id="protocolRemarks" asp-for="EthicsEvaluation.ProtocolRemarks" class="form-control" placeholder="Enter remarks for the protocol evaluation"></textarea>
+                    </div>
+
+                    <!-- Consent Recommendation and Remarks -->
+                    <div class="form-group">
+                        <label for="consentRecommendation">Consent Recommendation</label>
+                        <select id="consentRecommendation" asp-for="EthicsEvaluation.ConsentRecommendation" class="form-control">
+                            <option value="Exempt form Review">Exempt form Review</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Major Revisions Required">Major Revisions Required</option>
+                            <option value="Minor Revisions Required">Minor Revisions Required</option>
+                            <option value="Disapproved">Disapproved</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="consentRemarks">Consent Remarks</label>
+                        <textarea id="consentRemarks" asp-for="EthicsEvaluation.ConsentRemarks" class="form-control" placeholder="Enter remarks for the consent evaluation"></textarea>
+                    </div>
+
+                    <!-- Protocol Review Sheet Upload -->
+                    <div class="form-group">
+                        <label for="protocolReviewSheet">Protocol Review Sheet (PDF only)</label>
+                        <input type="file" id="protocolReviewSheet" asp-for="ProtocolReviewSheet" class="form-control" accept="application/pdf" />
+                        <span asp-validation-for="ProtocolReviewSheet" class="text-danger"></span> <!-- Display validation message -->
+                    </div>
+
+                    <!-- Informed Consent Form Upload -->
+                    <div class="form-group">
+                        <label for="informedConsentForm">Informed Consent Form (PDF only)</label>
+                        <input type="file" id="informedConsentForm" asp-for="InformedConsentForm" class="form-control" accept="application/pdf" />
+                        <span asp-validation-for="InformedConsentForm" class="text-danger"></span> <!-- Display validation message -->
+                    </div>
+
+
+                    <button type="submit" class="btn btn-success">Submit Evaluation</button>
+                </form>
             </div>
+
         </div>
     </div>
 </div>
@@ -150,7 +191,25 @@
         </div>
     </div>
 </div>
-
+<!-- Success Modal -->
+<div class="modal fade" id="evaluationSuccessModal" tabindex="-1" role="dialog" aria-labelledby="evaluationSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="evaluationSuccessModalLabel">Evaluation Submitted</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Your evaluation was submitted successfully.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         function copyUrecNo() {
@@ -178,5 +237,18 @@
             // Show the modal
             $('#pdfModal').modal('show');
         }
+        function confirmSubmission() {
+            return confirm("Are you sure you want to submit this evaluation?");
+        }
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // Check if success query parameter is true
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                // Show the modal automatically on page load
+                $('#evaluationSuccessModal').modal('show');
+            }
+        });
     </script>
 }

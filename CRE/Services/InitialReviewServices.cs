@@ -49,6 +49,14 @@ namespace CRE.Services
 
             return ethicsApplications;
         }
+        public async Task<EthicsEvaluation> GetEthicsEvaluationAsync(string urecNo)
+        {
+            // Retrieve the single evaluation associated with the specified exempt application
+            return await _context.EthicsEvaluation
+                .Where(eval => eval.EthicsApplication.urecNo == urecNo)
+                .FirstOrDefaultAsync();
+        }
+
 
         public async Task UpdateInitialReviewAsync(InitialReview initialReview)
         {

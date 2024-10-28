@@ -8,24 +8,32 @@ namespace CRE.Models
         [Key]
         public int evaluationId { get; set; }
         [ForeignKey(nameof(EthicsApplication))]
-        public string urecNo { get; set; }
+        public string? urecNo { get; set; }
         [ForeignKey(nameof(EthicsEvaluator))]
-        public int ethicsEvaluatorId { get; set; }
+        public int? ethicsEvaluatorId { get; set; }
+        [ForeignKey(nameof(Chief))]
+        public int? chiefId { get; set; }
         public DateOnly? startDate { get; set; }
         public DateOnly? endDate { get; set; }
-        public string? recommendation { get; set; }
-        public string? remarks { get; set; }
         [Required]
         public string evaluationStatus { get; set; } = "Pending";
 
-        //generated pdf answersheets
-        public byte[]? protocolReviewSheet { get; set; }
-        public byte[]? informedConsentForm { get; set; }
+        // Protocol Review Sheet Evaluation
+        public string? ProtocolRecommendation { get; set; }
+        public string? ProtocolRemarks { get; set; }
+        public byte[]? ProtocolReviewSheet { get; set; }
+
+        // Informed Consent Form Evaluation
+        public string? ConsentRecommendation { get; set; }
+        public string? ConsentRemarks { get; set; }
+        public byte[]? InformedConsentForm { get; set; }
 
 
 
         //navigation properties
-        public EthicsEvaluator EthicsEvaluator { get; set; }
-        public EthicsApplication EthicsApplication { get; set; }
+        public EthicsEvaluator? EthicsEvaluator { get; set; }
+        public EthicsApplication? EthicsApplication { get; set; }
+        public Chief? Chief { get; set; }
     }
 }
+        

@@ -4,6 +4,7 @@ using CRE.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CRE.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241028014853_AddAttributesForEvaluationForms")]
+    partial class AddAttributesForEvaluationForms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -394,13 +397,10 @@ namespace CRE.Migrations
                     b.Property<byte[]>("ProtocolReviewSheet")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int?>("chiefId")
-                        .HasColumnType("int");
-
                     b.Property<DateOnly?>("endDate")
                         .HasColumnType("date");
 
-                    b.Property<int?>("ethicsEvaluatorId")
+                    b.Property<int>("ethicsEvaluatorId")
                         .HasColumnType("int");
 
                     b.Property<string>("evaluationStatus")
@@ -415,8 +415,6 @@ namespace CRE.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("evaluationId");
-
-                    b.HasIndex("chiefId");
 
                     b.HasIndex("ethicsEvaluatorId");
 
@@ -979,22 +977,17 @@ namespace CRE.Migrations
 
             modelBuilder.Entity("CRE.Models.EthicsEvaluation", b =>
                 {
-                    b.HasOne("CRE.Models.Chief", "Chief")
-                        .WithMany()
-                        .HasForeignKey("chiefId");
-
                     b.HasOne("CRE.Models.EthicsEvaluator", "EthicsEvaluator")
                         .WithMany("EthicsEvaluation")
                         .HasForeignKey("ethicsEvaluatorId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("CRE.Models.EthicsApplication", "EthicsApplication")
                         .WithMany("EthicsEvaluation")
                         .HasForeignKey("urecNo")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Chief");
 
                     b.Navigation("EthicsApplication");
 

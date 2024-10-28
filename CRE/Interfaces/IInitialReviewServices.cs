@@ -13,6 +13,7 @@ namespace CRE.Interfaces
 
         Task ApproveApplicationAsync(string urecNo, string comments, string userId);
         Task ReturnApplicationAsync(string urecNo, string comments, string userId);
+        Task<EthicsEvaluation> GetEthicsEvaluationAsync(string urecNo);
         Task<IEnumerable<InitialReviewViewModel>> GetPendingApplicationsAsync();
         Task<IEnumerable<InitialReviewViewModel>> GetApprovedApplicationsAsync();
         Task<IEnumerable<InitialReviewViewModel>> GetReturnedApplicationsAsync();
