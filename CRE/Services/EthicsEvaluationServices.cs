@@ -24,12 +24,17 @@ namespace CRE.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task CreateEvaluation(EthicsEvaluation ethicsEvaluation)
+        public async Task<int> CreateEvaluationAsync(EthicsEvaluation evaluation)
         {
-            _context.EthicsEvaluation.Add(ethicsEvaluation);
-            _context.SaveChanges();
-        }
+            // Add the new evaluation to the context
+            await _context.EthicsEvaluation.AddAsync(evaluation);
 
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            // Return the created evaluation ID
+            return evaluation.evaluationId; // Assuming EvaluationId is auto-generated
+        }
         public EthicsEvaluation GetEvaluationByUrecNo(string urecNo)
         {
             return _context.EthicsEvaluation
@@ -39,6 +44,16 @@ namespace CRE.Services
         {
             return await _context.EthicsEvaluation
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.evaluationId == evaluationId);
+        }
+        public async Task UpdateEvaluationAsync(EthicsEvaluation ethicsEvaluation)
+        {
+            _context.EthicsEvaluation.Update(ethicsEvaluation); // Marks the entity as modified
+            await _context.SaveChangesAsync();
+        }
+        public async Task<EthicsEvaluation> GetEvaluationByUrecNoAndEvaluatorIdAsync(string urecNo, int ethicsEvaluatorId)
+        {
+            return await _context.EthicsEvaluation
+                .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.ethicsEvaluatorId == ethicsEvaluatorId);
         }
         public async Task<List<EvaluatedExemptApplication>> GetEvaluatedExemptApplicationsAsync()
         {
@@ -82,6 +97,30 @@ namespace CRE.Services
                 EthicsEvaluation = evaluation,
                 InitialReview = evaluation.EthicsApplication.InitialReview, // Set the InitialReview property from EthicsApplication
                 User = evaluation.Chief?.User // Set the User associated with the Chief
+            };
+        }
+        public async Task<EvaluationDetailsViewModel> GetEvaluationAndEvaluatorDetailsAsync(string urecNo, int evaluationId)
+        {
+            var evaluation = await _context.EthicsEvaluation
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.NonFundedResearchInfo)
+                .Include(e => e.EthicsApplication.EthicsApplicationLog)
+                .Include(e => e.EthicsApplication.InitialReview)
+                .Include(e => e.EthicsEvaluator) // Including EthicsEvaluator details
+                    .ThenInclude(evaluator => evaluator.Faculty.User) // Including the associated user of the evaluator
+                .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.evaluationId == evaluationId);
+
+            if (evaluation == null)
+                return null;
+
+            return new EvaluationDetailsViewModel
+            {
+                EthicsApplication = evaluation.EthicsApplication,
+                NonFundedResearchInfo = evaluation.EthicsApplication?.NonFundedResearchInfo,
+                EthicsApplicationLog = evaluation.EthicsApplication?.EthicsApplicationLog,
+                EthicsEvaluation = evaluation,
+                InitialReview = evaluation.EthicsApplication.InitialReview,
+                AppUser = evaluation.EthicsEvaluator?.Faculty.User // Setting the User details for the evaluator
             };
         }
 
@@ -172,7 +211,86 @@ namespace CRE.Services
 
             return viewModel;
         }
+        // Assuming EthicsApplication has a navigation property for InitialReview
+        public async Task<IEnumerable<AssignedEvaluationViewModel>> GetAssignedEvaluationsAsync(int evaluatorId)
+        {
+            return await _context.EthicsEvaluation
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.InitialReview)
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.NonFundedResearchInfo)
+                .Include(e => e.EthicsEvaluator)
+                .Where(e => e.ethicsEvaluatorId == evaluatorId
+                            && e.evaluationStatus == "Assigned"
+                            && e.evaluationStatus != "Accepted") // Exclude "Accepted" evaluations
+                .Select(e => new AssignedEvaluationViewModel
+                {
+                    EthicsApplication = e.EthicsApplication,
+                    EthicsEvaluation = e,
+                    EthicsEvaluator = e.EthicsEvaluator,
+                    NonFundedResearchInfo = e.EthicsApplication.NonFundedResearchInfo,
+                    InitialReview = e.EthicsApplication.InitialReview
+                })
+                .ToListAsync();
+        }
 
+
+        public async Task<IEnumerable<AssignedEvaluationViewModel>> GetAcceptedEvaluationsAsync(int evaluatorId)
+        {
+            return await _context.EthicsEvaluation
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.InitialReview)
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.NonFundedResearchInfo)
+                .Include(e => e.EthicsEvaluator)
+                .Where(e => e.ethicsEvaluatorId == evaluatorId && e.evaluationStatus == "Accepted")
+                .Select(e => new AssignedEvaluationViewModel
+                {
+                    EthicsApplication = e.EthicsApplication,
+                    EthicsEvaluation = e,
+                    EthicsEvaluator = e.EthicsEvaluator,
+                    NonFundedResearchInfo = e.EthicsApplication.NonFundedResearchInfo,
+                    InitialReview = e.EthicsApplication.InitialReview
+                })
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<AssignedEvaluationViewModel>> GetCompletedEvaluationsAsync(int evaluatorId)
+        {
+            return await _context.EthicsEvaluation
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.InitialReview)
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.NonFundedResearchInfo)
+                .Include(e => e.EthicsEvaluator)
+                .Where(e => e.ethicsEvaluatorId == evaluatorId && e.evaluationStatus == "Evaluated")
+                .Select(e => new AssignedEvaluationViewModel
+                {
+                    EthicsApplication = e.EthicsApplication,
+                    EthicsEvaluation = e,
+                    EthicsEvaluator = e.EthicsEvaluator,
+                    NonFundedResearchInfo = e.EthicsApplication.NonFundedResearchInfo,
+                    InitialReview = e.EthicsApplication.InitialReview
+                })
+                .ToListAsync();
+        }
+        public async Task<EthicsEvaluator> GetEvaluatorByUserIdAsync(string userId)
+        {
+            // Find the Faculty associated with the userId
+            var faculty = await _context.Faculty
+                .Include(f => f.User)
+                .FirstOrDefaultAsync(f => f.userId == userId);
+
+            // If faculty is not found, return null or throw an exception based on your error handling preference
+            if (faculty == null)
+            {
+                return null; // or throw new Exception("Faculty not found");
+            }
+
+            // Find the EthicsEvaluator associated with the facultyId
+            return await _context.EthicsEvaluator
+                .FirstOrDefaultAsync(e => e.facultyId == faculty.facultyId);
+        }
     }
 }
 
