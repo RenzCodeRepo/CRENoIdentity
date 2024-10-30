@@ -37,23 +37,34 @@ namespace CRE.Services
 
         public async Task<string> GenerateUrecNoAsync()
         {
-            string baseFormat = "UREC-{0}-{1}-{2}";
+            string baseFormat = "UREC-{0}-{1}"; // "UREC-YYYY-XXXX"
             string year = DateTime.Now.Year.ToString();
-            string dayMonth = DateTime.Now.ToString("ddMM");
 
-            string newUrecNo;
-            int randomNumber;
+            // Fetch existing UREC Nos for the current year
+            var existingUrecNos = await _context.EthicsApplication
+                .Where(u => u.urecNo.StartsWith($"UREC-{year}-"))
+                .Select(u => u.urecNo)
+                .ToListAsync();
 
-            do
+            // Determine the next sequence number
+            int newSequenceNumber = 1; // Default to 1
+            if (existingUrecNos.Any())
             {
-                // Generate a random four-digit number
-                randomNumber = new Random().Next(1000, 9999);
-                newUrecNo = string.Format(baseFormat, year, dayMonth, randomNumber);
+                // Extract the last four digits from existing UREC Nos
+                var lastNumbers = existingUrecNos.Select(u =>
+                    int.Parse(u.Substring(u.Length - 4))).ToList();
+
+                // Get the maximum number and increment it
+                newSequenceNumber = lastNumbers.Max() + 1;
             }
-            while (await IsUrecNoExistsAsync(newUrecNo));
+
+            // Format the new UREC No.
+            string newUrecNo = string.Format(baseFormat, year, newSequenceNumber.ToString("D4"));
 
             return newUrecNo;
         }
+
+
 
         public async Task<bool> IsUrecNoExistsAsync(string urecNo)
         {

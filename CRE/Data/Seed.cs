@@ -62,14 +62,14 @@ namespace CRE.Data
                     {
                         new AppUser { fName = "Renz Niño", mName = "S", lName = "Baladjay Internal", type = "internal", Email = "renzbaladjay25@gmail.com", UserName = "renzbaladjay25@gmail.com", NormalizedUserName = "RENZBALADJAY25@GMAIL.COM", NormalizedEmail = "RENZBALADJAY25@GMAIL.COM" },
                         new AppUser { fName = "Renz Niño", mName = "S", lName = "Baladjay External", type = "external", Email = "baladjaygaming12@gmail.com", UserName = "baladjaygaming12@gmail.com", NormalizedUserName = "BALADJAYGAMING12@GMAIL.COM", NormalizedEmail = "BALADJAYGAMING12@GMAIL.COM" },
-                        new AppUser { fName = "Elena", mName = "N", lName = "Fa-ed", type = "internal", Email = "elena.fa-ed@example.com", UserName = "elena.fa-ed@example.com", NormalizedUserName = "ELENA.FA-ED@EXAMPLE.COM", NormalizedEmail = "ELENA.FA-ED@EXAMPLE.COM" },
-                        new AppUser { fName = "Carlos", mName = "E", lName = "Ramos", type = "internal", Email = "carlos.ramos@example.com", UserName = "carlos.ramos@example.com", NormalizedUserName = "CARLOS.RAMOS@EXAMPLE.COM", NormalizedEmail = "CARLOS.RAMOS@EXAMPLE.COM" },
-                        new AppUser { fName = "David", mName = "A", lName = "Gonzales", type = "internal", Email = "david.gonzales@example.com", UserName = "david.gonzales@example.com", NormalizedUserName = "DAVID.GONZALES@EXAMPLE.COM", NormalizedEmail = "DAVID.GONZALES@EXAMPLE.COM" },
-                        new AppUser { fName = "Eva", mName = "M", lName = "Mendez", type = "internal", Email = "eva.mendez@example.com", UserName = "eva.mendez@example.com", NormalizedUserName = "EVA.MENDEZ@EXAMPLE.COM", NormalizedEmail = "EVA.MENDEZ@EXAMPLE.COM" },
-                        new AppUser { fName = "Francisco", mName = "J", lName = "Lopez", type = "internal", Email = "francisco.lopez@example.com", UserName = "francisco.lopez@example.com", NormalizedUserName = "FRANCISCO.LOPEZ@EXAMPLE.COM", NormalizedEmail = "FRANCISCO.LOPEZ@EXAMPLE.COM" },
-                        new AppUser { fName = "Gina", mName = "R", lName = "Garcia", type = "internal", Email = "gina.garcia@example.com", UserName = "gina.garcia@example.com", NormalizedUserName = "GINA.GARCIA@EXAMPLE.COM", NormalizedEmail = "GINA.GARCIA@EXAMPLE.COM" },
-                        new AppUser { fName = "Hector", mName = "E", lName = "Bautista", type = "internal", Email = "hector.bautista@example.com", UserName = "hector.bautista@example.com", NormalizedUserName = "HECTOR.BAUTISTA@EXAMPLE.COM", NormalizedEmail = "HECTOR.BAUTISTA@EXAMPLE.COM" },
-                        new AppUser { fName = "Irene", mName = "C", lName = "De Guzman", type = "internal", Email = "irene.deguzman@example.com", UserName = "irene.deguzman@example.com", NormalizedUserName = "IRENE.DEGUZMAN@EXAMPLE.COM", NormalizedEmail = "IRENE.DEGUZMAN@EXAMPLE.COM" },
+                        new AppUser { fName = "Elena", mName = "N", lName = "Fa-ed", type = "internal", Email = "secretariatCre@example.com", UserName = "secretariatCre@example.com", NormalizedUserName = "SECRETARIATCRE@EXAMPLE.COM", NormalizedEmail = "SECRETARIATCRE@EXAMPLE.COM" },
+                        new AppUser { fName = "Carlos", mName = "E", lName = "Ramos", type = "internal", Email = "eduChair@example.com", UserName = "eduChair@example.com", NormalizedUserName = "EDUCHAIR@EXAMPLE.COM", NormalizedEmail = "EDUCHAIR@EXAMPLE.COM" },
+                        new AppUser { fName = "David", mName = "A", lName = "Gonzales", type = "internal", Email = "csistChair@example.com", UserName = "csistChair@example.com", NormalizedUserName = "CSISTCHAIR@EXAMPLE.COM", NormalizedEmail = "CSISTCHAIR@EXAMPLE.COM" },
+                        new AppUser { fName = "Eva", mName = "M", lName = "Mendez", type = "internal", Email = "eadChair@example.com", UserName = "eadChair@example.com", NormalizedUserName = "EADCHAIR@EXAMPLE.COM", NormalizedEmail = "EADCHAIR@EXAMPLE.COM" },
+                        new AppUser { fName = "Francisco", mName = "J", lName = "Lopez", type = "internal", Email = "hlcChair@example.com", UserName = "hlcChair@example.com", NormalizedUserName = "HLCCHAIR@EXAMPLE.COM", NormalizedEmail = "HLCCHAIR@EXAMPLE.COM" },
+                        new AppUser { fName = "Gina", mName = "R", lName = "Garcia", type = "internal", Email = "busChair@example.com", UserName = "busChair@example.com", NormalizedUserName = "BUSCHAIR@EXAMPLE.COM", NormalizedEmail = "BUSCHAIR@EXAMPLE.COM" },
+                        new AppUser { fName = "Hector", mName = "E", lName = "Bautista", type = "internal", Email = "sosciChair@example.com", UserName = "sosciChair@example.com", NormalizedUserName = "SOSCICHAIR@EXAMPLE.COM", NormalizedEmail = "SOSCICHAIR@EXAMPLE.COM" },
+                        new AppUser { fName = "Irene", mName = "C", lName = "De Guzman", type = "internal", Email = "smsChair@example.com", UserName = "smsChair@example.com", NormalizedUserName = "SMSCHAIR@EXAMPLE.COM", NormalizedEmail = "SMSCHAIR@EXAMPLE.COM" },
                         new AppUser { fName = "Jose", mName = "P", lName = "Morales", type = "internal", Email = "jose.morales@example.com", UserName = "jose.morales@example.com", NormalizedUserName = "JOSE.MORALES@EXAMPLE.COM", NormalizedEmail = "JOSE.MORALES@EXAMPLE.COM" },
                         new AppUser { fName = "Katrina", mName = "J", lName = "Cruz", type = "internal", Email = "katrina.cruz@example.com", UserName = "katrina.cruz@example.com", NormalizedUserName = "KATRINA.CRUZ@EXAMPLE.COM", NormalizedEmail = "KATRINA.CRUZ@EXAMPLE.COM" },
                         new AppUser { fName = "Leon", mName = "A", lName = "Alvarez", type = "internal", Email = "leon.alvarez@example.com", UserName = "leon.alvarez@example.com", NormalizedUserName = "LEON.ALVAREZ@EXAMPLE.COM", NormalizedEmail = "LEON.ALVAREZ@EXAMPLE.COM" },
@@ -96,7 +96,7 @@ namespace CRE.Data
                         new AppUser { fName = "Maya", mName = "E", lName = "Yu", type = "external", Email = "maya.yu@example.com", UserName = "maya.yu@example.com", NormalizedUserName = "MAYA.YU@EXAMPLE.COM", NormalizedEmail = "MAYA.YU@EXAMPLE.COM" },
                         new AppUser { fName = "Clara", mName = "S", lName = "Zamora", type = "external", Email = "clara.zamora@example.com", UserName = "clara.zamora@example.com", NormalizedUserName = "CLARA.ZAMORA@EXAMPLE.COM", NormalizedEmail = "CLARA.ZAMORA@EXAMPLE.COM" },
                         new AppUser { fName = "Felix", mName = "Q", lName = "Torres", type = "external", Email = "felix.torres@example.com", UserName = "felix.torres@example.com", NormalizedUserName = "FELIX.TORRES@EXAMPLE.COM", NormalizedEmail = "FELIX.TORRES@EXAMPLE.COM" },
-                        new AppUser { fName = "Julie Charmain", mName = "O", lName = "Bonifacio", type = "internal", Email = "julie.bonifacio@example.com", UserName = "julie.bonifacio@example.com", NormalizedUserName = "JULIE.BONIFACIO@EXAMPLE.COM", NormalizedEmail = "JULIE.BONIFACIO@EXAMPLE.COM" }
+                        new AppUser { fName = "Julie Charmain", mName = "O", lName = "Bonifacio", type = "internal", Email = "chiefCre@example.com", UserName = "chiefCre@example.com", NormalizedUserName = "CHIEFCRE@EXAMPLE.COM", NormalizedEmail = "CHIEFCRE@EXAMPLE.COM" }
                     };
 
                     // Hash passwords for all users
@@ -184,8 +184,8 @@ namespace CRE.Data
                 {
                     var chairpersons = new List<Chairperson>
                         {
-                            new Chairperson { facultyId = 1, fieldOfStudy = "All"},
-                            new Chairperson { facultyId = 2, fieldOfStudy = "All"},
+                            new Chairperson { facultyId = 1, fieldOfStudy = "Computer Science, Information Systems, and Technology"},
+                            new Chairperson { facultyId = 2, fieldOfStudy = "Computer Science, Information Systems, and Technology"},
                             new Chairperson { facultyId = 3, fieldOfStudy = "Education" },
                             new Chairperson { facultyId = 4, fieldOfStudy = "Computer Science, Information Systems, and Technology"},
                             new Chairperson { facultyId = 5, fieldOfStudy = "Engineering, Architecture, and Design"},
@@ -219,29 +219,29 @@ namespace CRE.Data
                 {
                     var ethicsEvaluators = new List<EthicsEvaluator>
                 {
-                    new EthicsEvaluator { facultyId = 1, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 2, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 10, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 11, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 12, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 13, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 14, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 15, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 16, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 17, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 18, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 19, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 20, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 21, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 22, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 23, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 24, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 25, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 26, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 27, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 1, completedEval = 5, pendingEval = 3, declinedAssignment = 2 },
+                    new EthicsEvaluator { facultyId = 2, completedEval = 7, pendingEval = 1, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 10, completedEval = 4, pendingEval = 5, declinedAssignment = 1 },
+                    new EthicsEvaluator { facultyId = 11, completedEval = 2, pendingEval = 7, declinedAssignment = 3 },
+                    new EthicsEvaluator { facultyId = 12, completedEval = 0, pendingEval = 2, declinedAssignment = 5 },
+                    new EthicsEvaluator { facultyId = 13, completedEval = 6, pendingEval = 0, declinedAssignment = 4 },
+                    new EthicsEvaluator { facultyId = 14, completedEval = 1, pendingEval = 6, declinedAssignment = 3 },
+                    new EthicsEvaluator { facultyId = 15, completedEval = 3, pendingEval = 4, declinedAssignment = 2 },
+                    new EthicsEvaluator { facultyId = 16, completedEval = 8, pendingEval = 3, declinedAssignment = 1 },
+                    new EthicsEvaluator { facultyId = 17, completedEval = 4, pendingEval = 2, declinedAssignment = 6 },
+                    new EthicsEvaluator { facultyId = 18, completedEval = 10, pendingEval = 0, declinedAssignment = 1 },
+                    new EthicsEvaluator { facultyId = 19, completedEval = 2, pendingEval = 8, declinedAssignment = 2 },
+                    new EthicsEvaluator { facultyId = 20, completedEval = 1, pendingEval = 6, declinedAssignment = 3 },
+                    new EthicsEvaluator { facultyId = 21, completedEval = 9, pendingEval = 5, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 22, completedEval = 5, pendingEval = 1, declinedAssignment = 2 },
+                    new EthicsEvaluator { facultyId = 23, completedEval = 3, pendingEval = 4, declinedAssignment = 2 },
+                    new EthicsEvaluator { facultyId = 24, completedEval = 2, pendingEval = 2, declinedAssignment = 4 },
+                    new EthicsEvaluator { facultyId = 25, completedEval = 7, pendingEval = 1, declinedAssignment = 3 },
+                    new EthicsEvaluator { facultyId = 26, completedEval = 4, pendingEval = 5, declinedAssignment = 1 },
+                    new EthicsEvaluator { facultyId = 27, completedEval = 6, pendingEval = 2, declinedAssignment = 3 },
                     new EthicsEvaluator { facultyId = 28, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 29, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
-                    new EthicsEvaluator { facultyId = 30, completedEval = 0, pendingEval = 0, declinedAssignment = 0 },
+                    new EthicsEvaluator { facultyId = 29, completedEval = 1, pendingEval = 1, declinedAssignment = 1 },
+                    new EthicsEvaluator { facultyId = 30, completedEval = 2, pendingEval = 2, declinedAssignment = 5 }
                 };
 
                     context.EthicsEvaluator.AddRange(ethicsEvaluators);
@@ -268,7 +268,7 @@ namespace CRE.Data
                 if (!context.EthicsEvaluatorExpertise.Any())
                 {
                     var ethicsEvaluatorExpertises = new List<EthicsEvaluatorExpertise> {
-                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 1, expertiseId = 1 }, // Faculty 1 -> Education
+                        new EthicsEvaluatorExpertise { ethicsEvaluatorId = 1, expertiseId = 1 }, // Faculty 2 -> Computer Science
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 2, expertiseId = 2 }, // Faculty 2 -> Computer Science
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 3, expertiseId = 3 }, // Faculty 11 -> Engineering
                         new EthicsEvaluatorExpertise { ethicsEvaluatorId = 4, expertiseId = 4 }, // Faculty 12 -> Humanities

@@ -5,7 +5,7 @@ namespace CRE.Models
     public class Memorandum
     {
         [Key] 
-        public int id { get; set; }
+        public int memoId { get; set; }
         [Required]
         public string memoNumber { get; set; }
         public string? memoName { get; set; }
