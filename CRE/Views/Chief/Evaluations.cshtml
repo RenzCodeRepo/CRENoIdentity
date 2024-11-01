@@ -1,0 +1,273 @@
+﻿@model CRE.ViewModels.ExemptApplicationListViewModel
+
+<h2>Ethics Applications</h2>
+
+<!-- Tabs Navigation -->
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="exempt-tab" data-toggle="tab" href="#exempt" role="tab" aria-controls="exempt" aria-selected="true">Pending Exempt Evaluations</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="evaluated-exempt-tab" data-toggle="tab" href="#evaluated-exempt" role="tab" aria-controls="evaluated-exempt" aria-selected="false">Evaluated Exempt Applications</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="evaluated-expedited-tab" data-toggle="tab" href="#evaluated-expedited" role="tab" aria-controls="evaluated-expedited" aria-selected="false">Evaluated Expedited Applications</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="evaluated-full-review-tab" data-toggle="tab" href="#evaluated-full-review" role="tab" aria-controls="evaluated-full-review" aria-selected="false">Evaluated Full Review Applications</a>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content mt-3" id="myTabContent">
+    <!-- Exempt Applications Tab -->
+    <div class="tab-pane fade show active" id="exempt" role="tabpanel" aria-labelledby="exempt-tab">
+        <!-- Pending Exempt Applications Table -->
+        <table class="table table-bordered">
+            <!-- Table Header -->
+            <thead>
+                <tr>
+                    <th>UREC Number</th>
+                    <th>Title of the Research</th>
+                    <th>Proponens/ Authors</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody>
+                @if (Model.ExemptApplications == null || !Model.ExemptApplications.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="text-center">No exempt applications found.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var application in Model.ExemptApplications)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Chief" asp-action="EvaluateApplication" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-primary">
+                                    @application.EthicsApplication?.urecNo
+                                </a>
+                            </td>
+                            <td>@application.NonFundedResearchInfo?.title</td>
+                            <td>@application.EthicsApplicationLog?.FirstOrDefault()?.status</td>
+                            <td>@application.EthicsApplication?.submissionDate.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Evaluated Exempt Applications Tab -->
+    <div class="tab-pane fade" id="evaluated-exempt" role="tabpanel" aria-labelledby="evaluated-exempt-tab">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>UREC Number</th>
+                    <th>Title of the Research</th>
+                    <th>Proponens/ Authors</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EvaluatedExemptApplications == null || !Model.EvaluatedExemptApplications.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">No evaluated exempt applications found.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var application in Model.EvaluatedExemptApplications)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication.urecNo" class="btn btn-primary">
+                                    @application.EthicsApplication.urecNo
+                                </a>
+                            </td>
+                            <td>@application.NonFundedResearchInfo.title</td>
+                            <td>
+                                <!-- Display main applicant -->
+                                @if (application.NonFundedResearchInfo?.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>N/A</span> <!-- Or another appropriate message -->
+                                }
+                                <br />
+
+                                <!-- Display coproponents if available -->
+                                @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                                else
+                                {
+                                }
+                            </td>
+                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
+                            <td>@application.NonFundedResearchInfo.dateSubmitted.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Evaluated Expedited Applications Tab -->
+    <div class="tab-pane fade" id="evaluated-expedited" role="tabpanel" aria-labelledby="evaluated-expedited-tab">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>UREC Number</th>
+                    <th>Title of the Research</th>
+                    <th>Proponens/ Authors</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EvaluatedExpeditedApplications == null || !Model.EvaluatedExpeditedApplications.Any())
+                {
+                    <tr>
+                        <td colspan="3" class="text-center">No evaluated expedited applications found.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var application in Model.EvaluatedExpeditedApplications)
+                    {
+                        <tr>
+                            <td>@application?.urecNo</td>
+                            <td>@application.NonFundedResearchInfo?.title</td>
+                            <td>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Protocol Recommendation</th>
+                                            <th>End Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var eval in application.EthicsEvaluation)
+                                        {
+                                            <tr>
+                                                <td>@eval.ProtocolRecommendation</td>
+                                                <td>@eval.endDate</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Evaluated Full Review Applications Tab -->
+    <div class="tab-pane fade" id="evaluated-full-review" role="tabpanel" aria-labelledby="evaluated-full-review-tab">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>UREC Number</th>
+                    <th>Title of the Research</th>
+                    <th>Proponens/ Authors</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EvaluatedFullReviewApplications == null || !Model.EvaluatedFullReviewApplications.Any())
+                {
+                    <tr>
+                        <td colspan="3" class="text-center">No evaluated full review applications found.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var application in Model.EvaluatedFullReviewApplications)
+                    {
+                        <tr>
+                            <td>@application?.urecNo</td>
+                            <td>@application.NonFundedResearchInfo?.title</td>
+                            <td>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Protocol Recommendation</th>
+                                            <th>End Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var eval in application.EthicsEvaluation)
+                                        {
+                                            <tr>
+                                                <td>@eval.ProtocolRecommendation</td>
+                                                <td>@eval.endDate</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Success Modal -->
+<div class="modal fade" id="evaluationSuccessModal" tabindex="-1" role="dialog" aria-labelledby="evaluationSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="evaluationSuccessModalLabel">Evaluation Submitted</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Your evaluation was submitted successfully.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize Bootstrap tabs if necessary
+            $('#myTab a').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            // Check if 'success' parameter exists and is true
+            if (urlParams.get('success') === 'true') {
+                // Show the success modal
+                $('#evaluationSuccessModal').modal('show');
+            }
+        });
+    </script>
+}

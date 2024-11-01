@@ -1,0 +1,69 @@
+﻿@model IEnumerable<CRE.ViewModels.ApplicationEvaluationsViewModel>
+
+<h2>Application Evaluations</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>UREC No</th>
+            <th>Applicant Name</th>
+            <th>Evaluator Name</th>
+            <th>Protocol Recommendation</th>
+            <th>Consent Recommendation</th>
+            <th>Evaluation Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var application in Model)
+        {
+            // Check if there are evaluations for the application
+            if (application.EthicsEvaluations != null && application.EthicsEvaluations.Any())
+            {
+                foreach (var evaluation in application.EthicsEvaluations)
+                {
+                    <tr>
+                        @if (evaluation == application.EthicsEvaluations.First()) // Display application details only for the first evaluation
+                        {
+                            <td>@application.UrecNo</td>
+                            <td>@application.AppUser?.fName</td>
+                        }
+                        else
+                        {
+                            <td></td>
+                            <td></td> <!-- Empty cells for subsequent evaluations -->
+                        }
+
+                        <!-- Display the evaluator's name or the chief's name if no evaluator is present -->
+                        <td>
+                            @if (evaluation.EthicsEvaluator != null)
+                            {
+                                @evaluation.EthicsEvaluator.Faculty?.User?.fName
+                            }
+                            else if (evaluation.Chief != null) // If there is no evaluator, but there is a Chief
+                            {
+                                @evaluation.Chief.User?.fName
+                    }
+                            else
+                            {
+                                <span>No Evaluator</span>
+                            }
+                        </td>
+
+                        <td>@(evaluation.ProtocolRecommendation ?? "N/A")</td>
+                        <td>@(evaluation.ConsentRecommendation ?? "N/A")</td>
+                        <td>@(evaluation.endDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                // If there are no evaluations, display the application details with empty cells for evaluations
+                <tr>
+                    <td>@application.UrecNo</td>
+                    <td>@application.AppUser?.fName</td>
+                    <td colspan="5">No Evaluations</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

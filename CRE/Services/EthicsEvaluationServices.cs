@@ -35,6 +35,15 @@ namespace CRE.Services
             // Return the created evaluation ID
             return evaluation.evaluationId; // Assuming EvaluationId is auto-generated
         }
+        public async Task<List<EthicsEvaluator>> GetAllEvaluatorsAsync()
+        {
+            return await _context.EthicsEvaluator
+                .Include(e => e.Faculty)                      // Include Faculty data
+                    .ThenInclude(f => f.User)                 // Include User data within Faculty
+                .Include(e => e.EthicsEvaluatorExpertise)     // Include evaluator expertise collection
+                    .ThenInclude(exp => exp.Expertise)        // Include each Expertise within EthicsEvaluatorExpertise
+                .ToListAsync();
+        }
         public EthicsEvaluation GetEvaluationByUrecNo(string urecNo)
         {
             return _context.EthicsEvaluation
@@ -185,6 +194,7 @@ namespace CRE.Services
         public async Task<AssignEvaluatorsViewModel> GetApplicationDetailsForEvaluationAsync(string urecNo)
         {
             var application = await _context.EthicsApplication
+                .Include(e => e.InitialReview)
                 .Include(e => e.NonFundedResearchInfo)
                     .ThenInclude(nf => nf.CoProponent)
                 .Include(e => e.EthicsApplicationLog)
@@ -290,6 +300,27 @@ namespace CRE.Services
             // Find the EthicsEvaluator associated with the facultyId
             return await _context.EthicsEvaluator
                 .FirstOrDefaultAsync(e => e.facultyId == faculty.facultyId);
+        }
+
+        public async Task<IEnumerable<EthicsEvaluator>> GetAvailableEvaluatorsAsync(IEnumerable<EthicsEvaluator> allEvaluators, string applicantFirstName, string applicantMiddleName, string applicantLastName)
+        {
+            return allEvaluators
+                .Where(e => e.Faculty?.User?.fName != applicantFirstName ||
+                             e.Faculty?.User?.mName != applicantMiddleName ||
+                             e.Faculty?.User?.lName != applicantLastName) // Exclude applicant by matching names
+                .OrderBy(e => e.pendingEval); // Sort by least pending evaluations
+        }
+
+        public async Task<IEnumerable<EthicsEvaluator>> GetRecommendedEvaluatorsAsync(IEnumerable<EthicsEvaluator> allEvaluators, string requiredFieldOfStudy, string applicantFirstName, string applicantMiddleName, string applicantLastName)
+        {
+            return allEvaluators
+                .Where(e => e.EthicsEvaluatorExpertise
+                    .Any(exp => exp.Expertise != null && exp.Expertise.expertiseName == requiredFieldOfStudy)) // Filter by required expertise
+                .Where(e => e.Faculty?.User?.fName != applicantFirstName ||
+                             e.Faculty?.User?.mName != applicantMiddleName ||
+                             e.Faculty?.User?.lName != applicantLastName) // Exclude applicant by name
+                .OrderBy(e => e.pendingEval) // Sort by least pending evaluations
+                .Take(3); // Take top 3 recommended evaluators
         }
     }
 }

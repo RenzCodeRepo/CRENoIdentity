@@ -9,6 +9,7 @@ namespace CRE.ViewModels
         public AppUser User { get; set; }
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
         public IEnumerable<CoProponent> CoProponent { get; set; }
+        public InitialReview InitialReview { get; set; }
         public List<EthicsEvaluator> AvailableEvaluators { get; set; } = new List<EthicsEvaluator>();
         public List<EthicsEvaluator> RecommendedEvaluators { get; set; }
         public List<int> SelectedEvaluatorIds { get; set; } = new List<int>();

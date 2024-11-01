@@ -9,6 +9,7 @@ using CRE.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using CRE.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CRE.Controllers
 {
@@ -38,95 +39,65 @@ namespace CRE.Controllers
             _ethicsApplicationLogServices = ethicsApplicationLogServices;
         }
 
+        [Authorize(Roles = "Chairperson")]
+        [HttpGet]
         public async Task<IActionResult> SelectApplication()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var applications = await _chairpersonServices.GetApplicationsByFieldOfStudyAsync(userId);
 
-            var applicationEvaluatorNames = new Dictionary<string, List<string>>();
+            var ethicsApplications = await _chairpersonServices.GetApplicationsByFieldOfStudyAsync(userId);
 
-            foreach (var application in applications)
-            {
-                // Initialize evaluator names for this application
-                var evaluatorNames = new List<string>();
+            var evaluatorNames = await _chairpersonServices.GetEvaluatorNamesAsync(ethicsApplications);
+            var unassignedApplications = await _chairpersonServices.GetUnassignedApplicationsAsync(ethicsApplications);
+            var underEvaluationApplications = await _chairpersonServices.GetUnderEvaluationApplicationsAsync(ethicsApplications);
+            var evaluationResultApplications = await _chairpersonServices.GetEvaluationResultApplicationsAsync(ethicsApplications);
+            var nonFundedResearchInfos = await _nonFundedResearchInfoServices.GetNonFundedResearchInfosAsync(ethicsApplications.Select(a => a.urecNo).ToList());
 
-                // Retrieve the evaluators for the application
-                foreach (var evaluation in application.EthicsEvaluation)
-                {
-                    // Ensure the evaluator exists and retrieve their full name
-                    var evaluator = evaluation.EthicsEvaluator; // Assuming EthicsEvaluator is a navigation property
-                    if (evaluator != null)
-                    {
-                        // Make sure to include Faculty and User in your query to avoid null reference
-                        var faculty = evaluator.Faculty;
-                        if (faculty != null)
-                        {
-                            var user = faculty.User; // Assuming User is a navigation property in Faculty
-                            if (user != null)
-                            {
-                                var userName = $"{user.fName} {user.lName}"; // Construct full name
-                                evaluatorNames.Add(userName);
-                            }
-                        }
-                    }
-                }
-
-                // Add evaluator names to the dictionary with the application urecNo as the key
-                applicationEvaluatorNames[application.urecNo] = evaluatorNames;
-            }
-
-            var unassignedApplications = applications.Where(a =>
-                !a.EthicsEvaluation.Any() || // No evaluations assigned
-                (a.EthicsEvaluation.All(e => e.endDate == null) &&
-                 a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0)) || // All evaluations pending and declined
-                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned")) // Exclude those with assigned evaluations
-                .Where(a => a.InitialReview != null && // Ensure InitialReview is not null
-                        (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review")); // Check for review type
-
-            var underEvaluationApplications = applications.Where(a =>
-                (a.EthicsEvaluation.Count == 3 &&
-                 a.EthicsEvaluation.All(e => e.ProtocolRecommendation == "Pending" && e.ConsentRecommendation == "Pending")) || // Exactly three evaluations with Pending recommendations
-                a.EthicsEvaluation.Any(e => e.endDate == null || e.evaluationStatus == "Assigned")); // At least one evaluation ongoing or assigned
-
-            var evaluationResultApplications = applications.Where(a =>
-                a.EthicsEvaluation.Count == 3 && a.EthicsEvaluation.All(e => e.endDate != null)); // All evaluations completed
-
-            var nonFundedResearchInfos = await _nonFundedResearchInfoServices.GetNonFundedResearchInfosAsync(applications.Select(a => a.urecNo).ToList());
             var viewModel = new ChairpersonApplicationsViewModel
             {
-                UnassignedApplications = unassignedApplications.ToList(), // Convert to List
-                UnderEvaluationApplications = underEvaluationApplications.ToList(), // Convert to List
-                EvaluationResultApplications = evaluationResultApplications.ToList(), // Convert to List
-                ApplicationEvaluatorNames = applicationEvaluatorNames, // Assign evaluator names to the ViewModel
-                NonFundedResearchInfo = nonFundedResearchInfos // Assign NonFundedResearchInfo to the ViewModel
+                UnassignedApplications = unassignedApplications.ToList(),
+                UnderEvaluationApplications = underEvaluationApplications.ToList(),
+                EvaluationResultApplications = evaluationResultApplications.ToList(),
+                ApplicationEvaluatorNames = evaluatorNames,
+                NonFundedResearchInfo = nonFundedResearchInfos
             };
 
             return View(viewModel);
         }
 
-
-
+        [Authorize(Roles = "Chairperson")]
         [HttpGet]
         public async Task<IActionResult> AssignEvaluators(string urecNo)
         {
-            // Fetch application details and evaluators
+            // Fetch application details
             var viewModel = await _ethicsEvaluationServices.GetApplicationDetailsForEvaluationAsync(urecNo);
+            string requiredFieldOfStudy = viewModel.EthicsApplication.fieldOfStudy;
 
-            // Get all available evaluators for the application’s field of study
-            var availableEvaluators = await _ethicsEvaluationServices.GetAvailableEvaluatorsAsync(viewModel.EthicsApplication.fieldOfStudy);
+            // Get applicant's full name
+            var applicantUser = viewModel.EthicsApplication.User;
+            string applicantFirstName = applicantUser?.fName;
+            string applicantMiddleName = applicantUser?.mName;
+            string applicantLastName = applicantUser?.lName;
 
-            // Set both the available and recommended evaluators in the viewModel
-            viewModel.AvailableEvaluators = availableEvaluators;
-            viewModel.RecommendedEvaluators = availableEvaluators
-                .OrderBy(e => e.pendingEval) // Order by least pending evaluations
-                .Take(3) // Take the top 3 as recommended
+            // Retrieve all evaluators with expertise data
+            var allEvaluators = await _ethicsEvaluationServices.GetAllEvaluatorsAsync();
+
+            // Filter available and recommended evaluators using service methods
+            viewModel.AvailableEvaluators = (await _ethicsEvaluationServices
+                .GetAvailableEvaluatorsAsync(allEvaluators, applicantFirstName, applicantMiddleName, applicantLastName))
+                .ToList();
+
+            viewModel.RecommendedEvaluators = (await _ethicsEvaluationServices
+                .GetRecommendedEvaluatorsAsync(allEvaluators, requiredFieldOfStudy, applicantFirstName, applicantMiddleName, applicantLastName))
                 .ToList();
 
             // Pass the viewModel to the view
             return View(viewModel);
         }
 
+        [Authorize(Roles = "Chairperson")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignEvaluators(string urecNo, List<int> selectedEvaluatorIds)
         {
             // Validate input parameters
@@ -159,7 +130,6 @@ namespace CRE.Controllers
             // Redirect to a specific action after assignment
             return RedirectToAction("SelectApplication", new { urecNo = urecNo });
         }
-
 
     }
 }

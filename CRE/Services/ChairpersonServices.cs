@@ -77,5 +77,63 @@ namespace CRE.Services
                 .Include(e => e.InitialReview) // Include InitialReview for ReviewType
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo);
         }
-    }
+        public async Task<Dictionary<string, List<string>>> GetEvaluatorNamesAsync(IEnumerable<EthicsApplication> ethicsApplications)
+        {
+            var evaluatorNames = new Dictionary<string, List<string>>();
+
+            foreach (var ethicsApplication in ethicsApplications)
+            {
+                var names = ethicsApplication.EthicsEvaluation
+                    .Where(e => e.EthicsEvaluator?.Faculty?.User != null)
+                    .Select(e => $"{e.EthicsEvaluator.Faculty.User.fName} {e.EthicsEvaluator.Faculty.User.lName}")
+                    .ToList();
+
+                evaluatorNames[ethicsApplication.urecNo] = names;
+            }
+
+            return evaluatorNames;
+        }
+
+
+        public async Task<IEnumerable<EthicsApplication>> GetUnassignedApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
+        {
+            return ethicsApplications.Where(a =>
+                a.InitialReview != null &&
+                (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review") &&
+                (!a.EthicsEvaluation.Any() ||
+                 (a.EthicsEvaluation.All(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
+                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned"));
+        }
+
+        public async Task<IEnumerable<EthicsApplication>> GetUnderEvaluationApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
+        {
+            return ethicsApplications.Where(a =>
+                (a.EthicsEvaluation.Count == 3 &&
+                 a.EthicsEvaluation.All(e => e.ProtocolRecommendation == "Pending" && e.ConsentRecommendation == "Pending")) ||
+                a.EthicsEvaluation.Any(e => e.endDate == null || e.evaluationStatus == "Assigned"));
+        }
+
+        public async Task<IEnumerable<EthicsApplication>> GetEvaluationResultApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
+        {
+            return ethicsApplications.Where(a =>
+                a.EthicsEvaluation.Count == 3 && a.EthicsEvaluation.All(e => e.endDate != null));
+        }
+
+        public async Task<Dictionary<string, List<string>>> GetApplicationEvaluatorNamesAsync(IEnumerable<EthicsApplication> ethicsApplications)
+        {
+            var evaluatorNames = new Dictionary<string, List<string>>();
+
+            foreach (var application in ethicsApplications)
+            {
+                var names = application.EthicsEvaluation
+                    .Where(e => e.EthicsEvaluator?.Faculty?.User != null) // Check for nulls to avoid errors
+                    .Select(e => $"{e.EthicsEvaluator.Faculty.User.fName} {e.EthicsEvaluator.Faculty.User.lName}") // Concatenate first and last name
+                    .ToList();
+
+                evaluatorNames[application.urecNo] = names; // Assign list of names to the application urecNo key
+            }
+
+            return evaluatorNames;
+        }
+    } 
 }

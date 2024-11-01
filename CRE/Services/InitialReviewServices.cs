@@ -249,18 +249,23 @@ namespace CRE.Services
         // Fetch approved applications for initial review
         public async Task<IEnumerable<InitialReviewViewModel>> GetApprovedApplicationsAsync()
         {
+            var currentYear = DateTime.UtcNow.Year; // Get the current year
+
             return await _context.EthicsApplication
                 .Include(e => e.NonFundedResearchInfo)
                 .Include(e => e.EthicsApplicationLog)
                 .Where(e => e.EthicsApplicationLog
+                    .Where(log => log.status == "Approved for Evaluation" && log.changeDate.Year == currentYear) // Filter logs to only include those approved this year
                     .OrderByDescending(log => log.changeDate)  // Get logs in descending order by changeDate
-                    .FirstOrDefault().status == "Approved for Evaluation") // Check if the latest log's status is "Approved"
+                    .Any() // Check if there are any logs meeting the criteria
+                )
                 .Select(e => new InitialReviewViewModel
                 {
                     EthicsApplication = e,
                     NonFundedResearchInfo = e.NonFundedResearchInfo,
                     // Fetch only the latest log with status "Approved for Evaluation"
                     EthicsApplicationLog = e.EthicsApplicationLog
+                        .Where(log => log.status == "Approved for Evaluation" && log.changeDate.Year == currentYear) // Ensure to only take logs from this year
                         .OrderByDescending(log => log.changeDate)
                         .Take(1) // Take only the latest log entry
                 })

@@ -1,4 +1,4 @@
-﻿@model CRE.ViewModels.ChiefEvaluationViewModel
+﻿    @model CRE.ViewModels.ChiefEvaluationViewModel
 @{
     ViewData["Title"] = "Application Details";
 }
@@ -98,14 +98,14 @@
                         @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
                         {
                             <div class="tab-pane fade show active" id="receipt" role="tabpanel" aria-labelledby="receipt-tab">
-                                <iframe src="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="600px" frameborder="0"></iframe>
+                                <iframe src="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="1200px" frameborder="0"></iframe>
                             </div>
                         }
 
                         @foreach (var form in Model.EthicsApplicationForms)
                         {
                             <div class="tab-pane fade @((Model.ReceiptInfo == null || Model.ReceiptInfo.scanReceipt == null) && form == Model.EthicsApplicationForms.First() ? "show active" : "")" id="form-@form.ethicsFormId" role="tabpanel" aria-labelledby="form-@form.ethicsFormId-tab">
-                                <iframe src="@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="600px" frameborder="0"></iframe>
+                                <iframe src="@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="1200px" frameborder="0"></iframe>
                             </div>
                         }
                     </div>
@@ -189,7 +189,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+                <iframe id="pdfViewer" src="" width="100%" height="1400px" frameborder="0"></iframe>
             </div>
         </div>
     </div>

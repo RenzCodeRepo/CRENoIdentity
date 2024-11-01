@@ -74,7 +74,7 @@ namespace CRE.Controllers
                 return BadRequest("Role name cannot be null or empty.");
             }
 
-            // Store the selected role in session instead of TempData
+            // Store the selected role in session
             HttpContext.Session.SetString("CurrentRole", roleName);
 
             // Redirect back to the Index action

@@ -7,6 +7,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DocumentFormat.OpenXml.InkML;
+using Microsoft.AspNetCore.Authorization;
+using CRE.Data;
 namespace CRE.Controllers
 {
     public class ChiefController : Controller
@@ -22,6 +24,7 @@ namespace CRE.Controllers
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
         private readonly UserManager<AppUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
         public ChiefController(
             IConfiguration configuration,
@@ -34,7 +37,8 @@ namespace CRE.Controllers
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
             IInitialReviewServices initialReviewServices,
             IEthicsEvaluationServices ethicsEvaluationServices,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            ApplicationDbContext context)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -47,6 +51,7 @@ namespace CRE.Controllers
             _initialReviewServices = initialReviewServices;
             _ethicsEvaluationServices = ethicsEvaluationServices;
             _userManager = userManager;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -54,42 +59,14 @@ namespace CRE.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Applications()
-        {
-            var approvedApplications = await _initialReviewServices.GetApprovedApplicationsAsync();
-
-            var viewModel = new ApprovedApplicationListViewModel
-            {
-                ApprovedApplications = approvedApplications.Select(app => new ApprovedApplicationViewModel
-                {
-                    AppUser = app.AppUser,
-                    Secretariat = app.Secretariat,
-                    NonFundedResearchInfo = app.NonFundedResearchInfo,
-                    CoProponent = app.CoProponent,
-                    ReceiptInfo = app.ReceiptInfo,
-                    Chairperson = app.Chairperson,
-                    EthicsEvaluator = app.EthicsEvaluator,
-                    EthicsApplication = app.EthicsApplication,
-                    InitialReview = app.InitialReview,
-                    EthicsApplicationForms = app.EthicsApplicationForms,
-                    EthicsApplicationLog = app.EthicsApplicationLog
-                }).ToList()
-            };
-
-            return View(viewModel);
-        }
-
-
+        [HttpGet]
         public async Task<IActionResult> Details(string urecNo)
         {
-            var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(urecNo); // Assume this method fetches the application details
-
+            var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(urecNo);
             if (applicationDetails == null)
             {
                 return NotFound();
             }
-
-            // Assuming you want to map this to AssignReviewTypeViewModel
             var viewModel = new AssignReviewTypeViewModel
             {
                 AppUser = applicationDetails.AppUser,
@@ -102,86 +79,44 @@ namespace CRE.Controllers
                 EthicsApplication = applicationDetails.EthicsApplication,
                 InitialReview = applicationDetails.InitialReview,
                 EthicsApplicationForms = applicationDetails.EthicsApplicationForms,
-                EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
-               
+                EthicsApplicationLog = applicationDetails.EthicsApplicationLog
             };
-
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> SubmitReviewType(string ReviewType, string urecNo)
+        public async Task<IActionResult> SubmitReviewType(string reviewType, string urecNo)
         {
-            if (string.IsNullOrEmpty(urecNo))
+            if (string.IsNullOrEmpty(reviewType) || string.IsNullOrEmpty(urecNo))
             {
-                return BadRequest("UREC No. is required.");
+                return BadRequest("Required fields (UREC No. and Review Type) are missing.");
             }
 
-            if (string.IsNullOrEmpty(ReviewType))
-            {
-                return BadRequest("Review Type is required.");
-            }
-
-            // Fetch the InitialReview based on the urecNo
             var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo);
 
             if (initialReview != null)
             {
-                // Update the review type
-                initialReview.ReviewType = ReviewType;
+                initialReview.ReviewType = reviewType;
                 await _initialReviewServices.UpdateInitialReviewAsync(initialReview);
 
-                // Log the review type assignment
                 var logEntry = new EthicsApplicationLog
                 {
-                    urecNo = initialReview.urecNo,  // Assuming you have a link to EthicsApplication
+                    urecNo = initialReview.urecNo,
                     userId = User.FindFirstValue(ClaimTypes.NameIdentifier),
                     changeDate = DateTime.Now,
                     status = "Review Type Assigned"
-
                 };
 
-                // Save the log entry (ensure you have a service or repository to handle logs)
                 await _ethicsApplicationLogServices.AddLogAsync(logEntry);
             }
 
-            // Redirect to the details page or any other page
-            return RedirectToAction("Details", new { urecNo = urecNo });
-        }
-
-        public async Task<IActionResult> ExemptApplications()
-        {
-            var allExemptApplications = await _initialReviewServices.GetExemptApplicationsAsync();
-
-            var evaluatedExemptApplications = allExemptApplications
-                .Where(app => app.EthicsApplicationLog != null &&
-                              app.EthicsApplicationLog.Any(log => log.status == "Evaluated"))
-                .Select(async app => new EvaluatedExemptApplication
-                {
-                    EthicsApplication = app.EthicsApplication,
-                    NonFundedResearchInfo = app.NonFundedResearchInfo,
-                    EthicsApplicationLog = app.EthicsApplicationLog,
-                    EthicsEvaluation = await _initialReviewServices.GetEthicsEvaluationAsync(app.EthicsApplication.urecNo)
-                })
-                .Select(task => task.Result) // Resolve the Task to avoid async issues in LINQ
-                .ToList();
-
-            var exemptApplications = allExemptApplications
-                .Where(app => !evaluatedExemptApplications.Any(evaluated => evaluated.EthicsApplication.urecNo == app.EthicsApplication.urecNo))
-                .ToList();
-
-            var viewModel = new ExemptApplicationListViewModel
-            {
-                ExemptApplications = exemptApplications,
-                EvaluatedExemptApplications = evaluatedExemptApplications
-            };
-
-            return View(viewModel);
+            return RedirectToAction("FilteredApplications");
         }
 
 
 
-
+        [Authorize(Roles = "Chief")]
+        [HttpGet]
         public async Task<IActionResult> EvaluateApplication(string urecNo)
         {
             // Fetch the application details using the same service method as in Details
@@ -210,7 +145,12 @@ namespace CRE.Controllers
 
             return View(viewModel);
         }
+
+
+
+        [Authorize(Roles = "Chief")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> EvaluateApplication(ChiefEvaluationViewModel model)
         {
             ModelState.Remove("EthicsApplication.User");
@@ -282,6 +222,9 @@ namespace CRE.Controllers
             }
         }
 
+
+        [Authorize(Roles = "Chief")]
+        [HttpGet]
         public async Task<IActionResult> ViewEvaluationDetails(string urecNo, int evaluationId)
         {
             var evaluatedApplication = await _ethicsEvaluationServices.GetEvaluationDetailsAsync(urecNo, evaluationId);
@@ -292,7 +235,7 @@ namespace CRE.Controllers
             return View(evaluatedApplication);
         }
 
-
+        [Authorize(Roles = "Secretariat, Chief")]
         [HttpGet]
         public async Task<IActionResult> ViewFile(string fileType, string urecNo, int evaluationId)
         {
@@ -325,5 +268,184 @@ namespace CRE.Controllers
 
             return File(fileData, contentType);
         }
+
+
+        public IActionResult Evaluations()
+        {
+            var viewModel = new ExemptApplicationListViewModel
+            {
+                ExemptApplications = GetExemptApplications(),
+                EvaluatedExemptApplications = GetEvaluatedExemptApplications()
+            };
+            return View(viewModel);
+        }
+
+        private List<ChiefEvaluationViewModel> GetExemptApplications()
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.AppUser) // Include AppUser
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.CoProponent) // Include CoProponent
+                .Where(a => a.InitialReview.ReviewType == "Exempt" && !a.EthicsEvaluation.Any())
+                .Select(a => new ChiefEvaluationViewModel
+                {
+                    AppUser = a.User,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsApplication = a,
+                    InitialReview = a.InitialReview,
+                    ReceiptInfo = a.ReceiptInfo,
+                    EthicsApplicationForms = a.EthicsApplicationForms,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToList();
+        }
+
+
+        private List<EvaluatedExemptApplication> GetEvaluatedExemptApplications()
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Include NonFundedResearchInfo
+                    .ThenInclude(n => n.AppUser) // Include AppUser inside NonFundedResearchInfo
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.CoProponent) // Include CoProponent inside NonFundedResearchInfo
+                .Where(a => a.InitialReview.ReviewType == "Exempt" && a.EthicsEvaluation.Any())
+                .Select(a => new EvaluatedExemptApplication
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsEvaluation = a.EthicsEvaluation.FirstOrDefault(), // Get the first evaluation
+                    InitialReview = a.InitialReview,
+                    User = a.User,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToList();
+        }
+
+
+        // Action to display evaluated exempt applications
+        public IActionResult EvaluatedExemptApplications()
+        {
+            var viewModel = new EvaluatedExemptApplicationListViewModel
+            {
+                EvaluatedExemptApplications = GetEvaluatedExemptApplications()
+            };
+            return View(viewModel);
+        }
+
+        public IActionResult EvaluatedExpeditedApplications()
+        {
+            var viewModel = new EvaluatedExpeditedApplicationListViewModel
+            {
+                EvaluatedExpeditedApplications = GetEvaluatedExpeditedApplications()
+            };
+            return View(viewModel);
+        }
+
+        public IActionResult EvaluatedFullReviewApplications()
+        {
+            var viewModel = new EvaluatedFullReviewApplicationListViewModel
+            {
+                EvaluatedFullReviewApplications = GetEvaluatedFullReviewApplications()
+            };
+            return View(viewModel);
+        }
+        // Get evaluated expedited applications method
+        private List<EvaluatedExpeditedApplication> GetEvaluatedExpeditedApplications()
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Ensure this is included
+                .Where(a => a.InitialReview.ReviewType == "Expedited" && a.EthicsEvaluation.Any())
+                .Select(a => new EvaluatedExpeditedApplication
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsEvaluation = a.EthicsEvaluation.ToList(), // Include all evaluations
+                    InitialReview = a.InitialReview,
+                    User = a.User,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToList();
+        }
+
+        // Get evaluated full review applications method
+        private List<EvaluatedFullReviewApplication> GetEvaluatedFullReviewApplications()
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Ensure this is included
+                .Where(a => a.InitialReview.ReviewType == "Full Review" && a.EthicsEvaluation.Any())
+                .Select(a => new EvaluatedFullReviewApplication
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsEvaluation = a.EthicsEvaluation.ToList(), // Include all evaluations
+                    InitialReview = a.InitialReview,
+                    User = a.User,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToList();
+        }
+        public IActionResult FilteredApplications()
+        {
+            var model = new ApplicationListViewModel
+            {
+                ApplicationsApprovedForEvaluation = GetApplicationsByInitialReviewType("Pending"),
+                ExemptApplications = GetApplicationsBySubmitReviewType("Exempt"),
+                ExpeditedApplications = GetApplicationsBySubmitReviewType("Expedited"),
+                FullReviewApplications = GetApplicationsBySubmitReviewType("Full Review"),
+                AllApplications = GetAllApplications()
+            };
+
+            return View(model);
+        }
+        private List<ApplicationViewModel> GetApplicationsByInitialReviewType(string reviewType)
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Ensure this is included
+                .Where(a => a.InitialReview.ReviewType == reviewType)
+                .Select(a => new ApplicationViewModel
+                {
+                    UrecNo = a.urecNo,
+                    Title = a.NonFundedResearchInfo.title,
+                    // Get the latest status from the application logs
+                    Status = a.EthicsApplicationLog
+                                .OrderByDescending(log => log.changeDate) // Assuming 'Date' is the property indicating when the log was created
+                                .Select(log => log.status)
+                                .FirstOrDefault(),
+                    SubmissionDate = a.submissionDate.ToDateTime(TimeOnly.MinValue),
+                }).ToList();
+        }
+
+        private List<ApplicationViewModel> GetApplicationsBySubmitReviewType(string reviewType)
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Ensure this is included
+                .Where(a => a.InitialReview.ReviewType == reviewType)
+                .Select(a => new ApplicationViewModel
+                {
+                    UrecNo = a.urecNo,
+                    Title = a.NonFundedResearchInfo.title,
+                    // Get the latest status from the application logs
+                    Status = a.EthicsApplicationLog
+                                .OrderByDescending(log => log.changeDate) // Assuming 'Date' is the property indicating when the log was created
+                                .Select(log => log.status)
+                                .FirstOrDefault(),
+                    SubmissionDate = a.submissionDate.ToDateTime(TimeOnly.MinValue),
+                }).ToList();
+        }
+
+        private List<ApplicationViewModel> GetAllApplications()
+        {
+            return _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Ensure this is included
+                .Select(a => new ApplicationViewModel
+                {
+                    UrecNo = a.urecNo,
+                    Title = a.NonFundedResearchInfo.title,
+                    // Get the latest status from the application logs
+                    Status = a.EthicsApplicationLog
+                                .OrderByDescending(log => log.changeDate) // Assuming 'Date' is the property indicating when the log was created
+                                .Select(log => log.status)
+                                .FirstOrDefault(),
+                    SubmissionDate = a.submissionDate.ToDateTime(TimeOnly.MinValue),
+                }).ToList();
+        }
+
     }
 }

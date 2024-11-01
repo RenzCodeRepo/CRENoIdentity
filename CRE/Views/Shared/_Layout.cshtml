@@ -45,7 +45,7 @@
                             {
                                 case "Secretariat":
                                     <li class="nav-item">
-                                        <a class="nav-link disabled">Welcome Secretariat!</a>
+                                        <a class="nav-link" asp-area="" asp-controller="Secretariat" asp-action="">Dashboard</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="InitialReview" asp-action="InitialReview">Application</a>
@@ -53,24 +53,30 @@
                                     break;
                                 case "Chief":
                                     <li class="nav-item">
-                                        <a class="nav-link disabled">Welcome Chief!</a>
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="ChiefDashboard">Dashboard</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ChiefDashboard">Chief Dashboard</a>
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="FilteredApplications">Application</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="Applications">Application</a>
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="Evaluations">Evaluations</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="ExemptApplications">Evaluation</a>
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="">Evaluators</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="">Report</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="">Forms</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" asp-area="" asp-controller="Chief" asp-action="">Memorandums</a>
                                     </li>
                                     break;
                                 case "Chairperson":
                                     <li class="nav-item">
-                                        <a class="nav-link disabled">Welcome Chairperson!</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ChairpersonDashboard">Chairperson Dashboard</a>
+                                        <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="ChairpersonDashboard">Dashboard</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="Chairperson" asp-action="SelectApplication">Application</a>
@@ -78,7 +84,7 @@
                                     break;
                                 case "Evaluator":
                                     <li class="nav-item">
-                                        <a class="nav-link disabled">Welcome Evaluator</a>
+                                        <a class="nav-link" asp-area="" asp-controller="EthicsEvaluator" asp-action="">Dashboard</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="EthicsEvaluator" asp-action="EvaluatorView">Evaluation</a>
@@ -86,14 +92,14 @@
                                     break;
                                 case "Researcher":
                                     <li class="nav-item">
-                                        <a class="nav-link disabled" >Welcome Researcher!</a>
-                                    </li>
-                                    <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="EthicsApplication" asp-action="Applications">Application</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link" asp-area="" asp-controller="EthicsForm" asp-action="DownloadForms">Forms</a>
                                     </li>
+                                   @*  <li class="nav-item">
+                                        <a class="nav-link" asp-area="" asp-controller="EthicsForm" asp-action="DownloadForms">Memorandums</a>
+                                    </li> *@
                                     break;
                             }
                         }
@@ -105,7 +111,7 @@
                             <!-- Role Switch Dropdown -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Switch Role
+                                    @(Context.Session.GetString("CurrentRole") ?? "Researcher") <!-- Default text if no role is set -->
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 @using Microsoft.AspNetCore.Identity

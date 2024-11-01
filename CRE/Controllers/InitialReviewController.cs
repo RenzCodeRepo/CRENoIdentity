@@ -1,6 +1,7 @@
 ﻿using CRE.Interfaces;
 using CRE.Services;
 using CRE.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -18,7 +19,8 @@ namespace CRE.Controllers
         {
             return View();
         }
-
+        [Authorize(Roles = "Secretariat")]
+        [HttpGet]
         public async Task<IActionResult> InitialReview()
         {
             var viewModel = new InitialReviewListViewModel
@@ -31,8 +33,9 @@ namespace CRE.Controllers
             return View(viewModel);
         }
 
-     
+        [Authorize(Roles = "Secretariat")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApproveApplication(string urecNo, string comments)
         {
             if (string.IsNullOrEmpty(urecNo))
@@ -46,7 +49,9 @@ namespace CRE.Controllers
             return RedirectToAction("InitialReview");
         }
 
+        [Authorize(Roles = "Secretariat")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReturnApplication(string urecNo, string comments)
         {
             if (string.IsNullOrEmpty(urecNo))
@@ -60,7 +65,8 @@ namespace CRE.Controllers
             return RedirectToAction("InitialReview");
         }
 
-
+        [Authorize(Roles = "Secretariat")]
+        [HttpGet]
         public async Task<IActionResult> Details(string urecNo)
         {
             if (string.IsNullOrEmpty(urecNo))

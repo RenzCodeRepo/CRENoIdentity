@@ -75,19 +75,23 @@
         else
         {
             <h4>Assign Review Type</h4>
-            <!-- Dropdown for selecting the review type -->
-            <div class="form-group">
-                <label for="reviewType">Review Type</label>
-                <select id="reviewType" name="ReviewType" class="form-control">
-                    <option value="">-- Select Review Type --</option>
-                    <option value="Exempt" selected="@(Model.ReviewType == "Exempt")">Exempt</option>
-                    <option value="Expedited" selected="@(Model.ReviewType == "Expedited")">Expedited</option>
-                    <option value="Full Review" selected="@(Model.ReviewType == "Full Review")">Full Review</option>
-                </select>
-            </div>
-            <div class="form-group mt-3">
-                <button type="button" class="btn btn-primary" onclick="submitReviewType()">Submit Review Type</button>
-            </div>
+            <!-- Form for selecting the review type -->
+            <form id="reviewTypeForm" method="post" action="@Url.Action("SubmitReviewType", "Chief")">
+                <!-- Dropdown for selecting the review type -->
+                <div class="form-group">
+                    <label for="reviewType">Review Type</label>
+                    <select id="reviewType" name="ReviewType" class="form-control">
+                        <option value="">-- Select Review Type --</option>
+                        <option value="Exempt" selected="@(Model.ReviewType == "Exempt")">Exempt</option>
+                        <option value="Expedited" selected="@(Model.ReviewType == "Expedited")">Expedited</option>
+                        <option value="Full Review" selected="@(Model.ReviewType == "Full Review")">Full Review</option>
+                    </select>
+                </div>
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">Submit Review Type</button>
+                </div>
+                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+            </form>
         }
     </div>
     <div class="card-body">
@@ -137,7 +141,7 @@
                 foreach (var form in Model.EthicsApplicationForms)
                 {
                     <div class="tab-pane fade @(formIndex == 0 ? "show active" : "")" id="form-@form.ethicsFormId" role="tabpanel" aria-labelledby="form-@form.ethicsFormId-tab">
-                        <iframe src="@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="600px" frameborder="0"></iframe>
+                        <iframe src="@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = form.ethicsFormId, urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="1200px" frameborder="0"></iframe>
                     </div>
                     formIndex++;
                 }
@@ -146,7 +150,7 @@
             @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
             {
             <div class="tab-pane fade @(Model.EthicsApplicationForms == null || !Model.EthicsApplicationForms.Any() ? "show active" : "")" id="receipt" role="tabpanel" aria-labelledby="receipt-tab">
-                <iframe src="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="600px" frameborder="0"></iframe>
+                <iframe src="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" width="100%" height="1200px" frameborder="0"></iframe>
             </div>
             }
 
@@ -170,71 +174,58 @@
                 </button>
             </div>
             <div class="modal-body">
-                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+                <iframe id="pdfViewer" src="" width="100%" height="1400px" frameborder="0"></iframe>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        function copyUrecNo() {
-            const urecNoText = document.getElementById("urecNoText").innerText;
-            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
-                alert('UREC No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
-
-        function copyDtsNo() {
-            const dtsNoText = document.getElementById("dtsNoText").innerText;
-            navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
-                alert('DTS No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
-
-        function openPdfInModal(pdfUrl) {
-            // Set the iframe source to the selected PDF
-            document.getElementById("pdfViewer").src = pdfUrl;
-
-            // Show the modal
-            $('#pdfModal').modal('show');
-        }
-        function submitReviewType() {
-            const reviewType = document.getElementById("reviewType").value;
-
-            // Ensure the user has selected a review type
-            if (!reviewType) {
-                alert("Please select a review type.");
-                return;
+    @section Scripts {
+        <script>
+            function copyUrecNo() {
+                const urecNoText = document.getElementById("urecNoText").innerText;
+                navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
+                    alert('UREC No. copied to clipboard!');
+                }, function (err) {
+                    console.error('Could not copy text: ', err);
+                });
             }
 
-            const confirmSubmit = confirm(`Are you sure you want to submit the review type as "${reviewType}"?`);
-            if (confirmSubmit) {
-                const form = document.createElement("form");
-                form.method = "post";
-                form.action = '@Url.Action("SubmitReviewType", "Chief")'; // Ensure this matches your route
-
-                // Hidden input fields
-                const reviewTypeInput = document.createElement("input");
-                reviewTypeInput.type = "hidden";
-                reviewTypeInput.name = "ReviewType";
-                reviewTypeInput.value = reviewType;
-                form.appendChild(reviewTypeInput);
-
-                const urecNoInput = document.createElement("input");
-                urecNoInput.type = "hidden";
-                urecNoInput.name = "urecNo";
-                urecNoInput.value = "@Model.EthicsApplication.urecNo";
-                form.appendChild(urecNoInput);
-
-                document.body.appendChild(form);
-                form.submit();
+            function copyDtsNo() {
+                const dtsNoText = document.getElementById("dtsNoText").innerText;
+                navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
+                    alert('DTS No. copied to clipboard!');
+                }, function (err) {
+                    console.error('Could not copy text: ', err);
+                });
             }
-        }
 
-    </script>
-}
+            function openPdfInModal(pdfUrl) {
+                // Set the iframe source to the selected PDF
+                document.getElementById("pdfViewer").src = pdfUrl;
+
+                // Show the modal
+                $('#pdfModal').modal('show');
+            }
+
+            // Add the event listener to the form after the DOM has loaded
+            document.addEventListener("DOMContentLoaded", function () {
+                const reviewTypeForm = document.getElementById("reviewTypeForm");
+                if (reviewTypeForm) {
+                    reviewTypeForm.addEventListener("submit", function (event) {
+                        const reviewType = document.getElementById("reviewType").value;
+
+                        // Ensure the user has selected a review type
+                        if (!reviewType) {
+                            alert("Please select a review type.");
+                            event.preventDefault(); // Prevent form submission
+                        } else {
+                            const confirmSubmit = confirm(`Are you sure you want to submit the review type as "${reviewType}"?`);
+                            if (!confirmSubmit) {
+                                event.preventDefault(); // Prevent form submission
+                            }
+                        }
+                    });
+                }
+            });
+        </script>
+    }

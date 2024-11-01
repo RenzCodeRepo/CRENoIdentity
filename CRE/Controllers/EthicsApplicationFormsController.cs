@@ -8,7 +8,10 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http; // For IFormFile and FormFile
 using System.IO; // For MemoryStream
-using System.Linq; // For LINQ methods like FirstOrDefault
+using System.Linq;
+using CRE.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization; // For LINQ methods like FirstOrDefault
 
 
 namespace CRE.Controllers
@@ -24,7 +27,7 @@ namespace CRE.Controllers
         private readonly ICoProponentServices _coProponentServices;
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
         private readonly IInitialReviewServices _initialReviewServices;
-
+        private readonly ApplicationDbContext _context;
         public EthicsApplicationFormsController(
             IConfiguration configuration,
             IEthicsApplicationServices ethicsApplicationServices,
@@ -34,7 +37,8 @@ namespace CRE.Controllers
             IEthicsApplicationLogServices ethicsApplicationLogServices,
             ICoProponentServices coProponentServices,
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
-            IInitialReviewServices initialReviewServices)
+            IInitialReviewServices initialReviewServices,
+            ApplicationDbContext context)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -45,55 +49,47 @@ namespace CRE.Controllers
             _coProponentServices = coProponentServices;
             _ethicsApplicationFormsServices = ethicsApplicationFormsServices;
             _initialReviewServices = initialReviewServices;
+            _context = context;
         }
         public IActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = "Researcher, Faculty, Secretariat, Chief")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateDtsNo(string urecNo, string dtsNo)
+        public async Task<IActionResult> UpdateDtsNo(string dtsNo, string urecNo)
         {
-            // Validate DTS No. format
-            var dtsPattern = @"^\d{4}-\d{4}-\d{2}$"; // Pattern: xxxx-xxxx-xx
-            if (!Regex.IsMatch(dtsNo, dtsPattern))
+            // Ensure dtsNo and urecNo are received correctly
+            if (string.IsNullOrEmpty(dtsNo) || string.IsNullOrEmpty(urecNo))
             {
-                ModelState.AddModelError("dtsNo", "DTS No. must be in the format xxxx-xxxx-xx.");
-                return PartialView("_editDtsModal", new UploadFormsViewModel { EthicsApplication = new EthicsApplication { urecNo = urecNo, dtsNo = dtsNo } });
-            }
-            // Check for required fields
-            if (string.IsNullOrEmpty(urecNo) || string.IsNullOrEmpty(dtsNo))
-            {
-                ModelState.AddModelError("", "DTS No. and Urec No. are required.");
-                // Return the modal with the current state, including errors
-                return PartialView("_editDtsModal", new UploadFormsViewModel { EthicsApplication = new EthicsApplication { urecNo = urecNo, dtsNo = dtsNo } });
+                return BadRequest(new { success = false, message = "DTS No. and UREC No. are required." });
             }
 
-            // Find the ethics application by urecNo
-            var ethicsApplication = await _ethicsApplicationServices.GetApplicationByUrecNoAsync(urecNo);
-            if (ethicsApplication == null)
+            // Check if the DTS No already exists
+            var existingDts = await _context.EthicsApplication
+                .Where(e => e.dtsNo == dtsNo && e.urecNo != urecNo)
+                .AnyAsync();
+
+            if (existingDts)
             {
-                return NotFound(); // Handle case where application doesn't exist
+                return Json(new { success = false, message = "The DTS No. is already in use. Please choose a different one." });
             }
 
-            // Check if the DTS number already exists
-            var existingDts = await _ethicsApplicationServices.GetApplicationByDtsNoAsync(dtsNo);
-            if (existingDts != null)
+            var application = await _context.EthicsApplication.FindAsync(urecNo);
+            if (application != null)
             {
-                ModelState.AddModelError("dtsNo", "This DTS No. is already in use.");
-                return PartialView("_editDtsModal", new UploadFormsViewModel { EthicsApplication = ethicsApplication });
+                application.dtsNo = dtsNo;
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "DTS No. updated successfully." });
             }
 
-            // Update the DTS No.
-            ethicsApplication.dtsNo = dtsNo;
-
-            // Save the changes
-            await _ethicsApplicationServices.SaveChangesAsync();
-
-            return RedirectToAction("UploadForms", "EthicsApplicationForms", new { urecNo = urecNo });
+            return NotFound();
         }
 
+        [Authorize(Roles = "Researcher, Faculty")]
         [HttpGet]
         public async Task<IActionResult> UploadForms(string urecNo)
         {
@@ -156,7 +152,7 @@ namespace CRE.Controllers
             return View(model);
         }
 
-
+        [Authorize(Roles = "Researcher, Faculty")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UploadForms(UploadFormsViewModel model)

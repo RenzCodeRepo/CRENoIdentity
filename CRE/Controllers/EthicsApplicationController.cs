@@ -3,6 +3,7 @@ using CRE.Models;
 using CRE.Services;
 using CRE.ViewModels;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -51,7 +52,8 @@ namespace CRE.Controllers
         {
             return View();
         }
-
+        [Authorize(Roles = "Researcher, Faculty")]
+        [HttpGet]
         public async Task<IActionResult> Applications()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -82,7 +84,8 @@ namespace CRE.Controllers
             // Return the view for the application form
             return View(model);
         }
-
+        [Authorize(Roles = "Researcher, Faculty")]
+        [HttpGet]
         public async Task<IActionResult> ApplyEthics()
         {
             // Retrieve the logged-in user's ID from the Identity system
@@ -141,6 +144,7 @@ namespace CRE.Controllers
             return View(emptyModel);
         }
 
+        [Authorize(Roles = "Researcher, Faculty")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ApplyEthics(ApplyEthicsViewModel model)
@@ -331,7 +335,7 @@ namespace CRE.Controllers
             return Json(new { isValid = true });
         }
 
-
+        [Authorize(Roles = "Researcher, Faculty")]
         [HttpGet]
         public async Task<IActionResult> ApplicationRequirements(string urecNo)
         {
