@@ -7,9 +7,11 @@ namespace CRE.ViewModels
         public EthicsApplication EthicsApplication { get; set; }
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; }
-        public EthicsEvaluation EthicsEvaluation { get; set; } // Ensure this property exists
+        public EthicsEvaluation? EthicsEvaluation { get; set; } // Ensure this property exists
         public InitialReview InitialReview { get; set; }
         public AppUser User { get; set; }
+        public Chief Chief { get; set; }
+
         public IEnumerable<CoProponent> CoProponents => NonFundedResearchInfo?.CoProponent; // Adjust according to your model
 
         // Reviewer (Chief) Full Name

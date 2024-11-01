@@ -64,24 +64,7 @@ namespace CRE.Services
             return await _context.EthicsEvaluation
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.ethicsEvaluatorId == ethicsEvaluatorId);
         }
-        public async Task<List<EvaluatedExemptApplication>> GetEvaluatedExemptApplicationsAsync()
-        {
-            var evaluatedApplications = await _context.EthicsApplicationLog
-                .Where(log => log.status == "Evaluated")
-                .Select(log => new EvaluatedExemptApplication
-                {
-                    EthicsApplication = log.EthicsApplication, // Assuming there's a navigation property
-                    NonFundedResearchInfo = log.EthicsApplication.NonFundedResearchInfo, // Assuming navigation property exists
-                    EthicsApplicationLog = _context.EthicsApplicationLog
-                .Where(l => l.logId == log.logId) // Collecting all logs for the application
-                .ToList() // Converting to a list to satisfy IEnumerable requirement
-                })
-                .Include(e => e.EthicsApplication) // Include navigation properties if necessary
-                .Include(e => e.NonFundedResearchInfo)
-                .ToListAsync();
-
-            return evaluatedApplications;
-        }
+        
 
         public async Task<EvaluatedExemptApplication> GetEvaluationDetailsAsync(string urecNo, int evaluationId)
         {
@@ -115,12 +98,14 @@ namespace CRE.Services
                     .ThenInclude(a => a.NonFundedResearchInfo)
                 .Include(e => e.EthicsApplication.EthicsApplicationLog)
                 .Include(e => e.EthicsApplication.InitialReview)
-                .Include(e => e.EthicsEvaluator) // Including EthicsEvaluator details
-                    .ThenInclude(evaluator => evaluator.Faculty.User) // Including the associated user of the evaluator
+                .Include(e => e.EthicsEvaluator)
+                    .ThenInclude(evaluator => evaluator.Faculty.User)
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.evaluationId == evaluationId);
 
             if (evaluation == null)
                 return null;
+
+            var evaluatorUser = evaluation.EthicsEvaluator?.Faculty?.User;
 
             return new EvaluationDetailsViewModel
             {
@@ -129,17 +114,29 @@ namespace CRE.Services
                 EthicsApplicationLog = evaluation.EthicsApplication?.EthicsApplicationLog,
                 EthicsEvaluation = evaluation,
                 InitialReview = evaluation.EthicsApplication.InitialReview,
-                AppUser = evaluation.EthicsEvaluator?.Faculty.User // Setting the User details for the evaluator
+                AppUser = evaluatorUser // List of user details for evaluators
             };
         }
 
 
-        public async Task UpdateEvaluationStatusAsync(int evaluationId, string status)
+
+        public async Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline)
         {
             var evaluation = await _context.EthicsEvaluation.FindAsync(evaluationId);
             if (evaluation != null)
             {
                 evaluation.evaluationStatus = status; // "Accepted" or "Declined"
+
+                // Update the reason for decline if the status is "Declined"
+                if (status == "Declined")
+                {
+                    evaluation.reasonForDecline = reasonForDecline;
+                }
+                else
+                {
+                    evaluation.reasonForDecline = null; // Clear the reason if the status is not declined
+                }
+
                 await _context.SaveChangesAsync();
             }
         }
@@ -149,7 +146,6 @@ namespace CRE.Services
             {
                 urecNo = urecNo,
                 ethicsEvaluatorId = evaluatorId,
-                startDate = DateOnly.FromDateTime(DateTime.Now),
 
                 // Initialize protocol and consent recommendations to pending
                 ProtocolRecommendation = "Pending",
@@ -321,6 +317,84 @@ namespace CRE.Services
                              e.Faculty?.User?.lName != applicantLastName) // Exclude applicant by name
                 .OrderBy(e => e.pendingEval) // Sort by least pending evaluations
                 .Take(3); // Take top 3 recommended evaluators
+        }
+        
+
+        public async Task<List<ChiefEvaluationViewModel>> GetExemptApplicationsAsync()
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.AppUser)
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.CoProponent)
+                .Where(a => a.InitialReview.ReviewType == "Exempt" && !a.EthicsEvaluation.Any())
+                .Select(a => new ChiefEvaluationViewModel
+                {
+                    AppUser = a.User,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsApplication = a,
+                    InitialReview = a.InitialReview,
+                    ReceiptInfo = a.ReceiptInfo,
+                    EthicsApplicationForms = a.EthicsApplicationForms,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToListAsync();
+        }
+
+        public async Task<List<EvaluatedExemptApplication>> GetEvaluatedExemptApplicationsAsync()
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.AppUser)
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(n => n.CoProponent)
+                .Include(a => a.EthicsEvaluation) // Include the EthicsEvaluation to access ChiefId
+                .ThenInclude(e => e.Chief) // Assuming Chief is the navigation property in EthicsEvaluation
+                .Include(a => a.InitialReview) // Include InitialReview if you need it
+                .Where(a => a.InitialReview.ReviewType == "Exempt" && a.EthicsEvaluation.Any())
+                .Select(a => new EvaluatedExemptApplication
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsEvaluation = a.EthicsEvaluation.FirstOrDefault(),
+                    InitialReview = a.InitialReview,
+                    User = a.User,
+                    EthicsApplicationLog = a.EthicsApplicationLog,
+                    Chief = a.EthicsEvaluation.FirstOrDefault().Chief // Retrieve the chief based on the evaluation
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<EvaluatedExpeditedApplication>> GetEvaluatedExpeditedApplicationsAsync()
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                .Include(a => a.EthicsEvaluation)
+                .Where(a => a.InitialReview.ReviewType == "Expedited" && a.EthicsEvaluation.Any())
+                .Select(a => new EvaluatedExpeditedApplication
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsEvaluation = a.EthicsEvaluation.ToList(),
+                    InitialReview = a.InitialReview,
+                    User = a.User,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToListAsync();
+        }
+
+        public async Task<List<EvaluatedFullReviewApplication>> GetEvaluatedFullReviewApplicationsAsync()
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                .Where(a => a.InitialReview.ReviewType == "Full Review" && a.EthicsEvaluation.Any())
+                .Select(a => new EvaluatedFullReviewApplication
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    EthicsEvaluation = a.EthicsEvaluation.ToList(),
+                    InitialReview = a.InitialReview,
+                    User = a.User,
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                }).ToListAsync();
         }
     }
 }

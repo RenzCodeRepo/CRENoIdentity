@@ -41,8 +41,6 @@ namespace CRE.Services
             return applications;
         }
 
-
-
         public async Task AssignEvaluatorsAsync(string urecNo, List<int> evaluatorIds)
         {
             foreach (var evaluatorId in evaluatorIds)
@@ -77,23 +75,25 @@ namespace CRE.Services
                 .Include(e => e.InitialReview) // Include InitialReview for ReviewType
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo);
         }
-        public async Task<Dictionary<string, List<string>>> GetEvaluatorNamesAsync(IEnumerable<EthicsApplication> ethicsApplications)
+        public async Task<Dictionary<string, List<EthicsEvaluator>>> GetEvaluatorNamesAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {
-            var evaluatorNames = new Dictionary<string, List<string>>();
+            var evaluatorNames = new Dictionary<string, List<EthicsEvaluator>>();
 
-            foreach (var ethicsApplication in ethicsApplications)
+            foreach (var application in ethicsApplications)
             {
-                var names = ethicsApplication.EthicsEvaluation
-                    .Where(e => e.EthicsEvaluator?.Faculty?.User != null)
-                    .Select(e => $"{e.EthicsEvaluator.Faculty.User.fName} {e.EthicsEvaluator.Faculty.User.lName}")
-                    .ToList();
+                // Retrieve the evaluations for the current application and include the evaluator
+                var evaluators = await _context.EthicsEvaluation
+                    .Include(e => e.EthicsEvaluator.Faculty.User) // Include User details
+                    .Where(e => e.urecNo == application.urecNo && e.evaluationStatus != "Declined") // Exclude declined evaluators
+                    .Select(e => e.EthicsEvaluator) // Select the EthicsEvaluator object
+                    .ToListAsync();
 
-                evaluatorNames[ethicsApplication.urecNo] = names;
+                // Store the evaluators in the dictionary
+                evaluatorNames[application.urecNo] = evaluators;
             }
 
             return evaluatorNames;
         }
-
 
         public async Task<IEnumerable<EthicsApplication>> GetUnassignedApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {
@@ -102,7 +102,7 @@ namespace CRE.Services
                 (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review") &&
                 (!a.EthicsEvaluation.Any() ||
                  (a.EthicsEvaluation.All(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
-                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned"));
+                !a.EthicsEvaluation.All(e => e.evaluationStatus == "Assigned"));
         }
 
         public async Task<IEnumerable<EthicsApplication>> GetUnderEvaluationApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)

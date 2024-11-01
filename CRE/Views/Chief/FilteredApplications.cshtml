@@ -48,29 +48,33 @@
                     {
                         <tr>
                             <td>
-                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.UrecNo" class="btn btn-primary">
-                                    @application.UrecNo
+                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication.urecNo" class="btn btn-primary">
+                                    @application.EthicsApplication.urecNo
                                 </a>
                             </td>
-                            <td>@application.Title</td>
+                            <td>@application.NonFundedResearchInfo.title</td>
                             <td>
-                                <!-- Display main applicant -->
-                                @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>No applicant information available</span>
+                                }
                                 <br />
 
-                                <!-- Display coproponents if available -->
-                                @if (application.NonFundedResearchInfo.CoProponent != null)
+                                @if (application.NonFundedResearchInfo?.CoProponent != null)
                                 {
                                     foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
                                     {
                                         <span>@coproponent.coProponentName</span>
-
                                         <br />
                                     }
                                 }
                             </td>
-                            <td>@application.Status</td>
-                            <td>@application.SubmissionDate.ToShortDateString()</td>
+                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
+                            <td>@application.EthicsApplication.submissionDate.ToShortDateString()</td>
                         </tr>
                     }
                 }
@@ -94,34 +98,32 @@
                 @if (Model.ExemptApplications == null || !Model.ExemptApplications.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No exempt applications found.</td>
+                        <td colspan="5" class="text-center">No exempt applications found.</td>
                     </tr>
                 }
                 else
                 {
-                    @foreach (var application in Model.ExemptApplications)
+                    foreach (var application in Model.ExemptApplications)
                     {
                         <tr>
                             <td>
-                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.UrecNo" class="btn btn-primary">
-                                    @application.UrecNo
+                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication.urecNo" class="btn btn-primary">
+                                    @application.EthicsApplication.urecNo
                                 </a>
                             </td>
-                            <td>@application.Title</td>
+                            <td>@application.NonFundedResearchInfo.title</td>
                             <td>
-                                <!-- Display main applicant -->
-                                @if (application.NonFundedResearchInfo?.AppUser != null)
+                                @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
                                 {
                                     @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
                                 }
                                 else
                                 {
-                                    <span>N/A</span> <!-- Or another appropriate message -->
+                                    <span>No applicant information available</span>
                                 }
                                 <br />
 
-                                <!-- Display coproponents if available -->
-                                @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                @if (application.NonFundedResearchInfo?.CoProponent != null)
                                 {
                                     foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
                                     {
@@ -129,16 +131,11 @@
                                         <br />
                                     }
                                 }
-                                else
-                                {
-                                    <span>No coproponents available.</span>
-                                }
                             </td>
-                            <td>@application.Status</td>
-                            <td>@application.SubmissionDate.ToShortDateString()</td>
+                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
+                            <td>@application.EthicsApplication.submissionDate.ToShortDateString()</td>
                         </tr>
                     }
-
                 }
             </tbody>
         </table>
@@ -160,7 +157,7 @@
                 @if (Model.ExpeditedApplications == null || !Model.ExpeditedApplications.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No expedited applications found.</td>
+                        <td colspan="5" class="text-center">No expedited applications found.</td>
                     </tr>
                 }
                 else
@@ -169,13 +166,33 @@
                     {
                         <tr>
                             <td>
-                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.UrecNo" class="btn btn-primary">
-                                    @application.UrecNo
+                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication.urecNo" class="btn btn-primary">
+                            @application.EthicsApplication.urecNo
                                 </a>
                             </td>
-                            <td>@application.Title</td>
-                            <td>@application.Status</td>
-                            <td>@application.SubmissionDate.ToShortDateString()</td>
+                            <td>@application.NonFundedResearchInfo.title</td>
+                            <td>
+                        @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
+                        {
+                            @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                        }
+                        else
+                        {
+                                        <span>No applicant information available</span>
+                        }
+                                <br />
+
+                        @if (application.NonFundedResearchInfo?.CoProponent != null)
+                        {
+                            foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                            {
+                                                <span>@coproponent.coProponentName</span>
+                                                <br />
+                            }
+                        }
+                            </td>
+                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
+                            <td>@application.EthicsApplication.submissionDate.ToShortDateString()</td>
                         </tr>
                     }
                 }
@@ -199,7 +216,7 @@
                 @if (Model.FullReviewApplications == null || !Model.FullReviewApplications.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No full review applications found.</td>
+                        <td colspan="5" class="text-center">No full review applications found.</td>
                     </tr>
                 }
                 else
@@ -208,13 +225,33 @@
                     {
                         <tr>
                             <td>
-                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.UrecNo" class="btn btn-primary">
-                                    @application.UrecNo
+                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication.urecNo" class="btn btn-primary">
+                                    @application.EthicsApplication.urecNo
                                 </a>
                             </td>
-                            <td>@application.Title</td>
-                            <td>@application.Status</td>
-                            <td>@application.SubmissionDate.ToShortDateString()</td>
+                            <td>@application.NonFundedResearchInfo.title</td>
+                            <td>
+                                @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>No applicant information available</span>
+                                }
+                                <br />
+
+                                @if (application.NonFundedResearchInfo?.CoProponent != null)
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                            </td>
+                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
+                            <td>@application.EthicsApplication.submissionDate.ToShortDateString()</td>
                         </tr>
                     }
                 }
@@ -228,7 +265,8 @@
             <thead>
                 <tr>
                     <th>UREC No</th>
-                    <th>Title</th>
+                    <th>Title of the Research</th>
+                    <th>Proponents/ Authors</th>
                     <th>Status</th>
                     <th>Submission Date</th>
                 </tr>
@@ -237,7 +275,7 @@
                 @if (Model.AllApplications == null || !Model.AllApplications.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No applications found.</td>
+                        <td colspan="5" class="text-center">No applications found.</td>
                     </tr>
                 }
                 else
@@ -246,13 +284,33 @@
                     {
                         <tr>
                             <td>
-                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.UrecNo" class="btn btn-primary">
-                                    @application.UrecNo
+                                <a asp-controller="Chief" asp-action="Details" asp-route-urecNo="@application.EthicsApplication.urecNo" class="btn btn-primary">
+                                    @application.EthicsApplication.urecNo
                                 </a>
                             </td>
-                            <td>@application.Title</td>
-                            <td>@application.Status</td>
-                            <td>@application.SubmissionDate.ToShortDateString()</td>
+                            <td>@application.NonFundedResearchInfo.title</td>
+                            <td>
+                                @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>No applicant information available</span>
+                                }
+                                <br />
+
+                                @if (application.NonFundedResearchInfo?.CoProponent != null)
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                            </td>
+                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
+                            <td>@application.EthicsApplication.submissionDate.ToShortDateString()</td>
                         </tr>
                     }
                 }

@@ -1,6 +1,7 @@
 ﻿using CRE.Data;
 using CRE.Interfaces;
 using CRE.Models;
+using CRE.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace CRE.Services
@@ -108,6 +109,96 @@ namespace CRE.Services
             return await _context.EthicsApplication
                                  .FirstOrDefaultAsync(e => e.dtsNo == dtsNo);
         }
+        public async Task<List<ApplicationViewModel>> GetApplicationsByInitialReviewTypeAsync(string reviewType)
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                .ThenInclude(n => n.AppUser)
+                .Include(a => a.EthicsApplicationLog)
+                .Include(a => a.NonFundedResearchInfo.CoProponent) // Include all CoProponents
+                .Where(a => a.InitialReview.ReviewType == reviewType)
+                .Select(a => new ApplicationViewModel
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    CoProponent = a.NonFundedResearchInfo.CoProponent.ToList(), // Get all CoProponents
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                        .OrderByDescending(log => log.changeDate)
+                        .ToList(), // Get all logs ordered by change date
+                    AppUser = a.NonFundedResearchInfo.AppUser
+                }).ToListAsync();
+        }
+
+
+
+        public async Task<List<ApplicationViewModel>> GetApplicationsBySubmitReviewTypeAsync(string reviewType)
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                .ThenInclude(n => n.AppUser)
+                .Include(a => a.EthicsApplicationLog)
+                .Include(a => a.NonFundedResearchInfo.CoProponent) // Include all CoProponents
+                .Where(a => a.InitialReview.ReviewType == reviewType)
+                .Select(a => new ApplicationViewModel
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    CoProponent = a.NonFundedResearchInfo.CoProponent.ToList(), // Get all CoProponents
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                        .OrderByDescending(log => log.changeDate)
+                        .ToList(), // Get all logs ordered by change date
+                    AppUser = a.NonFundedResearchInfo.AppUser,                 
+                }).ToListAsync();
+        }
+
+        public async Task<List<ApplicationViewModel>> GetAllApplicationViewModelsAsync()
+        {
+            return await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Include necessary navigation properties
+                .ThenInclude(n => n.AppUser)
+                .Include(a => a.EthicsApplicationLog)
+                .Include(a => a.NonFundedResearchInfo.CoProponent) // Include all CoProponents
+                .Select(a => new ApplicationViewModel
+                {
+                    EthicsApplication = a,
+                    NonFundedResearchInfo = a.NonFundedResearchInfo,
+                    CoProponent = a.NonFundedResearchInfo.CoProponent.ToList(), // Get all CoProponents
+                    EthicsApplicationLog = a.EthicsApplicationLog
+                        .OrderByDescending(log => log.changeDate)
+                        .ToList(),
+                    AppUser = a.NonFundedResearchInfo.AppUser
+                }).ToListAsync();
+        }
+        public async Task UpdateApplicationStatusAsync(int evaluationId, string urecNo, string status)
+        {
+            // Retrieve the application using the provided urecNo
+            var application = await _context.EthicsApplication
+                .Include(a => a.EthicsEvaluation) // Include the related evaluations
+                .FirstOrDefaultAsync(a => a.urecNo == urecNo);
+
+            if (application != null)
+            {
+                // Find the specific evaluation to update
+                var evaluationToUpdate = application.EthicsEvaluation
+                    .FirstOrDefault(e => e.evaluationId == evaluationId); // Adjust the property name as per your model
+
+                if (evaluationToUpdate != null)
+                {
+                    // Update the status of the specific evaluation
+                    evaluationToUpdate.evaluationStatus = status; // Update status here
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new InvalidOperationException("The specified evaluation was not found.");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("The specified application was not found.");
+            }
+        }
+
 
     }
 }

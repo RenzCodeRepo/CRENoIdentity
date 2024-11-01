@@ -17,13 +17,15 @@ namespace CRE.Controllers
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly UserManager<AppUser> _userManager;
         private readonly IEthicsApplicationLogServices _ethicsApplicationLogServices;
+        private readonly IEthicsApplicationServices _ethicsApplicationServices;
         public EthicsEvaluatorController(IEthicsEvaluationServices ethicsEvaluationServices, IInitialReviewServices initialReviewServices,
-            UserManager<AppUser> userManager, IEthicsApplicationLogServices ethicsApplicationLogServices)
+            UserManager<AppUser> userManager, IEthicsApplicationLogServices ethicsApplicationLogServices, IEthicsApplicationServices ethicsApplicationServices)
         {
             _ethicsEvaluationServices = ethicsEvaluationServices;
             _initialReviewServices = initialReviewServices;
             _userManager = userManager;
             _ethicsApplicationLogServices = ethicsApplicationLogServices;
+            _ethicsApplicationServices = ethicsApplicationServices;
         }
         public IActionResult Index()
         {
@@ -86,11 +88,8 @@ namespace CRE.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RespondToAssignment(string acceptanceStatus, string urecNo, int evalId)
+        public async Task<IActionResult> RespondToAssignment(string acceptanceStatus, string urecNo, int evalId, string? reasonForDecline)
         {
-            // Determine the evaluation status
-            string status = acceptanceStatus;
-
             // Retrieve the current user ID
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -112,36 +111,40 @@ namespace CRE.Controllers
 
             if (existingEvaluation != null)
             {
-                // Update the existing evaluation's status using the service method
-                await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, status);
-            }
-            else
-            {
-                if(status == "Accepted")
+                // If declined, update the evaluation status and application status
+                if (acceptanceStatus == "Declined")
                 {
-                    var newEvaluation = new EthicsEvaluation
-                    {
-                        evaluationStatus = "Accepted",
-                        startDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                        ethicsEvaluatorId = ethicsEvaluatorId,
-                        urecNo = urecNo
-                    };
-                    await _ethicsEvaluationServices.CreateEvaluationAsync(newEvaluation);
+                    // Update the evaluation status and provide the reason for decline
+                    await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Declined", reasonForDecline);
+
+                    // Mark application as "Unassigned"
+                    await _ethicsApplicationServices.UpdateApplicationStatusAsync(existingEvaluation.evaluationId, urecNo, "Unassigned");
                 }
                 else
                 {
-                    var newEvaluation = new EthicsEvaluation
-                    {
-                        evaluationStatus = "Declined",
-                        startDate = DateOnly.FromDateTime(DateTime.UtcNow),
-                        ethicsEvaluatorId = ethicsEvaluatorId,
-                        urecNo = urecNo
-                    };
-                    await _ethicsEvaluationServices.CreateEvaluationAsync(newEvaluation);
+                    // Update the existing evaluation's status for accepted applications
+                    await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Accepted", null);
                 }
+            }
+            else
+            {
                 // Create a new evaluation entry if none exists
-                
-                
+                var newEvaluation = new EthicsEvaluation
+                {
+                    evaluationStatus = acceptanceStatus,
+                    startDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                    ethicsEvaluatorId = ethicsEvaluatorId,
+                    urecNo = urecNo,
+                    reasonForDecline = acceptanceStatus == "Declined" ? reasonForDecline : null // Set reason for decline if applicable
+                };
+
+                await _ethicsEvaluationServices.CreateEvaluationAsync(newEvaluation);
+
+                // If declined, update application status to "Unassigned"
+                if (acceptanceStatus == "Declined")
+                {
+                    await _ethicsApplicationServices.UpdateApplicationStatusAsync(newEvaluation.evaluationId, urecNo, "Unassigned"); // Ensure application is marked unassigned
+                }
             }
 
             // Fetch application details for the view model (to show after response)
@@ -169,6 +172,9 @@ namespace CRE.Controllers
             // Redirect to the EvaluatorView with success
             return RedirectToAction("EvaluatorView", new { success = true });
         }
+
+
+
 
         public async Task<IActionResult> EvaluationDetails(string id)
         {

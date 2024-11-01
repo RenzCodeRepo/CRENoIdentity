@@ -1,4 +1,4 @@
-﻿@model CRE.ViewModels.ExemptApplicationListViewModel
+﻿@model CRE.ViewModels.ApplicationEvaluationViewModel
 
 <h2>Ethics Applications</h2>
 
@@ -16,6 +16,7 @@
     <li class="nav-item">
         <a class="nav-link" id="evaluated-full-review-tab" data-toggle="tab" href="#evaluated-full-review" role="tab" aria-controls="evaluated-full-review" aria-selected="false">Evaluated Full Review Applications</a>
     </li>
+    @* Pending Issuance *@
 </ul>
 
 <!-- Tab Content -->
@@ -27,11 +28,12 @@
             <!-- Table Header -->
             <thead>
                 <tr>
-                    <th>UREC Number</th>
+                    <th>UREC No</th>
                     <th>Title of the Research</th>
-                    <th>Proponens/ Authors</th>
+                    <th>Proponents/ Authors</th>
+                    <th>Start Date</th>
                     <th>Status</th>
-                    <th>Date</th>
+                    <th>End Date</th>
                 </tr>
             </thead>
             <!-- Table Body -->
@@ -39,7 +41,7 @@
                 @if (Model.ExemptApplications == null || !Model.ExemptApplications.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No exempt applications found.</td>
+                        <td colspan="6" class="text-center">No exempt applications found.</td>
                     </tr>
                 }
                 else
@@ -53,12 +55,33 @@
                                 </a>
                             </td>
                             <td>@application.NonFundedResearchInfo?.title</td>
-                            <td>@application.EthicsApplicationLog?.FirstOrDefault()?.status</td>
-                            <td>@application.EthicsApplication?.submissionDate.ToShortDateString()</td>
+                             <td>
+                                @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>No applicant information available</span>
+                                }
+                                <br />
+
+                                @if (application.NonFundedResearchInfo?.CoProponent != null)
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                              </td>
+                            <td>Pending Evaluation</td>
+                            <td>@application.EthicsApplicationLog?.LastOrDefault()?.status</td>
+                            <td>Pending Evaluation</td>
                         </tr>
                     }
                 }
-            </tbody>
+            </tbody> 
         </table>
     </div>
 
@@ -67,23 +90,247 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>UREC Number</th>
+                    <th>UREC No</th>
                     <th>Title of the Research</th>
-                    <th>Proponens/ Authors</th>
+                    <th>Proponents/ Authors</th>
+                    <th>Start Date</th>
                     <th>Status</th>
-                    <th>Date</th>
+                    <th>End Date</th>
+                    <th>Evaluator/s</th> <!-- New column for Evaluator -->
                 </tr>
             </thead>
             <tbody>
                 @if (Model.EvaluatedExemptApplications == null || !Model.EvaluatedExemptApplications.Any())
                 {
                     <tr>
-                        <td colspan="5" class="text-center">No evaluated exempt applications found.</td>
+                        <td colspan="7" class="text-center">No evaluated exempt applications found.</td>
                     </tr>
                 }
                 else
                 {
                     @foreach (var application in Model.EvaluatedExemptApplications)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Chief" asp-action="ViewEvaluationDetails" asp-route-urecNo="@application.EthicsApplication.urecNo" asp-route-evaluationId="@application.EthicsEvaluation.evaluationId" class="btn btn-primary">
+                                    @application.EthicsApplication.urecNo
+                                </a>
+                            </td>
+                            <td>@application.NonFundedResearchInfo.title</td>
+                            <td>
+                                <!-- Display main applicant -->
+                                @if (application.NonFundedResearchInfo?.AppUser != null)
+                                {
+                                    @(application.NonFundedResearchInfo.AppUser.fName + " ")
+                                    // Adds space after the first name
+                                    @(application.NonFundedResearchInfo.AppUser.mName != null ? application.NonFundedResearchInfo.AppUser.mName + " " : "")
+                                    // Middle name with conditional space
+                                    @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                                <br />
+
+                                <!-- Display coproponents if available -->
+                                @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                            </td>
+                            <td>@application.EthicsEvaluation.startDate</td>
+                            <td>@(application.EthicsApplicationLog.FirstOrDefault()?.status ?? "N/A")</td><!-- Handle null gracefully -->
+                            <td>@application.EthicsEvaluation.endDate</td>
+                            <td>
+                                <!-- Display Evaluator's (Chief's) Name -->
+                                @if (application.EthicsEvaluation?.Chief != null) // Check if the Chief navigation property is not null
+                                {
+                                    var chief = application.EthicsEvaluation.Chief; // Get the Chief object directly
+                                    if (chief.User != null) // Check if the User is not null
+                                    {
+                                        @($"{chief.User.fName} {(chief.User.mName != null ? chief.User.mName + " " : "")}{chief.User.lName}")
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                    // If EthicsEvaluation or Chief is null, display "N/A"
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Evaluated Expedited Applications Tab -->
+    <div class="tab-pane fade" id="evaluated-expedited" role="tabpanel" aria-labelledby="evaluated-expedited-tab">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th rowspan="2">UREC No</th>
+                    <th rowspan="2">Title of the Research</th>
+                    <th rowspan="2">Proponents/ Authors</th>
+                    <th colspan="4">Evaluations</th> <!-- Colspan for evaluation headers -->
+                </tr>
+                <tr>
+                    <th>Start Date</th>
+                    <th>Status</th>
+                    <th>End Date</th>
+                    <th>Evaluators</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EvaluatedExpeditedApplications == null || !Model.EvaluatedExpeditedApplications.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">No evaluated expedited applications found.</td>
+                    </tr>
+                }
+                else
+                {
+                    <!-- Iterate through each application -->
+                    @foreach (var application in Model.EvaluatedExpeditedApplications)
+                    {
+                        // Get evaluations
+                        var evaluations = application.EthicsEvaluation;
+                        var evalCount = evaluations != null ? evaluations.Count() : 0;
+
+                        if (evalCount > 0)
+                        {
+                            // Track the first evaluation for displaying application details
+                            bool isFirstEvaluation = true;
+
+                            foreach (var evaluation in evaluations)
+                            {
+                                <tr>
+                                    @if (isFirstEvaluation)
+                                    {
+                                        <td>@application.EthicsApplication.urecNo</td>
+                                        <td>@application.NonFundedResearchInfo.title</td>
+                                        <td>
+                                            <!-- Display main applicant -->
+                                            @if (application.NonFundedResearchInfo?.AppUser != null)
+                                            {
+                                                @(application.NonFundedResearchInfo.AppUser.fName + " ")
+                                                @(application.NonFundedResearchInfo.AppUser.mName != null ? application.NonFundedResearchInfo.AppUser.mName + " " : "")
+                                                @application.NonFundedResearchInfo.AppUser.lName
+                                            }
+                                            else
+                                            {
+                                                <span>N/A</span>
+                                            }
+                                            <br />
+
+                                            <!-- Display coproponents if available -->
+                                            @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                            {
+                                                foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                                {
+                                                    <span>@coproponent.coProponentName</span>
+                                                    <br />
+                                                }
+                                            }
+                                        </td>
+                                        isFirstEvaluation = false; // Mark that the application details have been displayed
+                                    }
+                                    else
+                                    {
+                                        <td colspan="3"></td> <!-- Empty cells for subsequent evaluations -->
+                                    }
+
+                                    <!-- Render evaluation details -->
+                                    <td>@(evaluation.startDate.HasValue ? evaluation.startDate.Value.ToString("yyyy-MM-dd") : "Pending")</td>
+                                    <td>@(application.EthicsApplicationLog.LastOrDefault()?.status ?? "N/A")</td>
+                                    <td>@(evaluation.endDate.HasValue ? evaluation.endDate.Value.ToString("yyyy-MM-dd") : "Pending")</td>
+                                    <td>
+                                        <!-- Display evaluators' names for each evaluation -->
+                                        @if (application.EthicsEvaluator != null)
+                                        {
+                                            <li>
+                                                @($"{application.EthicsEvaluator.Faculty.User.fName} {(application.EthicsEvaluator.Faculty.User.mName ?? "")}{application.EthicsEvaluator.Faculty.User.lName}")
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <span>N/A</span> <!-- If no evaluators are available for this evaluation -->
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>@application.EthicsApplication.urecNo</td>
+                                <td>@application.NonFundedResearchInfo.title</td>
+                                <td>
+                                    @if (application.NonFundedResearchInfo?.AppUser != null)
+                                    {
+                                        @(application.NonFundedResearchInfo.AppUser.fName + " ")
+                                        @(application.NonFundedResearchInfo.AppUser.mName != null ? application.NonFundedResearchInfo.AppUser.mName + " " : "")
+                                        @application.NonFundedResearchInfo.AppUser.lName
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                    <br />
+                                    @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                    {
+                                        foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                        {
+                                            <span>@coproponent.coProponentName</span>
+                                            <br />
+                                        }
+                                    }
+                                </td>
+                                <td colspan="4" class="text-center">No evaluations available</td> <!-- Indicate no evaluations -->
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+
+    <!-- Evaluated Full Review Applications Tab -->
+    <div class="tab-pane fade" id="evaluated-full-review" role="tabpanel" aria-labelledby="evaluated-full-review-tab">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>UREC No</th>
+                    <th>Title of the Research</th>
+                    <th>Proponents/ Authors</th>
+                    <th>Start Date</th>
+                    <th>Status</th>
+                    <th>End Date</th>
+                    <th>Evaluator/s</th> <!-- New column for Evaluator -->
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EvaluatedFullReviewApplications == null || !Model.EvaluatedFullReviewApplications.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">No evaluated full review applications found.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var application in Model.EvaluatedFullReviewApplications)
                     {
                         <tr>
                             <td>
@@ -100,7 +347,7 @@
                                 }
                                 else
                                 {
-                                    <span>N/A</span> <!-- Or another appropriate message -->
+                                    <span>N/A</span>
                                 }
                                 <br />
 
@@ -113,115 +360,62 @@
                                         <br />
                                     }
                                 }
+                            </td>
+
+                            <!-- Display evaluations with evaluators -->
+                            <td colspan="4">
+                                @if (application.EthicsEvaluation != null && application.EthicsEvaluation.Any())
+                                {
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Start Date</th>
+                                                <th>Status</th>
+                                                <th>End Date</th>
+                                                <th>Evaluators</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Loop through each EthicsEvaluation -->
+                                            @foreach (var evaluation in application.EthicsEvaluation)
+                                            {
+                                                <tr>
+                                                    <td>@evaluation.startDate</td>
+                                                    <td>@(application.EthicsApplicationLog.FirstOrDefault()?.status ?? "N/A")</td>
+                                                    <td>@(evaluation.endDate?.ToString("yyyy-MM-dd") ?? "Pending")</td>
+                                                    <td>
+                                                        <!-- Display evaluators' names for each evaluation -->
+                                                        @if (evaluation.EthicsEvaluator != null)
+                                                        {
+                                                            <ul>
+                                                               
+                                                                <li>
+                                                                    @if (evaluation.EthicsEvaluator?.Faculty.User != null)
+                                                                    {
+                                                                        @($"{evaluation.EthicsEvaluator.Faculty.User.fName} {(evaluation.EthicsEvaluator.Faculty.User.mName ?? "")} {evaluation.EthicsEvaluator.Faculty.User.lName}")
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span>N/A</span>
+                                                                    }
+                                                                </li>
+                                                               
+                                                            </ul>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>N/A</span> <!-- If no evaluators are available for this evaluation -->
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
                                 else
                                 {
+                                    <span>N/A</span> <!-- If no evaluations available for this application -->
                                 }
-                            </td>
-                            <td>@application.EthicsApplicationLog.FirstOrDefault().status</td>
-                            <td>@application.NonFundedResearchInfo.dateSubmitted.ToShortDateString()</td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Evaluated Expedited Applications Tab -->
-    <div class="tab-pane fade" id="evaluated-expedited" role="tabpanel" aria-labelledby="evaluated-expedited-tab">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>UREC Number</th>
-                    <th>Title of the Research</th>
-                    <th>Proponens/ Authors</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.EvaluatedExpeditedApplications == null || !Model.EvaluatedExpeditedApplications.Any())
-                {
-                    <tr>
-                        <td colspan="3" class="text-center">No evaluated expedited applications found.</td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var application in Model.EvaluatedExpeditedApplications)
-                    {
-                        <tr>
-                            <td>@application?.urecNo</td>
-                            <td>@application.NonFundedResearchInfo?.title</td>
-                            <td>
-                                <table class="table table-sm table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Protocol Recommendation</th>
-                                            <th>End Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var eval in application.EthicsEvaluation)
-                                        {
-                                            <tr>
-                                                <td>@eval.ProtocolRecommendation</td>
-                                                <td>@eval.endDate</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Evaluated Full Review Applications Tab -->
-    <div class="tab-pane fade" id="evaluated-full-review" role="tabpanel" aria-labelledby="evaluated-full-review-tab">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>UREC Number</th>
-                    <th>Title of the Research</th>
-                    <th>Proponens/ Authors</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.EvaluatedFullReviewApplications == null || !Model.EvaluatedFullReviewApplications.Any())
-                {
-                    <tr>
-                        <td colspan="3" class="text-center">No evaluated full review applications found.</td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var application in Model.EvaluatedFullReviewApplications)
-                    {
-                        <tr>
-                            <td>@application?.urecNo</td>
-                            <td>@application.NonFundedResearchInfo?.title</td>
-                            <td>
-                                <table class="table table-sm table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Protocol Recommendation</th>
-                                            <th>End Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var eval in application.EthicsEvaluation)
-                                        {
-                                            <tr>
-                                                <td>@eval.ProtocolRecommendation</td>
-                                                <td>@eval.endDate</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
                             </td>
                         </tr>
                     }

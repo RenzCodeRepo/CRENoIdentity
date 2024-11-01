@@ -1,4 +1,5 @@
 ﻿using CRE.Models;
+using CRE.ViewModels;
 using System.Threading.Tasks;
 
 namespace CRE.Interfaces
@@ -16,5 +17,9 @@ namespace CRE.Interfaces
         Task<bool> IsUrecNoExistsAsync(string urecNo);
         Task SaveChangesAsync();
         Task<EthicsApplication> GetApplicationByDtsNoAsync(string dtsNo);
+        Task<List<ApplicationViewModel>> GetApplicationsByInitialReviewTypeAsync(string reviewType);
+        Task<List<ApplicationViewModel>> GetApplicationsBySubmitReviewTypeAsync(string reviewType);
+        Task<List<ApplicationViewModel>> GetAllApplicationViewModelsAsync();
+        Task UpdateApplicationStatusAsync(int evaluationId, string urecNo, string status);
     }
 }

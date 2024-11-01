@@ -33,22 +33,21 @@
                             <td></td> <!-- Empty cells for subsequent evaluations -->
                         }
 
-                        <!-- Display the evaluator's name or the chief's name if no evaluator is present -->
                         <td>
                             @if (evaluation.EthicsEvaluator != null)
                             {
-                                @evaluation.EthicsEvaluator.Faculty?.User?.fName
+                                // Display the evaluator's full name
+                                @evaluation.EthicsEvaluator.Faculty?.User?.fName @evaluation.EthicsEvaluator.Faculty?.User?.lName
                             }
                             else if (evaluation.Chief != null) // If there is no evaluator, but there is a Chief
                             {
                                 @evaluation.Chief.User?.fName
-                    }
+                            }
                             else
                             {
                                 <span>No Evaluator</span>
                             }
                         </td>
-
                         <td>@(evaluation.ProtocolRecommendation ?? "N/A")</td>
                         <td>@(evaluation.ConsentRecommendation ?? "N/A")</td>
                         <td>@(evaluation.endDate?.ToString("yyyy-MM-dd") ?? "N/A")</td>

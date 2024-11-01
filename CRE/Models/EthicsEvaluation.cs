@@ -28,10 +28,10 @@ namespace CRE.Models
         public string? ConsentRemarks { get; set; }
         public byte[]? InformedConsentForm { get; set; }
 
-
+        public string? reasonForDecline { get; set; }
 
         //navigation properties
-        public EthicsEvaluator? EthicsEvaluator { get; set; }
+        public EthicsEvaluator EthicsEvaluator { get; set; }
         public EthicsApplication? EthicsApplication { get; set; }
         public Chief? Chief { get; set; }
     }

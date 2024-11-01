@@ -111,18 +111,16 @@
                 }
 
             </div>
-
             <div class="col-md-4">
                 <h4>Evaluation Input</h4>
-                <form asp-action="RespondToAssignment" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmission()">
-                    <!-- Hidden Input for urecNo -->
+                <form id="evaluationForm" asp-action="RespondToAssignment" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmission()">
                     <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
                     <input type="hidden" name="evalId" value="@Model.EthicsEvaluation.evaluationId" />
 
                     <!-- Acceptance Dropdown -->
                     <div class="form-group">
                         <label for="acceptanceStatus">Accept Application</label>
-                        <select id="acceptanceStatus" name="acceptanceStatus" class="form-control">
+                        <select id="acceptanceStatus" name="acceptanceStatus" class="form-control" onchange="checkAcceptanceStatus()">
                             <option value="">Select</option>
                             <option value="Accepted">Accept</option>
                             <option value="Declined">Reject</option>
@@ -132,6 +130,32 @@
                     <button type="submit" class="btn btn-success">Submit Decision</button>
                 </form>
             </div>
+
+            <!-- Modal for Reason for Decline -->
+            <div class="modal fade" id="declineReasonModal" tabindex="-1" role="dialog" aria-labelledby="declineReasonModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="declineReasonModalLabel">Reason for Decline</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="reasonForm">
+                                <div class="form-group">
+                                    <label for="reasonForDecline">Please provide a reason for declining:</label>
+                                    <textarea id="reasonForDecline" name="reasonForDecline" class="form-control" required></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="submitReason()">Submit</button>
+                        </div>
+                    </div>
+                </div>
+</div>
 
         </div>
     </div>
@@ -183,6 +207,34 @@
         }
         function confirmSubmission() {
             return confirm("Are you sure you want to submit this decision?");
+        }
+        function checkAcceptanceStatus() {
+            const acceptanceStatus = document.getElementById("acceptanceStatus").value;
+            if (acceptanceStatus === "Declined") {
+                // Show the modal for entering the decline reason
+                $('#declineReasonModal').modal('show');
+            } else if (acceptanceStatus === "") {
+                alert("Please select either Accept or Decline.");
+            }
+        }
+
+        function submitReason() {
+            const reason = document.getElementById("reasonForDecline").value;
+
+            if (reason.trim() === "") {
+                alert("Reason for decline cannot be empty.");
+                return;
+            }
+
+            // Set the reason as a hidden input value in the form
+            const reasonInput = document.createElement("input");
+            reasonInput.type = "hidden";
+            reasonInput.name = "reasonForDecline";
+            reasonInput.value = reason;
+            document.getElementById("evaluationForm").appendChild(reasonInput);
+
+            // Submit the form
+            document.getElementById("evaluationForm").submit();
         }
     </script>
     <script type="text/javascript">

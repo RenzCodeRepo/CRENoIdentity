@@ -75,39 +75,72 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var application in Model.UnderEvaluationApplications)
+                @if (Model.UnderEvaluationApplications.Any())
+                {
+                    foreach (var application in Model.UnderEvaluationApplications)
+                    {
+                        <tr>
+                            <td>@application.urecNo</td>
+                            <td>
+                                <!-- Display the title of the research from NonFundedResearchInfo -->
+                                @if (application.NonFundedResearchInfo != null)
+                                {
+                                    @application.NonFundedResearchInfo.title
+                                    // Display the research title
+                                }
+                                else
+                                {
+                                    <span>No title available</span> <!-- Fallback message if no title exists -->
+                                }
+                            </td>
+                            <td>
+                                @if (application.EthicsEvaluation.Any())
+                                {
+                                    foreach (var evaluation in application.EthicsEvaluation)
+                                    {
+                                        <div>@(evaluation.startDate)</div> <!-- Display the assigned date for each evaluator -->
+                                    }
+                                }
+                                else
+                                {
+                                    <span>No assigned date available</span> <!-- Fallback message if no evaluation exists -->
+                                }
+                            </td>
+                            <td>
+                                @if (Model.ApplicationEvaluatorNames.ContainsKey(application.urecNo))
+                                {
+                                    var evaluatorNames = Model.ApplicationEvaluatorNames[application.urecNo];
+
+                                    // Get the IDs of evaluators who declined this application
+                                    var declinedEvaluatorIds = application.EthicsEvaluation
+                                    .Where(e => e.evaluationStatus == "Declined")
+                                    .Select(e => e.ethicsEvaluatorId) // Assuming you have a property to get evaluator ID
+                                    .ToHashSet(); // Use a HashSet for O(1) lookup
+
+                                    // Display only those evaluators who did not decline
+                                    foreach (var evaluator in evaluatorNames)
+                                    {
+                                        if (!declinedEvaluatorIds.Contains(evaluator.ethicsEvaluatorId)) // Assuming evaluator has an EvaluatorId property
+                                        {
+                                            // Concatenate the evaluator's name
+                                            var fullName = $"{evaluator.Faculty.User.fName} {(string.IsNullOrEmpty(evaluator.Faculty.User.mName) ? "" : evaluator.Faculty.User.mName + " ")}{evaluator.Faculty.User.lName}";
+                                            <div>@fullName</div>
+                                            // Display evaluator's full name
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <span>No evaluators assigned</span> <!-- Fallback message -->
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td>@application.urecNo</td>
-                        <td>@application.NonFundedResearchInfo.title</td> <!-- Changed to nonfundedresearchtitle -->
-                        <td>
-                            @if (application.EthicsEvaluation.Any())
-                            {
-                                // Assuming you want the assigned date of the first evaluator
-                                @foreach (var evaluation in application.EthicsEvaluation)
-                                {
-                                    <div>@evaluation.startDate?.ToString("MM/dd/yyyy")</div>
-                                }
-                            }
-                            else
-                            {
-                                <span>No assigned date</span> <!-- Fallback message -->
-                            }
-                        </td>
-                        <td>
-                            @if (Model.ApplicationEvaluatorNames.ContainsKey(application.urecNo))
-                            {
-                                var evaluatorNames = Model.ApplicationEvaluatorNames[application.urecNo];
-                                foreach (var name in evaluatorNames)
-                                {
-                                    <div>@name</div> <!-- Display each evaluator name on a new line -->
-                                }
-                            }
-                            else
-                            {
-                                <span>No evaluators assigned</span> <!-- Fallback message -->
-                            }
-                        </td>
+                        <td colspan="4" class="text-center">No applications are currently under evaluation.</td>
                     </tr>
                 }
             </tbody>

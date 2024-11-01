@@ -7,7 +7,7 @@ namespace CRE.Interfaces
     {
         EthicsEvaluation GetEvaluationByUrecNo(string urecNo);
         Task<List<EthicsEvaluator>> GetAvailableEvaluatorsAsync(string fieldOfStudy);
-        Task UpdateEvaluationStatusAsync(int evaluationId, string status);
+        Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline);
         Task<int> CreateEvaluationAsync(EthicsEvaluation evaluation);
         Task<List<EthicsEvaluator>> GetAllEvaluatorsAsync();
         Task AssignEvaluatorAsync(string urecNo, int evaluatorId);
@@ -25,6 +25,10 @@ namespace CRE.Interfaces
         Task<EvaluationDetailsViewModel> GetEvaluationAndEvaluatorDetailsAsync(string urecNo, int evaluationId);
         Task<IEnumerable<EthicsEvaluator>> GetAvailableEvaluatorsAsync(IEnumerable<EthicsEvaluator> allEvaluators, string applicantFirstName, string applicantMiddleName, string applicantLastName);
         Task<IEnumerable<EthicsEvaluator>> GetRecommendedEvaluatorsAsync(IEnumerable<EthicsEvaluator> allEvaluators, string requiredFieldOfStudy, string applicantFirstName, string applicantMiddleName, string applicantLastName);
+        Task<List<ChiefEvaluationViewModel>> GetExemptApplicationsAsync();
+        Task<List<EvaluatedExemptApplication>> GetEvaluatedExemptApplicationsAsync();
+        Task<List<EvaluatedExpeditedApplication>> GetEvaluatedExpeditedApplicationsAsync();
+        Task<List<EvaluatedFullReviewApplication>> GetEvaluatedFullReviewApplicationsAsync();
 
     }
 }

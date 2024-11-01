@@ -19,7 +19,11 @@ namespace CRE.ViewModels
         public EthicsEvaluation? EthicsEvaluation { get; set; } = new EthicsEvaluation();
 
 
-        public string ReviewerName => $"{EthicsEvaluation?.EthicsEvaluator?.Faculty?.User?.fName} {EthicsEvaluation?.EthicsEvaluator?.Faculty?.User?.mName} {EthicsEvaluation?.EthicsEvaluator?.Faculty?.User?.lName}".Trim();
+        public string ReviewerName =>
+     EthicsEvaluation?.EthicsEvaluator != null
+         ? $"{EthicsEvaluation.EthicsEvaluator.Faculty?.User?.fName} {EthicsEvaluation.EthicsEvaluator.Faculty?.User?.mName} {EthicsEvaluation.EthicsEvaluator.Faculty?.User?.lName}".Trim()
+         : "N/A"; // Return "N/A" if no evaluator is found
+
         public string UrecNo => EthicsApplication?.urecNo; // Property for display
 
         // Optional files for upload, if needed

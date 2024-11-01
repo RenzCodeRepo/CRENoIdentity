@@ -46,7 +46,6 @@ namespace CRE.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var ethicsApplications = await _chairpersonServices.GetApplicationsByFieldOfStudyAsync(userId);
-
             var evaluatorNames = await _chairpersonServices.GetEvaluatorNamesAsync(ethicsApplications);
             var unassignedApplications = await _chairpersonServices.GetUnassignedApplicationsAsync(ethicsApplications);
             var underEvaluationApplications = await _chairpersonServices.GetUnderEvaluationApplicationsAsync(ethicsApplications);
@@ -64,6 +63,7 @@ namespace CRE.Controllers
 
             return View(viewModel);
         }
+
 
         [Authorize(Roles = "Chairperson")]
         [HttpGet]
