@@ -194,24 +194,6 @@ namespace CRE.Controllers
                 ModelState.Remove(nameof(model.LI));
             }
 
-            // Removed unnecessary properties from ModelState
-            ModelState.Remove("User");
-            ModelState.Remove("CoProponent");
-            ModelState.Remove("ReceiptInfo");
-            ModelState.Remove("EthicsApplicationLog");
-            ModelState.Remove("NonFundedResearchInfo");
-            ModelState.Remove("EthicsApplication.User");
-            ModelState.Remove("EthicsApplication.urecNo");
-            ModelState.Remove("EthicsApplication.ReceiptInfo");
-            ModelState.Remove("EthicsApplication.InitialReview");
-            ModelState.Remove("EthicsApplication.fieldOfStudy");
-            ModelState.Remove("EthicsApplication.NonFundedResearchInfo");
-            ModelState.Remove("EthicsApplicationForms");
-            ModelState.Remove("EthicsApplication.EthicsClearance");
-            ModelState.Remove("EthicsApplication.userId");
-            ModelState.Remove("EthicsApplication.CompletionReport");
-            ModelState.Remove("InitialReview");
-
             // Handle logic based on whether the research involves humans or minors
             if (model.InvolvesHumanSubjects)
             {
@@ -231,7 +213,7 @@ namespace CRE.Controllers
                 ModelState.Remove(nameof(model.FORM11));
                 ModelState.Remove(nameof(model.FORM12));
             }
-
+            ModelState.Remove("EthicsApplication.fieldOfStudy");
             if (!ModelState.IsValid)
             {
                 return View("UploadForms", model);

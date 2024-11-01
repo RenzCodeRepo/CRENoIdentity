@@ -43,28 +43,33 @@ namespace CRE.Services
         // Method to generate a unique primary key (NFID-XXXX)
         public async Task<string> GenerateNonFundedResearchIdAsync()
         {
-            string id;
-            bool exists;
-            Random random = new Random();
+            // Get the current year as a string
+            string year = DateTime.Now.Year.ToString();  // YYYY format
 
-            do
-            {
-                // Get the current date
-                string year = DateTime.Now.Year.ToString();  // YYYY
-                string dayMonth = DateTime.Now.ToString("ddMM");  // DDMM
+            // Define the prefix for the current year
+            string prefix = $"NFID-{year}-";
 
-                // Generate the ID in the format NFID-YYYY-DDMM-XXXX
-                string randomDigits = random.Next(1000, 9999).ToString();  // XXXX
-                id = $"NFID-{year}-{dayMonth}-{randomDigits}";
+            // Retrieve IDs for the current year and process them in memory
+            var currentYearIds = await _context.NonFundedResearchInfo
+                .Where(r => r.nonFundedResearchId.StartsWith(prefix))
+                .ToListAsync(); // Retrieve matching records into memory
 
-                // Check if the generated ID already exists in the database
-                exists = await _context.NonFundedResearchInfo
-                                       .AnyAsync(r => r.nonFundedResearchId == id);
+            // Extract the numerical sequence from valid IDs
+            var sequenceNumbers = currentYearIds
+                .Where(r => r.nonFundedResearchId.Length == prefix.Length + 4 && // Ensure correct length
+                            int.TryParse(r.nonFundedResearchId.Substring(prefix.Length, 4), out _)) // Ensure last 4 characters are numeric
+                .Select(r => int.Parse(r.nonFundedResearchId.Substring(prefix.Length, 4))) // Extract and parse sequence
+                .ToList();
 
-            } while (exists); // Keep generating until a unique ID is found
+            // Determine the next sequence number
+            int nextSequence = (sequenceNumbers.Any() ? sequenceNumbers.Max() : 0) + 1;
+
+            // Format the ID as NFID-YYYY-XXXX with leading zeros for the sequence part
+            string id = $"{prefix}{nextSequence:D4}";
 
             return id;
         }
+
 
 
         public async Task<IEnumerable<NonFundedResearchInfo>> GetAllNonFundedResearchAsync()

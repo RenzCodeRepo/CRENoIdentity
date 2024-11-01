@@ -14,6 +14,10 @@ namespace CRE.Services
         {
             _context = context;
         }
+        public async Task<bool> ReceiptNoExistsAsync(string receiptNo)
+        {
+            return await _context.ReceiptInfo.AnyAsync(r => r.receiptNo == receiptNo);
+        }
         public async Task AddReceiptInfoAsync(ReceiptInfo receipt)
         {
             _context.ReceiptInfo.Add(receipt);

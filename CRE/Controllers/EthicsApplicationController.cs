@@ -247,15 +247,25 @@ namespace CRE.Controllers
                 ModelState.AddModelError("NonFundedResearchInfo.title", "This title has already been used for another ethics application.");
                 return View(model);
             }
-
+            // Validate receipt number for duplicates if the user type is external
+            if (model.User != null && model.User.type == "external")
+            {
+                if (model.ReceiptInfo != null && !string.IsNullOrEmpty(model.ReceiptInfo.receiptNo))
+                {
+                    bool receiptExists = await _receiptInfoServices.ReceiptNoExistsAsync(model.ReceiptInfo.receiptNo);
+                    if (receiptExists)
+                    {
+                        ModelState.AddModelError("ReceiptInfo.receiptNo", "This receipt number has already been used for another application.");
+                        return View(model);
+                    }
+                }
+            }
             // Check if the model state is valid
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            try
-            {
                 // Save the application
                 await _ethicsApplicationServices.ApplyForEthicsAsync(ethicsApplication);
                 await _nonFundedResearchInfoServices.AddNonFundedResearchAsync(nonFundedResearchInfo);
@@ -309,13 +319,7 @@ namespace CRE.Controllers
                 // If everything succeeds
                 TempData["SuccessMessage"] = "Your application has been submitted successfully.";
                 return RedirectToAction("Applications");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", "There was an error saving your application. Please try again.");
-                Console.WriteLine($"Exception: {ex.Message}");
-                return View(model);
-            }
+            
         }
 
         [HttpGet]

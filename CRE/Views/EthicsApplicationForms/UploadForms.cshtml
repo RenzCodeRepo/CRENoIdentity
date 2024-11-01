@@ -96,19 +96,18 @@
             <h4><strong>Research Title:</strong>@Model.NonFundedResearchInfo.title</h4>
             <div class="col">
                 <strong>Proponent/s:</strong>
-            </div>
-            <div class="col">
-                @($"{Model.User.fName} {Model.User.mName} {Model.User.lName}")
-                <br />
-                @if (Model.CoProponent != null && Model.CoProponent.Any())
-                {
-                    foreach (var proponent in Model.CoProponent)
+                <ul style="list-style-type: none ">
+                    <li>@($"{Model.User.fName} {Model.User.mName} {Model.User.lName}")</li>
+                    @if (Model.CoProponent != null && Model.CoProponent.Any())
                     {
-                        @proponent.coProponentName <br />
+                        foreach (var proponent in Model.CoProponent)
+                        {
+                            @proponent.coProponentName
+                            <br />
+                        }
                     }
-                }
+                    </ul>
             </div>
-
         </div>
         <div class="row">
             <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
@@ -117,6 +116,7 @@
         </div>
     </div>
 </div>
+<form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
 <div class="row">
     <div class="card border-light mb-3 col-sm" style="width:100%">
         <div class="card-header"><h2>Your Attachments</h2></div>
@@ -138,7 +138,6 @@
                 </div>
             }
 
-            <form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
                 <input type="hidden" name="EthicsApplication.urecNo" value="@Model.EthicsApplication.urecNo" />
 
                 <!-- CV -->
@@ -456,44 +455,43 @@
                             }
                         }
                     </div>
-                   
                 </div>
-            </form>
         </div>
     </div>
 
-    <div class="card border-light mb-3 col-sm" style="width:100%">
-        <div class="card-header"><h2>Your Uploads</h2></div>
-        <!-- Track Application / Submit Button -->
-        @if (Model.InitialReview?.status == "Returned")
-        {
-            <div class="d-flex">
-                <button type="submit" id="resubmitButton" class="btn btn-warning me-2">Re-submit</button>
-                <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">
+        <div class="card border-light mb-3 col-sm" style="width:100%">
+            <div class="card-header"><h2>Your Uploads</h2></div>
+            <!-- Track Application / Submit Button -->
+            @if (Model.InitialReview?.status == "Returned")
+            {
+                <div class="d-flex">
+                    <button type="submit" id="resubmitButton" class="btn btn-warning me-2">Re-submit</button>
+                    <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">
+                        Track Application
+                    </a>
+                </div>
+            }
+            else if (allFormsUploaded || Model.EthicsApplicationLog?.LastOrDefault()?.status == "Pending for Evaluation")
+            {
+                <!-- Show Track Application button if all forms are uploaded -->
+                <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success mt-2">
                     Track Application
                 </a>
-            </div>
-        }
-        else if (allFormsUploaded || Model.EthicsApplicationLog?.LastOrDefault()?.status == "Pending for Evaluation")
-        {
-            <!-- Show Track Application button if all forms are uploaded -->
-            <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success mt-2">
-                Track Application
-            </a>
-        }
-        else
-        {
-            <!-- Show Submit button if application is not returned -->
-            <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
-        }
-        @if (Model.InitialReview?.status == "Returned" || allFormsUploaded)
-        {
-            <div class="form-group">
-                <label for="Comment">Comments:</label>
-                <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
-            </div>
-        }
-    </div>
+            }
+            else
+            {
+                <!-- Show Submit button if application is not returned -->
+                <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
+            }
+            @if (Model.InitialReview?.status == "Returned" || allFormsUploaded)
+            {
+                <div class="form-group">
+                    <label for="Comment">Comments:</label>
+                    <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
+                </div>
+            }
+        </div>
+    </form>
 </div>
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>

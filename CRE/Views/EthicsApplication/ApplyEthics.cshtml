@@ -132,9 +132,7 @@
                                         @Html.TextBoxFor(model => model.CoProponent[i].coProponentName, new { @class = "form-control", placeholder = "Name" })
                                         @Html.ValidationMessageFor(model => model.CoProponent[i].coProponentName, "", new { @class = "text-danger" })
                                     </div>
-                                </div>
-
-                              
+                                </div>  
                                 <!-- Remove Button -->
                                 <div class="row mb-3">
                                     <div class="col-sm-8 offset-sm-3">
@@ -296,6 +294,11 @@
                                                 <span class="text-danger"></span>
                                             </div>
                                         </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm-8 offset-sm-3">
+                                        <button type="button" class="btn btn-danger removeCoProponentBtn">Remove</button>
+                                    </div>
+                                </div>
                                     </div>`;
 
                 coProponentsContainer.insertAdjacentHTML('beforeend', newCoProponentHtml);

@@ -153,10 +153,6 @@ namespace CRE.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EvaluateApplication(ChiefEvaluationViewModel model)
         {
-            ModelState.Remove("EthicsApplication.User");
-            ModelState.Remove("EthicsApplication.userId");
-            ModelState.Remove("EthicsApplication.fieldOfStudy");
-
             if (!ModelState.IsValid)
             {
                 // Return the same view with the model to show validation errors
