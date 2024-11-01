@@ -98,7 +98,22 @@
                                 {
                                     foreach (var evaluation in application.EthicsEvaluation)
                                     {
-                                        <div>@(evaluation.startDate)</div> <!-- Display the assigned date for each evaluator -->
+                                        if (evaluation.evaluationStatus == "Declined")
+                                        {
+                                            // Do nothing; leave blank for declined evaluations
+                                        }
+                                        else if (evaluation.evaluationStatus == "Accepted" && evaluation.startDate == null) // Check if the evaluator accepted but has no start date
+                                        {
+                                            <div>Awaiting acceptance from evaluator</div> <!-- Message indicating awaiting acceptance -->
+                                        }
+                                        else if (evaluation.startDate != null) // Display the assigned date if it's not null
+                                        {
+                                            <div>@(evaluation.startDate.Value.ToString("MM/dd/yyyy"))</div> <!-- Display the assigned date for each evaluator -->
+                                        }
+                                        else
+                                        {
+                                            <div>No assigned date available</div> <!-- Optional message for other cases -->
+                                        }
                                     }
                                 }
                                 else
