@@ -17,6 +17,9 @@
     <li class="nav-item" role="presentation">
         <a class="nav-link" id="evaluated-tab" data-bs-toggle="tab" href="#evaluated" role="tab" aria-controls="evaluated" aria-selected="false">Evaluated</a>
     </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" id="declined-tab" data-bs-toggle="tab" href="#declined" role="tab" aria-controls="declined" aria-selected="false">Declined Evaluations</a>
+    </li>
 </ul>
 
 <!-- Tab Content -->
@@ -128,6 +131,40 @@
             <p>No evaluations have been completed.</p>
         }
     </div>
+
+   
+    <div class="tab-pane fade" id="declined" role="tabpanel" aria-labelledby="declined-tab">
+        <h3>Declined Evaluations</h3>
+        @if (Model.DeclinedEvaluations.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>UREC Number</th>
+                        <th>Details</th>
+                        <th>Decline Date</th>
+                        <th>Decline Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var evaluation in Model.DeclinedEvaluations)
+                    {
+                        <tr>
+                            <td>@evaluation.EthicsApplication.urecNo</td>
+                            <td>@evaluation.NonFundedResearchInfo.title</td>
+                            <td>@evaluation.EthicsEvaluation.endDate?.ToString("MM/dd/yyyy")</td>
+                            <td>@evaluation.EthicsEvaluation.reasonForDecline</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No evaluations have been declined.</p>
+        }
+    </div>
+
 </div>
 <!-- Success Modal -->
 <div class="modal fade" id="evaluationSuccessModal" tabindex="-1" role="dialog" aria-labelledby="evaluationSuccessModalLabel" aria-hidden="true">

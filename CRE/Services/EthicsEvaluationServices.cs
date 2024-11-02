@@ -130,7 +130,10 @@ namespace CRE.Services
                 // Update the reason for decline if the status is "Declined"
                 if (status == "Declined")
                 {
-                    evaluation.reasonForDecline = reasonForDecline;
+                    var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
+                    evaluation.startDate = currentDate; // Set the start date to today
+                    evaluation.endDate = currentDate; // Set the end date to today as well
+                    evaluation.reasonForDecline = reasonForDecline; // Set the decline reason
                 }
                 else
                 {
@@ -162,7 +165,15 @@ namespace CRE.Services
             await _context.SaveChangesAsync();
         }
 
-
+        public async Task IncrementDeclinedAssignmentCountAsync(int ethicsEvaluatorId)
+        {
+            var evaluator = await _context.EthicsEvaluator.FindAsync(ethicsEvaluatorId);
+            if (evaluator != null)
+            {
+                evaluator.declinedAssignment += 1;
+                await _context.SaveChangesAsync();
+            }
+        }
         public async Task<List<EthicsEvaluator>> GetAvailableEvaluatorsAsync(string fieldOfStudy)
         {
             return await _context.EthicsEvaluator
@@ -280,6 +291,27 @@ namespace CRE.Services
                 })
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<AssignedEvaluationViewModel>> GetDeclinedEvaluationsAsync(int evaluatorId)
+        {
+            return await _context.EthicsEvaluation
+                .Where(e => e.ethicsEvaluatorId == evaluatorId && e.evaluationStatus == "Declined")
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.InitialReview)
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.NonFundedResearchInfo)
+                .Include(e => e.EthicsEvaluator)
+                .Select(e => new AssignedEvaluationViewModel
+                {
+                    EthicsApplication = e.EthicsApplication,
+                    EthicsEvaluation = e,
+                    EthicsEvaluator = e.EthicsEvaluator,
+                    NonFundedResearchInfo = e.EthicsApplication.NonFundedResearchInfo,
+                    InitialReview = e.EthicsApplication.InitialReview
+                })
+                .ToListAsync();
+        }
+
         public async Task<EthicsEvaluator> GetEvaluatorByUserIdAsync(string userId)
         {
             // Find the Faculty associated with the userId
@@ -396,6 +428,9 @@ namespace CRE.Services
                     EthicsApplicationLog = a.EthicsApplicationLog
                 }).ToListAsync();
         }
+        
+
+
     }
 }
 

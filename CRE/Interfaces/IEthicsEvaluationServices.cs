@@ -29,6 +29,8 @@ namespace CRE.Interfaces
         Task<List<EvaluatedExemptApplication>> GetEvaluatedExemptApplicationsAsync();
         Task<List<EvaluatedExpeditedApplication>> GetEvaluatedExpeditedApplicationsAsync();
         Task<List<EvaluatedFullReviewApplication>> GetEvaluatedFullReviewApplicationsAsync();
+        Task IncrementDeclinedAssignmentCountAsync(int ethicsEvaluatorId);
+        Task<IEnumerable<AssignedEvaluationViewModel>> GetDeclinedEvaluationsAsync(int evaluatorId);
 
     }
 }

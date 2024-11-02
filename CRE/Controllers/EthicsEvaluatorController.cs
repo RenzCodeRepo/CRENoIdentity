@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CRE.Controllers
 {
@@ -31,7 +32,7 @@ namespace CRE.Controllers
         {
             return View();
         }
-
+        [HttpGet]
         public async Task<IActionResult> EvaluatorView()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -49,7 +50,8 @@ namespace CRE.Controllers
             {
                 EvaluationAssignments = await _ethicsEvaluationServices.GetAssignedEvaluationsAsync(evaluatorId),
                 ToBeEvaluated = await _ethicsEvaluationServices.GetAcceptedEvaluationsAsync(evaluatorId),
-                Evaluated = await _ethicsEvaluationServices.GetCompletedEvaluationsAsync(evaluatorId)
+                Evaluated = await _ethicsEvaluationServices.GetCompletedEvaluationsAsync(evaluatorId),
+                DeclinedEvaluations = await _ethicsEvaluationServices.GetDeclinedEvaluationsAsync(evaluatorId)
             };
 
             return View(viewModel);
@@ -111,12 +113,11 @@ namespace CRE.Controllers
 
             if (existingEvaluation != null)
             {
-                // If declined, update the evaluation status and application status
                 if (acceptanceStatus == "Declined")
                 {
-                    // Update the evaluation status and provide the reason for decline
                     await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Declined", reasonForDecline);
 
+                    await _ethicsEvaluationServices.IncrementDeclinedAssignmentCountAsync(ethicsEvaluatorId);
                     // Mark application as "Unassigned"
                     await _ethicsApplicationServices.UpdateApplicationStatusAsync(existingEvaluation.evaluationId, urecNo, "Unassigned");
                 }
