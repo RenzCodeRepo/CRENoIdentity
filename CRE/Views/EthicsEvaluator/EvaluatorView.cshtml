@@ -47,7 +47,7 @@
                             <td>@assignment.EthicsApplication.submissionDate.ToString("MM/dd/yyyy")</td>
                             <td>@assignment.EthicsEvaluation.evaluationStatus</td>
                             <td>
-                                <a href="@Url.Action("RespondToAssignment", "EthicsEvaluator", new { id = assignment.EthicsApplication.urecNo })" class="btn btn-info">View</a>
+                                <a href="@Url.Action("RespondToAssignment", "EthicsEvaluator", new { id = assignment.EthicsApplication.urecNo, evaluationId = assignment.EthicsEvaluation.evaluationId })" class="btn btn-info">View</a>
                             </td>
                         </tr>
                     }
@@ -150,10 +150,10 @@
                     @foreach (var evaluation in Model.DeclinedEvaluations)
                     {
                         <tr>
-                            <td>@evaluation.EthicsApplication.urecNo</td>
-                            <td>@evaluation.NonFundedResearchInfo.title</td>
-                            <td>@evaluation.EthicsEvaluation.endDate?.ToString("MM/dd/yyyy")</td>
-                            <td>@evaluation.EthicsEvaluation.reasonForDecline</td>
+                            <td>@evaluation.EthicsApplication?.urecNo</td> <!-- Ensure null safety -->
+                            <td>@evaluation.NonFundedResearchInfo?.title</td> <!-- Ensure null safety -->
+                            <td>@evaluation.EthicsEvaluationDeclined.declineDate.ToString("MM/dd/yyyy")</td> <!-- Accessing declineDate -->
+                            <td>@evaluation.EthicsEvaluationDeclined.reasonForDecline</td> <!-- Accessing reasonForDecline -->
                         </tr>
                     }
                 </tbody>

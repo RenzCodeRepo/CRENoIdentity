@@ -12,5 +12,6 @@ namespace CRE.ViewModels
         public InitialReview? InitialReview { get; set; }
         public IEnumerable<EthicsApplicationForms>? EthicsApplicationForms { get; set; }
         public ReceiptInfo? ReceiptInfo { get; set; }
+        public EthicsEvaluationDeclined EthicsEvaluationDeclined { get; set; }
     }
 }

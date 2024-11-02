@@ -10,7 +10,7 @@ namespace CRE.Interfaces
         Task<IEnumerable<CoProponent>> GetCoProponentsByNonFundedResearchIdAsync(string nonFundedResearchId);
         Task<InitialReview> GetInitialReviewByUrecNoAsync(string urecNo);
         Task UpdateInitialReviewAsync(InitialReview initialReview);
-
+        Task<EvaluationDetailsViewModel> GetApplicationDetailsAsync(string urecNo, int evaluationId);
         Task ApproveApplicationAsync(string urecNo, string comments, string userId);
         Task ReturnApplicationAsync(string urecNo, string comments, string userId);
         Task<EthicsEvaluation> GetEthicsEvaluationAsync(string urecNo);

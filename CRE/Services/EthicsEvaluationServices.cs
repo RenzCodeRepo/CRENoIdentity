@@ -64,7 +64,57 @@ namespace CRE.Services
             return await _context.EthicsEvaluation
                 .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.ethicsEvaluatorId == ethicsEvaluatorId);
         }
-        
+
+        public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsAsync(int evaluationId)
+        {
+            // Fetch the evaluation along with related entities
+            var evaluation = await _context.EthicsEvaluation
+                .Include(ev => ev.EthicsEvaluator)
+                    .ThenInclude(e => e.Faculty)
+                        .ThenInclude(f => f.User)
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.NonFundedResearchInfo)
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.ReceiptInfo)
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.EthicsApplicationForms) // Include forms
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.EthicsApplicationLog) // Include logs
+                .FirstOrDefaultAsync(ev => ev.evaluationId == evaluationId); // Use EvaluationId as int
+
+            if (evaluation == null)
+            {
+                throw new Exception("Evaluation not found.");
+            }
+
+            // Retrieve the associated application for further details
+            var application = await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Make sure we include related info
+                    .ThenInclude(nf => nf.CoProponent) // Assuming you want to get co-proponents too
+                .Include(a => a.ReceiptInfo)
+                .FirstOrDefaultAsync(a => a.urecNo == evaluation.urecNo); // Use the appropriate ID
+
+            // If application is not found, handle it accordingly
+            if (application == null)
+            {
+                throw new Exception("Associated application not found.");
+            }
+
+            // Create and populate the ViewModel
+            var viewModel = new EvaluationDetailsViewModel
+            {
+                CurrentEvaluation = evaluation, // Use the current evaluation
+                EthicsApplication = application,
+                NonFundedResearchInfo = application.NonFundedResearchInfo, // No null propagation
+                ReceiptInfo = application.ReceiptInfo,
+                AppUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == application.userId), // Handle null before
+                EthicsEvaluator = evaluation.EthicsEvaluator, // Initialize the EthicsEvaluator
+                EthicsApplicationForms = application.EthicsApplicationForms, // Initialize forms
+                EthicsApplicationLog = application.EthicsApplicationLog // Initialize logs
+            };
+
+            return viewModel;
+        }
 
         public async Task<EvaluatedExemptApplication> GetEvaluationDetailsAsync(string urecNo, int evaluationId)
         {
@@ -118,31 +168,42 @@ namespace CRE.Services
             };
         }
 
-
-
         public async Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline)
         {
-            var evaluation = await _context.EthicsEvaluation.FindAsync(evaluationId);
+            var evaluation = await _context.EthicsEvaluation
+                .Include(e => e.EthicsApplication) // Eager load EthicsApplication to access UREC number
+                .FirstOrDefaultAsync(e => e.evaluationId == evaluationId); // Using FirstOrDefault for clarity
+
             if (evaluation != null)
             {
-                evaluation.evaluationStatus = status; // "Accepted" or "Declined"
-
-                // Update the reason for decline if the status is "Declined"
                 if (status == "Declined")
                 {
-                    var currentDate = DateOnly.FromDateTime(DateTime.UtcNow);
-                    evaluation.startDate = currentDate; // Set the start date to today
-                    evaluation.endDate = currentDate; // Set the end date to today as well
-                    evaluation.reasonForDecline = reasonForDecline; // Set the decline reason
+                    // Create a new DeclinedEvaluation entry
+                    var declinedEvaluation = new EthicsEvaluationDeclined
+                    {
+                        evaluationId = evaluationId,
+                        reasonForDecline = reasonForDecline,
+                        urecNo = evaluation.EthicsApplication?.urecNo, // Access UREC number here
+                        declineDate = DateOnly.FromDateTime(DateTime.UtcNow) // Set decline date to today's date
+                    };
+
+                    // Add the declined evaluation to the context
+                    await _context.EthicsEvaluationDeclined.AddAsync(declinedEvaluation);
+
+                    // Remove the evaluation from EthicsEvaluation
+                    _context.EthicsEvaluation.Remove(evaluation);
                 }
                 else
                 {
-                    evaluation.reasonForDecline = null; // Clear the reason if the status is not declined
+                    evaluation.evaluationStatus = status; // Update status for other cases
+                    evaluation.reasonForDecline = null; // Clear the reason for accepted evaluations
+                    evaluation.startDate = DateOnly.FromDateTime(DateTime.UtcNow);
                 }
 
                 await _context.SaveChangesAsync();
             }
         }
+
         public async Task AssignEvaluatorAsync(string urecNo, int evaluatorId)
         {
             var ethicsEvaluation = new EthicsEvaluation
@@ -180,7 +241,7 @@ namespace CRE.Services
                 .Include(e => e.Faculty)
                 .ThenInclude(f => f.User)  // Include User
                 .Include(e => e.EthicsEvaluatorExpertise)
-                .ThenInclude(ee => ee.Expertise)    
+                .ThenInclude(ee => ee.Expertise)
                 .Where(e => e.Faculty != null && e.Faculty.User != null)  // Check for non-null Faculty and User
                 .Where(e => e.EthicsEvaluatorExpertise.Any(ee => ee.Expertise.expertiseName == fieldOfStudy))  // Match expertise
                 .ToListAsync();
@@ -294,23 +355,31 @@ namespace CRE.Services
 
         public async Task<IEnumerable<AssignedEvaluationViewModel>> GetDeclinedEvaluationsAsync(int evaluatorId)
         {
-            return await _context.EthicsEvaluation
-                .Where(e => e.ethicsEvaluatorId == evaluatorId && e.evaluationStatus == "Declined")
-                .Include(e => e.EthicsApplication)
+            return await _context.EthicsEvaluationDeclined
+                .Include(de => de.EthicsEvaluation) // Include the original evaluation details
+                .Include(de => de.EthicsApplication)
                     .ThenInclude(a => a.InitialReview)
-                .Include(e => e.EthicsApplication)
+                .Include(de => de.EthicsApplication)
                     .ThenInclude(a => a.NonFundedResearchInfo)
-                .Include(e => e.EthicsEvaluator)
-                .Select(e => new AssignedEvaluationViewModel
+                .Include(de => de.EthicsApplication)
+                    .ThenInclude(a => a.ReceiptInfo) // Include ReceiptInfo if needed
+                .Include(de => de.EthicsApplication)
+                    .ThenInclude(a => a.EthicsApplicationLog) // Include application logs if needed
+                .Where(de => de.EthicsEvaluation.ethicsEvaluatorId == evaluatorId)
+                .Select(de => new AssignedEvaluationViewModel
                 {
-                    EthicsApplication = e.EthicsApplication,
-                    EthicsEvaluation = e,
-                    EthicsEvaluator = e.EthicsEvaluator,
-                    NonFundedResearchInfo = e.EthicsApplication.NonFundedResearchInfo,
-                    InitialReview = e.EthicsApplication.InitialReview
+                    EthicsApplication = de.EthicsApplication,
+                    EthicsEvaluation = de.EthicsEvaluation, // Original evaluation details
+                    EthicsEvaluator = null, // You may need to retrieve evaluator info if available
+                    NonFundedResearchInfo = de.EthicsApplication.NonFundedResearchInfo,
+                    InitialReview = de.EthicsApplication.InitialReview,
+                    EthicsApplicationLogs = de.EthicsApplication.EthicsApplicationLog,
+                    ReceiptInfo = de.EthicsApplication.ReceiptInfo,
+                    EthicsEvaluationDeclined = de // Set the declined evaluation details
                 })
                 .ToListAsync();
         }
+
 
         public async Task<EthicsEvaluator> GetEvaluatorByUserIdAsync(string userId)
         {
@@ -350,7 +419,7 @@ namespace CRE.Services
                 .OrderBy(e => e.pendingEval) // Sort by least pending evaluations
                 .Take(3); // Take top 3 recommended evaluators
         }
-        
+
 
         public async Task<List<ChiefEvaluationViewModel>> GetExemptApplicationsAsync()
         {
@@ -428,9 +497,47 @@ namespace CRE.Services
                     EthicsApplicationLog = a.EthicsApplicationLog
                 }).ToListAsync();
         }
-        
 
+        public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsync(string urecNo, int evaluationId)
+        {
+            // Fetch the application based on urecNo and evaluationId
+            var application = await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(a => a.CoProponent)
+                .Include(a => a.User)
 
+                .Include(a => a.EthicsApplicationForms)
+                .Include(a => a.InitialReview)
+                .Include(a => a.EthicsEvaluation)
+                .FirstOrDefaultAsync(a => a.urecNo == urecNo);
+
+            if (application == null)
+            {
+                throw new Exception("Application not found");
+            }
+
+            var evaluation = await _context.EthicsEvaluation
+                .FirstOrDefaultAsync(e => e.evaluationId == evaluationId);
+
+            if (evaluation == null)
+            {
+                throw new Exception("Evaluation not found");
+            }
+
+            // Create and populate the ViewModel
+            var model = new EvaluationDetailsViewModel
+            {
+                EthicsApplication = application,
+                NonFundedResearchInfo = application.NonFundedResearchInfo,
+                AppUser = application.User,
+                CoProponent = application.NonFundedResearchInfo.CoProponent.ToList(),
+                EthicsApplicationForms = application.EthicsApplicationForms,
+                InitialReview = application.InitialReview,
+                EthicsEvaluation = evaluation,
+                ReceiptInfo = application.ReceiptInfo // Assuming you have a ReceiptInfo property
+            };
+
+            return model;
+        }
     }
 }
-

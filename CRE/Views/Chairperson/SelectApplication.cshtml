@@ -21,31 +21,36 @@
 
 <!-- Tab Content -->
 <div class="tab-content" id="myTabContent">
-        <!-- Unassigned Applications Tab -->
-        <div class="tab-pane fade show active" id="unassigned" role="tabpanel" aria-labelledby="unassigned-tab">
-            <h4>Unassigned Applications</h4>
-            <table class="table table-striped">
-                <thead>
+    <!-- Unassigned Applications Tab -->
+    <div class="tab-pane fade show active" id="unassigned" role="tabpanel" aria-labelledby="unassigned-tab">
+        <h4>Unassigned Applications</h4>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>UREC No</th>
+                    <th>Details</th>
+                    <th>Assigned Date</th>
+                    <th>Evaluators</th> <!-- New column for Evaluators -->
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var application in Model.UnassignedApplications)
+                {
                     <tr>
-                        <th>UREC No</th>
-                        <th>Details</th>
-                        <th>Assigned Date</th>
-                        <th>Evaluators</th> <!-- New column for Evaluators -->
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var application in Model.UnassignedApplications)
-                    {
-                        <tr>
                         <td>@application.urecNo</td>
-                        <td>@application.NonFundedResearchInfo.title</td> <!-- Changed to nonfundedresearchtitle -->
+                        <td>@(application.NonFundedResearchInfo?.title ?? "<span>No title available</span>")</td>
                         <td>
                             @if (application.EthicsEvaluation.Any())
                             {
-                                // Assuming you want the assigned date of the first evaluator
-                                @foreach (var evaluation in application.EthicsEvaluation)
+                                // Display the assigned date of the first evaluator, if any
+                                var firstEvaluation = application.EthicsEvaluation.FirstOrDefault();
+                                if (firstEvaluation != null && firstEvaluation.startDate != null)
                                 {
-                                    <div>@evaluation.startDate?.ToString("MM/dd/yyyy")</div>
+                                    <div>@firstEvaluation.startDate.Value.ToString("MM/dd/yyyy")</div>
+                                }
+                                else
+                                {
+                                    <span>No assigned date</span> <!-- Fallback message -->
                                 }
                             }
                             else
@@ -53,14 +58,14 @@
                                 <span>No assigned date</span> <!-- Fallback message -->
                             }
                         </td>
-                            <td>
-                                <a asp-action="AssignEvaluators" asp-route-urecNo="@application.urecNo" class="btn btn-primary">Assign Evaluators</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                        <td>
+                            <a asp-action="AssignEvaluators" asp-route-urecNo="@application.urecNo" class="btn btn-primary">Assign Evaluators</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
     <!-- Under Evaluation Tab -->
     <div class="tab-pane fade" id="under-evaluation" role="tabpanel" aria-labelledby="under-evaluation-tab">
@@ -82,11 +87,9 @@
                         <tr>
                             <td>@application.urecNo</td>
                             <td>
-                                <!-- Display the title of the research from NonFundedResearchInfo -->
                                 @if (application.NonFundedResearchInfo != null)
                                 {
                                     @application.NonFundedResearchInfo.title
-                                    // Display the research title
                                 }
                                 else
                                 {
@@ -98,21 +101,16 @@
                                 {
                                     foreach (var evaluation in application.EthicsEvaluation)
                                     {
-                                        if (evaluation.evaluationStatus == "Declined")
+                                        if (evaluation.evaluationStatus != "Declined")
                                         {
-                                            // Do nothing; leave blank for declined evaluations
-                                        }
-                                        else if (evaluation.evaluationStatus == "Accepted" && evaluation.startDate == null) // Check if the evaluator accepted but has no start date
-                                        {
-                                            <div>Awaiting acceptance from evaluator</div> <!-- Message indicating awaiting acceptance -->
-                                        }
-                                        else if (evaluation.startDate != null) // Display the assigned date if it's not null
-                                        {
-                                            <div>@(evaluation.startDate.Value.ToString("MM/dd/yyyy"))</div> <!-- Display the assigned date for each evaluator -->
-                                        }
-                                        else
-                                        {
-                                            <div>Pending</div> <!-- Optional message for other cases -->
+                                            if (evaluation.startDate != null)
+                                            {
+                                                <div>@evaluation.startDate</div> <!-- Display the assigned date -->
+                                            }
+                                            else
+                                            {
+                                                <div>Awaiting acceptance from evaluator</div> <!-- Message indicating awaiting acceptance -->
+                                            }
                                         }
                                     }
                                 }
@@ -137,10 +135,8 @@
                                     {
                                         if (!declinedEvaluatorIds.Contains(evaluator.ethicsEvaluatorId)) // Assuming evaluator has an EvaluatorId property
                                         {
-                                            // Concatenate the evaluator's name
                                             var fullName = $"{evaluator.Faculty.User.fName} {(string.IsNullOrEmpty(evaluator.Faculty.User.mName) ? "" : evaluator.Faculty.User.mName + " ")}{evaluator.Faculty.User.lName}";
                                             <div>@fullName</div>
-                                            // Display evaluator's full name
                                         }
                                     }
                                 }
@@ -161,8 +157,6 @@
             </tbody>
         </table>
     </div>
-
-
 
     <!-- Evaluation Result Tab -->
     <div class="tab-pane fade" id="evaluation-result" role="tabpanel" aria-labelledby="evaluation-result-tab">

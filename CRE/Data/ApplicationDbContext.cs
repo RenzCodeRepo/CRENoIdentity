@@ -33,6 +33,7 @@ namespace CRE.Data
         public DbSet<Secretariat> Secretariat { get; set; }
         public DbSet<AppUser> AppUser { get; set; }
         public DbSet<EvaluationForms> EvaluationForms { get; set; }
+        public DbSet<EthicsEvaluationDeclined> EthicsEvaluationDeclined { get; set; }
         public DbSet<Notification> Notification { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -12,6 +12,7 @@ namespace CRE.ViewModels
         public Chairperson Chairperson { get; set; }
         public EthicsEvaluator EthicsEvaluator { get; set; }
         public EthicsApplication EthicsApplication { get; set; }
+        public IEnumerable<EthicsEvaluation>? EthicsEvaluation { get; set; }
         public InitialReview InitialReview { get; set; }
         public IEnumerable<EthicsApplicationForms> EthicsApplicationForms { get; set; }
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; }

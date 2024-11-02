@@ -69,6 +69,8 @@ namespace CRE.Services
             var application = await _context.EthicsApplication
                 .Include(e => e.NonFundedResearchInfo)
                     .ThenInclude(nf => nf.CoProponent)
+                .Include(e => e.EthicsEvaluation)
+                    .ThenInclude(e => e.EthicsEvaluator)
                 .Include(e => e.ReceiptInfo)
                 .Include(e => e.EthicsApplicationLog)
                 .Include(e => e.EthicsApplicationForms)
@@ -82,17 +84,20 @@ namespace CRE.Services
 
             var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == application.userId);
 
-            // Create the ViewModel
+            var ethicsEvaluations = application.EthicsEvaluation.ToList(); // Convert to a list if needed
+
             var viewModel = new InitialReviewViewModel
             {
                 EthicsApplication = application,
                 NonFundedResearchInfo = application.NonFundedResearchInfo,
-                CoProponent = application.NonFundedResearchInfo?.CoProponent ?? new List<CoProponent>(), // Handle potential null
+                CoProponent = application.NonFundedResearchInfo?.CoProponent ?? new List<CoProponent>(),
                 ReceiptInfo = application.ReceiptInfo,
                 EthicsApplicationLog = application.EthicsApplicationLog.OrderByDescending(log => log.changeDate),
-                EthicsApplicationForms = application.EthicsApplicationForms ?? new List<EthicsApplicationForms>(), // Handle potential null
+                EthicsApplicationForms = application.EthicsApplicationForms ?? new List<EthicsApplicationForms>(),
                 InitialReview = await _context.InitialReview.FirstOrDefaultAsync(ir => ir.urecNo == urecNo),
-                AppUser = appUser
+                AppUser = appUser,
+                EthicsEvaluation = ethicsEvaluations, // Assign as collection
+                EthicsEvaluator = ethicsEvaluations.FirstOrDefault()?.EthicsEvaluator // Get first evaluator
             };
 
             return viewModel;
@@ -312,6 +317,72 @@ namespace CRE.Services
                 .Select(a => a.EthicsApplication) // Assuming InitialReview has a navigation property to EthicsApplication
                 .ToListAsync();
         }
+
+        public async Task<EvaluationDetailsViewModel> GetApplicationDetailsAsync(string urecNo, int evaluationId)
+        {
+            // Fetch the evaluation details along with related entities
+            var evaluation = await _context.EthicsEvaluation
+                .Include(ev => ev.EthicsEvaluator)
+                    .ThenInclude(e => e.Faculty)
+                        .ThenInclude(f => f.User)
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.NonFundedResearchInfo)
+                        .ThenInclude(nf => nf.CoProponent) // Include co-proponents
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.ReceiptInfo)
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.EthicsApplicationForms)
+                .Include(ev => ev.EthicsApplication)
+                    .ThenInclude(ea => ea.EthicsApplicationLog)
+                .FirstOrDefaultAsync(ev => ev.evaluationId == evaluationId);
+
+            if (evaluation == null)
+            {
+                throw new Exception("Evaluation not found.");
+            }
+
+            // Retrieve the associated application for further details
+            var application = await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent) // Assuming you want to get co-proponents too
+                .Include(a => a.ReceiptInfo)
+                .Include(a => a.EthicsApplicationForms)
+                .Include(a => a.EthicsApplicationLog)
+                .Include(a => a.EthicsEvaluation)
+                .FirstOrDefaultAsync(a => a.urecNo == urecNo); // Use urecNo to fetch the application
+
+            if (application == null)
+            {
+                throw new Exception("Application not found.");
+            }
+
+            // Retrieve the associated user (applicant)
+            var appUser = await _context.Users.FirstOrDefaultAsync(u => u.Id == application.userId);
+
+            // Retrieve the initial review (if necessary)
+            var initialReview = await _context.InitialReview
+                .FirstOrDefaultAsync(ir => ir.urecNo == urecNo);
+
+            // Create and populate the ViewModel
+            var viewModel = new EvaluationDetailsViewModel
+            {
+                CurrentEvaluation = evaluation, // Set the current evaluation
+                AppUser = appUser,
+              
+                NonFundedResearchInfo = application.NonFundedResearchInfo,
+                CoProponent = application.NonFundedResearchInfo?.CoProponent ?? new List<CoProponent>(),
+                ReceiptInfo = application.ReceiptInfo,
+                
+                EthicsEvaluator = evaluation.EthicsEvaluator,
+                EthicsApplication = application,
+                InitialReview = initialReview,
+                EthicsApplicationForms = application.EthicsApplicationForms ?? new List<EthicsApplicationForms>(),
+                EthicsApplicationLog = application.EthicsApplicationLog ?? new List<EthicsApplicationLog>(),
+            };
+
+            return viewModel;
+        }
+
     }
 
 }

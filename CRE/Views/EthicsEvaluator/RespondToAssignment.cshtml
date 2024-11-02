@@ -143,6 +143,8 @@
                         </div>
                         <div class="modal-body">
                             <form id="reasonForm">
+                                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                    <input type="hidden" name="evalId" value="@Model.EthicsEvaluation.evaluationId" />
                                 <div class="form-group">
                                     <label for="reasonForDecline">Please provide a reason for declining:</label>
                                     <textarea id="reasonForDecline" name="reasonForDecline" class="form-control" required></textarea>
@@ -155,8 +157,7 @@
                         </div>
                     </div>
                 </div>
-</div>
-
+            </div>
         </div>
     </div>
 </div>

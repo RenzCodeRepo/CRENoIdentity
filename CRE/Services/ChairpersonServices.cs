@@ -101,8 +101,8 @@ namespace CRE.Services
                 a.InitialReview != null &&
                 (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review") &&
                 (!a.EthicsEvaluation.Any() ||
-                 (a.EthicsEvaluation.All(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
-                !a.EthicsEvaluation.All(e => e.evaluationStatus == "Assigned"));
+                 (a.EthicsEvaluation.Any(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
+                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned"));
         }
 
         public async Task<IEnumerable<EthicsApplication>> GetUnderEvaluationApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)

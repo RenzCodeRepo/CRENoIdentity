@@ -58,36 +58,21 @@ namespace CRE.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> RespondToAssignment(string id)
+        public async Task<IActionResult> RespondToAssignment(string id, int evaluationId)
         {
-            // Fetch the application details based on evaluationId
-            var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(id);
+            // Fetch the application details based on urecNo and evaluationId
+            var viewModel = await _ethicsEvaluationServices.GetEvaluationDetailsWithUrecNoAsync(id, evaluationId);
 
             // Check if evaluation details were found
-            if (applicationDetails == null)
+            if (viewModel == null)
             {
                 return NotFound(); // Return a 404 if not found
             }
 
-            // Create the view model
-            var viewModel = new EvaluationDetailsViewModel
-            {
-                AppUser = applicationDetails.AppUser,
-                Secretariat = applicationDetails.Secretariat,
-                NonFundedResearchInfo = applicationDetails.NonFundedResearchInfo,
-                CoProponent = applicationDetails.CoProponent,
-                ReceiptInfo = applicationDetails.ReceiptInfo,
-                Chairperson = applicationDetails.Chairperson,
-                EthicsEvaluator = applicationDetails.EthicsEvaluator,
-                EthicsApplication = applicationDetails.EthicsApplication,
-                InitialReview = applicationDetails.InitialReview,
-                EthicsApplicationForms = applicationDetails.EthicsApplicationForms,
-                EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
-            };
-
             // Pass the view model to the view
             return View(viewModel);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> RespondToAssignment(string acceptanceStatus, string urecNo, int evalId, string? reasonForDecline)

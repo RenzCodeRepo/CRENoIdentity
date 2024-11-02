@@ -7,6 +7,7 @@ namespace CRE.ViewModels
         public EthicsApplication EthicsApplication { get; set; }
         public EthicsEvaluator EthicsEvaluator { get; set; }
         public AppUser AppUser { get; set; }
+        public InitialReview InitialReview { get; set; }
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; }
         public IEnumerable<CoProponent> CoProponent { get; set; }

@@ -1,0 +1,22 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CRE.Models
+{
+    public class EthicsEvaluationDeclined
+    {
+        [Key]
+        public int id { get; set; } // Primary key
+        [ForeignKey(nameof(EthicsEvaluation))]
+        public int evaluationId { get; set; } // Foreign key to the original evaluation
+        [ForeignKey(nameof(EthicsApplication))]
+        public string urecNo { get; set; }
+        public string? reasonForDecline { get; set; } // Reason for decline
+        public DateOnly declineDate { get; set; } // Date when it was declined
+
+
+        //nav properties
+        public EthicsEvaluation EthicsEvaluation { get; set; }
+        public EthicsApplication EthicsApplication { get; set; }
+    }
+}

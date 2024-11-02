@@ -112,6 +112,7 @@ namespace CRE.Services
         public async Task<List<ApplicationViewModel>> GetApplicationsByInitialReviewTypeAsync(string reviewType)
         {
             return await _context.EthicsApplication
+                .Include(a => a.InitialReview)
                 .Include(a => a.NonFundedResearchInfo)
                 .ThenInclude(n => n.AppUser)
                 .Include(a => a.EthicsApplicationLog)
@@ -125,7 +126,8 @@ namespace CRE.Services
                     EthicsApplicationLog = a.EthicsApplicationLog
                         .OrderByDescending(log => log.changeDate)
                         .ToList(), // Get all logs ordered by change date
-                    AppUser = a.NonFundedResearchInfo.AppUser
+                    AppUser = a.NonFundedResearchInfo.AppUser,
+                    InitialReview = a.InitialReview
                 }).ToListAsync();
         }
 
@@ -134,6 +136,7 @@ namespace CRE.Services
         public async Task<List<ApplicationViewModel>> GetApplicationsBySubmitReviewTypeAsync(string reviewType)
         {
             return await _context.EthicsApplication
+                .Include(a => a.InitialReview)
                 .Include(a => a.NonFundedResearchInfo)
                 .ThenInclude(n => n.AppUser)
                 .Include(a => a.EthicsApplicationLog)
@@ -147,13 +150,15 @@ namespace CRE.Services
                     EthicsApplicationLog = a.EthicsApplicationLog
                         .OrderByDescending(log => log.changeDate)
                         .ToList(), // Get all logs ordered by change date
-                    AppUser = a.NonFundedResearchInfo.AppUser,                 
+                    AppUser = a.NonFundedResearchInfo.AppUser,
+                    InitialReview = a.InitialReview
                 }).ToListAsync();
         }
 
         public async Task<List<ApplicationViewModel>> GetAllApplicationViewModelsAsync()
         {
             return await _context.EthicsApplication
+                .Include(a => a.InitialReview)
                 .Include(a => a.NonFundedResearchInfo) // Include necessary navigation properties
                 .ThenInclude(n => n.AppUser)
                 .Include(a => a.EthicsApplicationLog)
@@ -166,7 +171,8 @@ namespace CRE.Services
                     EthicsApplicationLog = a.EthicsApplicationLog
                         .OrderByDescending(log => log.changeDate)
                         .ToList(),
-                    AppUser = a.NonFundedResearchInfo.AppUser
+                    AppUser = a.NonFundedResearchInfo.AppUser,
+                    InitialReview = a.InitialReview
                 }).ToListAsync();
         }
         public async Task UpdateApplicationStatusAsync(int evaluationId, string urecNo, string status)
