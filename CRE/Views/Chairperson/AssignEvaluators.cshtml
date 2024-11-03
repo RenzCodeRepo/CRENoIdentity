@@ -2,6 +2,12 @@
 
 @{
     ViewData["Title"] = "Assign Evaluators";
+    // Determine if elements should be hidden based on the provided conditions
+    bool shouldHideElements = (Model.EthicsApplication.InitialReview != null &&
+        ((Model.EthicsApplication.InitialReview.ReviewType == "Expedited" &&
+          (Model.EthicsApplication.EthicsEvaluation.Count >= 2 && Model.EthicsApplication.EthicsEvaluation.Count <= 3)) ||
+         (Model.EthicsApplication.InitialReview.ReviewType == "Full Review" &&
+          Model.EthicsApplication.EthicsEvaluation.Count == 3)));
 }
 
 <h2>Assign Evaluators</h2>
@@ -96,29 +102,30 @@
             }
         </div>
         <div class="col-sm">
-            <div id="selectedEvaluators" class="mt-4">
-                <h6>Selected Evaluators:</h6>
-                <ul id="selectedEvaluatorsList"></ul>
+            <div id="assignedEvaluators" class="mt-4">
+                <h6>Assigned Evaluators:</h6>
+                <ul id="assignedEvaluatorsList">
+                    @foreach (var evaluator in Model.PendingEvaluators.Concat(Model.AcceptedEvaluators))
+                    {
+                        <li>@($"{evaluator.Faculty?.User?.fName} {evaluator.Faculty?.User?.lName} - {(Model.PendingEvaluators.Contains(evaluator) ? "Pending" : "Accepted")}")</li>
+                    }
+                </ul>
             </div>
-            <div class="col-sm">
-                <div id="assignedEvaluators" class="mt-4">
-                    <h6>Assigned Evaluators:</h6>
-                    <ul id="assignedEvaluatorsList">
-                        @foreach (var evaluator in Model.PendingEvaluators.Concat(Model.AcceptedEvaluators))
-                        {
-                            <li>@($"{evaluator.Faculty?.User?.fName} {evaluator.Faculty?.User?.lName} - {(Model.PendingEvaluators.Contains(evaluator) ? "Pending" : "Accepted")}")</li>
-                        }
-                    </ul>
+
+            <!-- Only show the selected evaluators and button if shouldHideElements is false -->
+            @if (!shouldHideElements)
+            {
+                <div id="selectedEvaluators" class="mt-4">
+                    <h6>Selected Evaluators:</h6>
+                    <ul id="selectedEvaluatorsList"></ul>
                 </div>
                 <button type="button" id="assignButton" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#assignEvaluatorsModal">
                     Assign Evaluators
                 </button>
-            </div>
+            }
             <form id="evaluatorForm" asp-action="AssignEvaluators" method="post" class="mt-4">
                 <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                <input type="hidden" id="reviewType" value="@Model.EthicsApplication.InitialReview.ReviewType" />
-
-                <button type="submit" class="btn btn-success" id="submitButton" disabled>Submit Evaluators</button>
+                <input type="hidden" id="reviewType" value="@Model.EthicsApplication.InitialReview.ReviewType" />   
 
                 <div class="modal fade" id="assignEvaluatorsModal" tabindex="-1" aria-labelledby="assignEvaluatorsModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
@@ -149,7 +156,9 @@
                                     <!-- Recommended Evaluators Section -->
                                     <h6>Recommended Evaluators (Least Pending)</h6>
                                     <div class="row mb-4">
-                                        @foreach (var evaluator in Model.RecommendedEvaluators)
+                                        @foreach (var evaluator in Model.RecommendedEvaluators
+                                        .Where(e => e.declinedAssignment == 0 && !Model.PendingEvaluators.Any(pe => pe.ethicsEvaluatorId == e.ethicsEvaluatorId) && !Model.AcceptedEvaluators.Any(ace => ace.ethicsEvaluatorId == e.ethicsEvaluatorId)) // Filter out declined and already assigned evaluators
+                                        .OrderBy(e => e.pendingEval).Take(3))
                                         {
                                             <div class="col-md-4 mb-3">
                                                 <div class="form-check">

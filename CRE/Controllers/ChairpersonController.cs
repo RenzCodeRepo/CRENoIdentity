@@ -38,7 +38,7 @@ namespace CRE.Controllers
             _userServices = userServices;
             _ethicsApplicationLogServices = ethicsApplicationLogServices;
         }
-
+        
         [Authorize(Roles = "Chairperson")]
         [HttpGet]
         public async Task<IActionResult> SelectApplication()

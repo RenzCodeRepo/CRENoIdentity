@@ -545,7 +545,7 @@ namespace CRE.Services
         {
             return await _context.EthicsEvaluator
                 .Where(e => e.EthicsEvaluation.Any(a =>
-                    a.EthicsApplication.urecNo == urecNo && a.evaluationStatus == "Pending"))
+                    a.EthicsApplication.urecNo == urecNo && a.evaluationStatus == "Assigned"))
                 .ToListAsync();
         }
 

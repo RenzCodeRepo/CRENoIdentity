@@ -100,13 +100,20 @@ namespace CRE.Services
             return ethicsApplications.Where(a =>
                 a.InitialReview != null &&
                 (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review") &&
-                (!a.EthicsEvaluation.Any() ||
-                 (a.InitialReview.ReviewType == "Expedited" && a.EthicsEvaluation.Count < 2) ||  // For Expedited: less than 2
-                 (a.InitialReview.ReviewType == "Full Review" && a.EthicsEvaluation.Count < 3) ||  // For Full Review: less than 3
-                 (a.EthicsEvaluation.Any(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
-                !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned"));
+                (!a.EthicsEvaluation.Any() ||  // If there are no evaluations
+                    (a.InitialReview.ReviewType == "Expedited" &&
+                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Pending") < 2 &&
+                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Assigned") < 2 &&
+                        !a.EthicsEvaluation.Any(e => e.startDate == null)) ||  // For Expedited: less than 2 pending evaluations, max assigned is less than 2, and no evaluations with null start date
+                    (a.InitialReview.ReviewType == "Full Review" &&
+                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Pending") < 3 &&
+                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Assigned") < 3 &&
+                        !a.EthicsEvaluation.Any(e => e.startDate == null)) ||  // For Full Review: less than 3 pending evaluations, max assigned is less than 3, and no evaluations with null start date
+                    (a.EthicsEvaluation.Any(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
+                // New condition to check if all assigned evaluators accepted the evaluation
+                !a.EthicsEvaluation.All(e => e.evaluationStatus == "Accepted")  // All assigned evaluators accepted the evaluation
+            );
         }
-
 
         public async Task<IEnumerable<EthicsApplication>> GetUnderEvaluationApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {
