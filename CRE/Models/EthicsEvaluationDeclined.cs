@@ -11,6 +11,8 @@ namespace CRE.Models
         public int evaluationId { get; set; } // Foreign key to the original evaluation
         [ForeignKey(nameof(EthicsApplication))]
         public string urecNo { get; set; }
+        [ForeignKey(nameof(EthicsEvaluator))]
+        public int ethicsEvaluatorId { get; set; }
         public string? reasonForDecline { get; set; } // Reason for decline
         public DateOnly declineDate { get; set; } // Date when it was declined
 
@@ -18,5 +20,6 @@ namespace CRE.Models
         //nav properties
         public EthicsEvaluation EthicsEvaluation { get; set; }
         public EthicsApplication EthicsApplication { get; set; }
+        public EthicsEvaluator EthicsEvaluator { get; set; }    
     }
 }

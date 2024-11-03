@@ -68,31 +68,56 @@ namespace CRE.Controllers
         [HttpGet]
         public async Task<IActionResult> AssignEvaluators(string urecNo)
         {
-            // Fetch application details
+            // Fetch application details along with related data
             var viewModel = await _ethicsEvaluationServices.GetApplicationDetailsForEvaluationAsync(urecNo);
             string requiredFieldOfStudy = viewModel.EthicsApplication.fieldOfStudy;
 
-            // Get applicant's full name
+            // Retrieve applicant's full name
             var applicantUser = viewModel.EthicsApplication.User;
             string applicantFirstName = applicantUser?.fName;
             string applicantMiddleName = applicantUser?.mName;
             string applicantLastName = applicantUser?.lName;
 
-            // Retrieve all evaluators with expertise data
+            // Retrieve evaluators based on their evaluation status
+            viewModel.PendingEvaluators = await _ethicsEvaluationServices.GetPendingEvaluatorsAsync(urecNo);
+            viewModel.AcceptedEvaluators = await _ethicsEvaluationServices.GetAcceptedEvaluatorsAsync(urecNo);
+            viewModel.DeclinedEvaluators = await _ethicsEvaluationServices.GetDeclinedEvaluatorsAsync(urecNo);
+
+            // Retrieve all evaluators with their expertise and other details
             var allEvaluators = await _ethicsEvaluationServices.GetAllEvaluatorsAsync();
 
-            // Filter available and recommended evaluators using service methods
-            viewModel.AvailableEvaluators = (await _ethicsEvaluationServices
-                .GetAvailableEvaluatorsAsync(allEvaluators, applicantFirstName, applicantMiddleName, applicantLastName))
+            // Get a list of evaluator IDs who are either pending, accepted, or declined for this application
+            var assignedEvaluatorIds = viewModel.PendingEvaluators
+                .Concat(viewModel.AcceptedEvaluators)
+                .Concat(viewModel.DeclinedEvaluators)
+                .Select(e => e.ethicsEvaluatorId)
+                .ToHashSet(); // Use HashSet for efficient lookups
+
+            // Filter out evaluators who have declined assignments or are already assigned to this application
+            // Retrieve the IDs of evaluators who declined the specific application
+            var declinedEvaluatorIds = await _ethicsEvaluationServices.GetDeclinedEvaluatorsAsync(urecNo);
+            var declinedEvaluatorIdSet = new HashSet<int>(declinedEvaluatorIds.Select(e => e.ethicsEvaluatorId));
+
+            var applicantId = viewModel.EthicsApplication.userId; // This is a string
+
+            // Filter out evaluators who have not declined this specific application and are not the applicant
+            viewModel.AllAvailableEvaluators = allEvaluators
+                .Where(e => e.Faculty.userId != applicantId && // Assuming UserId is the property representing the evaluator's userId
+                             !declinedEvaluatorIdSet.Contains(e.ethicsEvaluatorId) &&
+                             !assignedEvaluatorIds.Contains(e.ethicsEvaluatorId))
                 .ToList();
 
+            // Filter RecommendedEvaluators based on field of study, excluding declined or already assigned evaluators
             viewModel.RecommendedEvaluators = (await _ethicsEvaluationServices
                 .GetRecommendedEvaluatorsAsync(allEvaluators, requiredFieldOfStudy, applicantFirstName, applicantMiddleName, applicantLastName))
+                .Where(e => !assignedEvaluatorIds.Contains(e.ethicsEvaluatorId)) // Only check for already assigned evaluators
                 .ToList();
 
-            // Pass the viewModel to the view
+            // Pass the view model to the view for rendering
             return View(viewModel);
         }
+
+
 
         [Authorize(Roles = "Chairperson")]
         [HttpPost]

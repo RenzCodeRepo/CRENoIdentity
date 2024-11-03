@@ -168,7 +168,7 @@ namespace CRE.Services
             };
         }
 
-        public async Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline)
+        public async Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline, int ethicsEvaluatorId)
         {
             var evaluation = await _context.EthicsEvaluation
                 .Include(e => e.EthicsApplication) // Eager load EthicsApplication to access UREC number
@@ -184,6 +184,7 @@ namespace CRE.Services
                         evaluationId = evaluationId,
                         reasonForDecline = reasonForDecline,
                         urecNo = evaluation.EthicsApplication?.urecNo, // Access UREC number here
+                        ethicsEvaluatorId = ethicsEvaluatorId,
                         declineDate = DateOnly.FromDateTime(DateTime.UtcNow) // Set decline date to today's date
                     };
 
@@ -538,6 +539,29 @@ namespace CRE.Services
             };
 
             return model;
+        }
+
+        public async Task<List<EthicsEvaluator>> GetPendingEvaluatorsAsync(string urecNo)
+        {
+            return await _context.EthicsEvaluator
+                .Where(e => e.EthicsEvaluation.Any(a =>
+                    a.EthicsApplication.urecNo == urecNo && a.evaluationStatus == "Pending"))
+                .ToListAsync();
+        }
+
+        public async Task<List<EthicsEvaluator>> GetAcceptedEvaluatorsAsync(string urecNo)
+        {
+            return await _context.EthicsEvaluator
+                .Where(e => e.EthicsEvaluation.Any(a =>
+                    a.EthicsApplication.urecNo == urecNo && a.evaluationStatus == "Accepted"))
+                .ToListAsync();
+        }
+        public async Task<List<EthicsEvaluator>> GetDeclinedEvaluatorsAsync(string urecNo)
+        {
+            return await _context.EthicsEvaluator
+           .Where(e => e.EthicsEvaluation.Any(a =>
+               a.EthicsApplication.urecNo == urecNo && a.evaluationStatus == "Declined"))
+           .ToListAsync();
         }
     }
 }

@@ -100,16 +100,17 @@ namespace CRE.Controllers
             {
                 if (acceptanceStatus == "Declined")
                 {
-                    await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Declined", reasonForDecline);
-
-                    await _ethicsEvaluationServices.IncrementDeclinedAssignmentCountAsync(ethicsEvaluatorId);
                     // Mark application as "Unassigned"
                     await _ethicsApplicationServices.UpdateApplicationStatusAsync(existingEvaluation.evaluationId, urecNo, "Unassigned");
+                    await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Declined", reasonForDecline, ethicsEvaluatorId);
+
+                    await _ethicsEvaluationServices.IncrementDeclinedAssignmentCountAsync(ethicsEvaluatorId);
+                    
                 }
                 else
                 {
                     // Update the existing evaluation's status for accepted applications
-                    await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Accepted", null);
+                    await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Accepted", null, ethicsEvaluatorId);
                 }
             }
             else

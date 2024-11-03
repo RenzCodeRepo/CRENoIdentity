@@ -101,23 +101,39 @@ namespace CRE.Services
                 a.InitialReview != null &&
                 (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review") &&
                 (!a.EthicsEvaluation.Any() ||
+                 (a.InitialReview.ReviewType == "Expedited" && a.EthicsEvaluation.Count < 2) ||  // For Expedited: less than 2
+                 (a.InitialReview.ReviewType == "Full Review" && a.EthicsEvaluation.Count < 3) ||  // For Full Review: less than 3
                  (a.EthicsEvaluation.Any(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
                 !a.EthicsEvaluation.Any(e => e.evaluationStatus == "Assigned"));
         }
 
+
         public async Task<IEnumerable<EthicsApplication>> GetUnderEvaluationApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {
             return ethicsApplications.Where(a =>
-                (a.EthicsEvaluation.Count == 3 &&
-                 a.EthicsEvaluation.All(e => e.ProtocolRecommendation == "Pending" && e.ConsentRecommendation == "Pending")) ||
-                a.EthicsEvaluation.Any(e => e.endDate == null || e.evaluationStatus == "Assigned"));
+                (a.InitialReview != null &&
+                 ((a.InitialReview.ReviewType == "Expedited" &&
+                   (a.EthicsEvaluation.Count == 2 || a.EthicsEvaluation.Count == 3) &&
+                   a.EthicsEvaluation.All(e => e.ProtocolRecommendation == "Pending" && e.ConsentRecommendation == "Pending")) ||
+                  (a.InitialReview.ReviewType == "Full Review" &&
+                   a.EthicsEvaluation.Count == 3 &&
+                   a.EthicsEvaluation.All(e => e.ProtocolRecommendation == "Pending" && e.ConsentRecommendation == "Pending"))) ||
+                a.EthicsEvaluation.Any(e => e.endDate == null || e.evaluationStatus == "Assigned")));
         }
+
 
         public async Task<IEnumerable<EthicsApplication>> GetEvaluationResultApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {
             return ethicsApplications.Where(a =>
-                a.EthicsEvaluation.Count == 3 && a.EthicsEvaluation.All(e => e.endDate != null));
+                a.InitialReview != null &&
+                ((a.InitialReview.ReviewType == "Expedited" &&
+                  a.EthicsEvaluation.Count >= 2 && a.EthicsEvaluation.Count <= 3 &&
+                  a.EthicsEvaluation.All(e => e.endDate != null)) || // For Expedited: 2 to 3 evaluations with end dates
+                 (a.InitialReview.ReviewType == "Full Review" &&
+                  a.EthicsEvaluation.Count == 3 &&
+                  a.EthicsEvaluation.All(e => e.endDate != null)))); // For Full Review: exactly 3 evaluations with end dates
         }
+
 
         public async Task<Dictionary<string, List<string>>> GetApplicationEvaluatorNamesAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {
