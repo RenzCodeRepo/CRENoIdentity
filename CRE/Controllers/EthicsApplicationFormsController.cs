@@ -322,6 +322,25 @@ namespace CRE.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> ViewClearanceFile(string urecNo)
+        {
+            if (string.IsNullOrEmpty(urecNo))
+            {
+                return NotFound("UREC No. is missing.");
+            }
+
+            // Retrieve the clearance record
+            var clearance = await _ethicsClearanceServices.GetClearanceByUrecNoAsync(urecNo);
+            if (clearance == null || clearance.file == null)
+            {
+                return NotFound("Clearance document not found.");
+            }
+
+            // Convert byte array back to a file stream or create a file to display
+            var stream = new MemoryStream(clearance.file);
+            return File(stream, "application/pdf"); // Assuming it's a PDF file
+        }
+        [HttpGet]
         public async Task<IActionResult> DownloadFile(string formId, string urecNo)
         {
             // Fetch the form from the database based on formId and urecNo
@@ -338,7 +357,26 @@ namespace CRE.Controllers
             // Return the file for download
             return File(form.file, "application/pdf", filename);
         }
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> DownloadClearanceFile(string urecNo)
+        {
+            // Fetch the clearance by urecNo
+            var ethicsClearance = await _ethicsClearanceServices.GetClearanceByUrecNoAsync(urecNo);
 
+            // Check if clearance or file data exists
+            if (ethicsClearance == null || ethicsClearance.file == null)
+            {
+                return NotFound("Clearance document not found.");
+            }
+
+            // Prepare the file download
+            var fileContent = ethicsClearance.file;
+            var fileName = "ClearanceDocument.pdf"; // Use a dynamic name if needed
+            var contentType = "application/pdf"; // Adjust content type based on file type
+
+            return File(fileContent, contentType, fileName);
+        }
     }
 }
 
