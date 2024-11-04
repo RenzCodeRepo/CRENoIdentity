@@ -205,6 +205,42 @@ namespace CRE.Services
             }
         }
 
+        public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsAsync(string urecNo)
+        {
+            // Fetch the application and include related data
+            var application = await _context.EthicsApplication
+                .Include(app => app.User)
+                .Include(app => app.EthicsEvaluation)
+                    .ThenInclude(e => e.EthicsEvaluator)
+                .Include(app => app.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent)
+                .Include(app => app.InitialReview)
+                .Include(app => app.ReceiptInfo)
+                .Include(app => app.EthicsApplicationForms)
+                .Include(app => app.EthicsApplicationLog)
+                .FirstOrDefaultAsync(app => app.urecNo == urecNo);
 
+            if (application == null)
+            {
+                return null; // Handle application not found
+            }
+
+            // Create and return the view model
+            var viewModel = new EvaluationDetailsViewModel
+            {
+                AppUser = application.User,
+                NonFundedResearchInfo = application.NonFundedResearchInfo,
+                EthicsApplication = application,
+                InitialReview = application.InitialReview,
+                ReceiptInfo = application.ReceiptInfo,
+                EthicsApplicationForms = application.EthicsApplicationForms,
+                EthicsApplicationLog = application.EthicsApplicationLog,
+                EthicsEvaluation = application.EthicsEvaluation.FirstOrDefault(),
+                CurrentEvaluation = application.EthicsEvaluation.FirstOrDefault(),
+                CoProponent = application.NonFundedResearchInfo.CoProponent
+            };
+
+            return viewModel;
+        }
     }
 }

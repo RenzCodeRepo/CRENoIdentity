@@ -607,5 +607,24 @@ public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsyn
             return evaluations.All(e => e.evaluationStatus == "Evaluated");
         }
 
+        public async Task<List<PendingIssuance>> GetPendingApplicationsForIssuanceAsync()
+        {
+            // Fetch applications where all related evaluations have the status 'Evaluated'
+            return await _context.EthicsApplication
+                .Include(e => e.EthicsEvaluation) // Include related evaluations
+                .Where(app => app.EthicsEvaluation.All(e => e.evaluationStatus == "Evaluated")) // Check that all evaluations are evaluated
+                .Select(app => new PendingIssuance // Adjust this class name if necessary
+                {
+                    EthicsApplication = app,
+                    NonFundedResearchInfo = app.NonFundedResearchInfo, // Adjust based on your navigation properties
+                    InitialReview = app.InitialReview,
+                    User = app.User, // Ensure you have the User navigation property
+                    EthicsApplicationLog = app.EthicsApplicationLog // Ensure you have the logs available
+                                                                    // Add other properties as needed
+                })
+                .ToListAsync();
+        }
+
+
     }
 }

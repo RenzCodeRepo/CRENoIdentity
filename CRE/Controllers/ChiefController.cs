@@ -10,6 +10,7 @@ using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Authorization;
 using CRE.Data;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using DocumentFormat.OpenXml.Wordprocessing;
 namespace CRE.Controllers
 {
     public class ChiefController : Controller
@@ -24,6 +25,7 @@ namespace CRE.Controllers
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
+        private readonly IEthicsClearanceServices _ethicsClearanceServices;
         private readonly UserManager<AppUser> _userManager;
         private readonly ApplicationDbContext _context;
 
@@ -39,7 +41,8 @@ namespace CRE.Controllers
             IInitialReviewServices initialReviewServices,
             IEthicsEvaluationServices ethicsEvaluationServices,
             UserManager<AppUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IEthicsClearanceServices ethicsClearanceServices)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -53,6 +56,7 @@ namespace CRE.Controllers
             _ethicsEvaluationServices = ethicsEvaluationServices;
             _userManager = userManager;
             _context = context;
+            _ethicsClearanceServices = ethicsClearanceServices;
         }
 
         public IActionResult Index()
@@ -234,7 +238,6 @@ namespace CRE.Controllers
             return View(evaluatedApplication);
         }
 
-        [Authorize(Roles = "Secretariat, Chief")]
         [HttpGet]
         public async Task<IActionResult> ViewFile(string fileType, string urecNo, int evaluationId)
         {
@@ -268,7 +271,7 @@ namespace CRE.Controllers
             return File(fileData, contentType);
         }
 
-        //get the name of the evluators who are evalauting the appliaction
+
         public async Task<IActionResult> Evaluations()
         {
             var viewModel = new ApplicationEvaluationViewModel
@@ -276,7 +279,8 @@ namespace CRE.Controllers
                 ExemptApplications = await _ethicsEvaluationServices.GetExemptApplicationsAsync(),
                 EvaluatedExemptApplications = await _ethicsEvaluationServices.GetEvaluatedExemptApplicationsAsync(),
                 EvaluatedExpeditedApplications = await _ethicsEvaluationServices.GetEvaluatedExpeditedApplicationsAsync(),
-                EvaluatedFullReviewApplications = await _ethicsEvaluationServices.GetEvaluatedFullReviewApplicationsAsync()
+                EvaluatedFullReviewApplications = await _ethicsEvaluationServices.GetEvaluatedFullReviewApplicationsAsync(),
+                PendingIssuance = await _ethicsEvaluationServices.GetPendingApplicationsForIssuanceAsync() // Add this line
             };
 
             return View(viewModel);
@@ -290,10 +294,54 @@ namespace CRE.Controllers
                 ExemptApplications = await _ethicsApplicationServices.GetApplicationsBySubmitReviewTypeAsync("Exempt"),
                 ExpeditedApplications = await _ethicsApplicationServices.GetApplicationsBySubmitReviewTypeAsync("Expedited"),
                 FullReviewApplications = await _ethicsApplicationServices.GetApplicationsBySubmitReviewTypeAsync("Full Review"),
-                AllApplications = await _ethicsApplicationServices.GetAllApplicationViewModelsAsync()
+                AllApplications = await _ethicsApplicationServices.GetAllApplicationViewModelsAsync(),
+                PendingIssuance = await _ethicsEvaluationServices.GetPendingApplicationsForIssuanceAsync() // Added line
             };
 
             return View(model);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> IssueApplication(string urecNo)
+        {
+            // Call the service method
+            var viewModel = await _ethicsApplicationServices.GetEvaluationDetailsAsync(urecNo);
+
+            if (viewModel == null)
+            {
+                return NotFound(); // Handle application not found
+            }
+
+            return View(viewModel); // Return the view with the populated model
+        }
+        [HttpPost]
+        public async Task<IActionResult> IssueApplication(EthicsApplication viewModel, IFormFile uploadedFile, string applicationDecision, string remarks)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (applicationDecision == "Approve" && uploadedFile != null)
+            {
+                var ethicsClearance = new EthicsClearance
+                {
+                    urecNo = viewModel.urecNo, // Link urecNo to EthicsClearance
+                    issuedDate = DateOnly.FromDateTime(DateTime.Now), // Set issued date as DateOnly
+                    expirationDate = DateOnly.FromDateTime(DateTime.Now.AddYears(1)) // Set expiration date one year from now as DateOnly
+                };  
+
+                var success = await _ethicsClearanceServices.IssueEthicsClearanceAsync(ethicsClearance, uploadedFile, remarks, userId);
+
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Ethics clearance issued successfully!";
+                    return RedirectToAction("FilteredApplications");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("", "Please select 'Approve' and upload a PDF file.");
+            }
+
+            return View(viewModel);
+        }
+
     }
 }

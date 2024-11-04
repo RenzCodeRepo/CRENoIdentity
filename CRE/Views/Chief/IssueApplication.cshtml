@@ -1,0 +1,276 @@
+﻿@model CRE.ViewModels.EvaluationDetailsViewModel
+@{
+     var successMessage = TempData["SuccessMessage"] as string;
+}  
+
+<!-- Success Modal -->
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <script>
+        // Trigger modal on page load
+        $(document).ready(function () {
+            $('#successModal').modal('show');
+        });
+    </script>
+
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="successModalLabel">Success</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @successMessage
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div class="container">
+    <h2>Evaluation Details</h2>
+
+    <div class="card border-light mb-3" style="width: contain">
+        <div class="card-header">
+            <div class="row">
+                <div class="col text-start">
+                    <p id="urecNoText">
+                        <strong>UREC No.: </strong> <span id="urecNoValue">@Model.EthicsApplication.urecNo</span>
+                    </p>
+                    <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
+                        Copy UREC No.
+                    </button>
+
+                    <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
+                    <p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Proponent:</strong>
+                                @($"{Model.EthicsApplication?.User?.fName} {Model.EthicsApplication?.User?.mName} {Model.EthicsApplication?.User?.lName}")
+                                <ul>
+                                    @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
+                                    {
+                                        foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
+                                        {
+                                            <li>@proponent.coProponentName</li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </p>
+                    <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
+                    <p><strong>College: </strong> @Model.NonFundedResearchInfo.college</p>
+                    <p><strong>Branch/Campus: </strong> @Model.NonFundedResearchInfo.campus</p>
+                </div>
+
+                <div class="col text-end">
+                    <p id="dtsNoText">
+                        <strong>DTS No.:</strong>
+                        @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                        {
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                        }
+                        else
+                        {
+                            <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
+                        }
+                    </p>
+
+                    @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                    {
+                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
+                            Copy DTS No.
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <h4 class="text-center">Evaluation Sheets</h4>
+            @if (Model.EthicsApplication.EthicsEvaluation != null && Model.EthicsApplication.EthicsEvaluation.Any())
+            {
+                @foreach (var evaluation in Model.EthicsApplication.EthicsEvaluation)
+                {
+                    <h5 class="text-center">Evaluation ID: @evaluation.evaluationId</h5>
+                    <table class="table table-bordered">
+                        <thead class="bg-danger text-white">
+                            <tr>
+                                <th>Evaluation Sheet</th>
+                                <th>Comments/Suggestions</th>
+                                <th>Recommendation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <button type="button" class="btn btn-info"
+                                            onclick="openPdfInModal('ProtocolReviewSheet', '@Model.EthicsApplication.urecNo', @evaluation.evaluationId)">
+                                        View Protocol Review Sheet
+                                    </button>
+                                </td>
+                                <td>
+                                    @evaluation.ProtocolRemarks
+                                </td>
+                                <td>
+                                    @evaluation.ProtocolRecommendation
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <button type="button" class="btn btn-info"
+                                            onclick="openPdfInModal('InformedConsentForm', '@Model.EthicsApplication.urecNo', @evaluation.evaluationId)">
+                                        View Informed Consent Form
+                                    </button>
+                                </td>
+                                <td>
+                                    @evaluation.ConsentRemarks
+                                </td>
+                                <td>
+                                    @evaluation.ConsentRecommendation
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+            }
+            else
+            {
+                <p>No evaluations available for this application.</p>
+            }
+        </div>
+        <form id="issueApplicationForm" asp-action="IssueApplication" asp-controller="Chief" enctype="multipart/form-data" method="post">
+            <!-- Hidden field for UREC No. -->
+            <input type="hidden" id="urecNo" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+
+            <div class="form-group">
+                <label for="applicationDecision">Decision</label>
+                <select id="applicationDecision" name="applicationDecision" class="form-control" required>
+                    <option value="">Select a decision</option>
+                    <option value="Approve">Approve</option>
+                    <option value="Minor Revisions">Minor Revisions</option>
+                    <option value="Major Revisions">Major Revisions</option>
+                    <option value="Disapprove">Disapprove</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="uploadedFile">Upload Ethics Application File (PDF only)</label>
+                <input type="file" class="form-control" id="uploadedFile" name="uploadedFile" accept="application/pdf" required disabled />
+                <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
+            </div>
+
+            <h4>Evaluation Remarks</h4>
+            <textarea name="remarks" class="form-control" rows="10" placeholder="Enter all remarks here...">
+                @if (Model.EthicsApplication.EthicsEvaluation != null && Model.EthicsApplication.EthicsEvaluation.Any())
+                {
+                    var remarksBuilder = new System.Text.StringBuilder();
+                    foreach (var evaluation in Model.EthicsApplication.EthicsEvaluation)
+                    {
+                        if (!string.IsNullOrEmpty(evaluation.ProtocolRemarks))
+                        {
+                            remarksBuilder.AppendLine($"- Protocol Remarks: {evaluation.ProtocolRemarks}");
+                        }
+                        if (!string.IsNullOrEmpty(evaluation.ConsentRemarks))
+                        {
+                            remarksBuilder.AppendLine($"- Informed Consent Remarks: {evaluation.ConsentRemarks}");
+                        }
+                    }
+                    @remarksBuilder.ToString()
+                }
+            </textarea>
+
+            <button type="submit" class="btn btn-primary" id="submitButton">Upload</button>
+        </form>
+
+    </div>
+
+    <!-- Modal for PDF view -->
+    <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@section Scripts {
+    <script>
+        // Function to copy UREC No. to clipboard
+        function copyUrecNo() {
+            const urecNoText = document.getElementById("urecNoValue").innerText;
+            navigator.clipboard.writeText(urecNoText).then(function () {
+                alert('UREC No. copied to clipboard!');
+            }).catch(function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Function to copy DTS No. to clipboard
+        function copyDtsNo() {
+            const dtsNoText = document.getElementById("dtsNoValue").innerText;
+            navigator.clipboard.writeText(dtsNoText).then(function () {
+                alert('DTS No. copied to clipboard!');
+            }).catch(function (err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // Function to open PDF in modal
+        function openPdfInModal(fileType, urecNo, evaluationId) {
+            const url = `@Url.Action("ViewFile", "Chief")?fileType=${encodeURIComponent(fileType)}&urecNo=${encodeURIComponent(urecNo)}&evaluationId=${encodeURIComponent(evaluationId)}`;
+            document.getElementById("pdfViewer").src = url;
+            $('#pdfModal').modal('show'); // Show the modal
+        }
+       
+        document.getElementById('applicationDecision').addEventListener('change', function () {
+            let uploadedFileInput = document.getElementById('uploadedFile');
+                let submitButton = document.getElementById('submitButton');
+
+            switch (this.value) {
+                case 'Approve':
+                    uploadedFileInput.disabled = false; // Enable file input
+                    uploadedFileInput.required = true; // Mark as required
+                    submitButton.innerText = 'Upload'; // Change button text to 'Upload'
+                    break;
+                case 'Minor Revisions':
+                
+                case 'Major Revisions':
+                case 'Disapprove':
+                    uploadedFileInput.disabled = true; // Disable file input
+                    uploadedFileInput.required = false; // Not required
+                    uploadedFileInput.value = ''; // Clear input value
+                    submitButton.innerText = (this.value === 'Disapprove') ? 'Disapprove' : 'Submit'; // Adjust button text
+                    break;
+                default:
+                    uploadedFileInput.disabled = true; // Disable file input
+                    uploadedFileInput.required = false; // Not required
+                    uploadedFileInput.value = ''; // Clear input value
+                    submitButton.innerText = 'Submit'; // Reset button text
+                    break;
+            }
+        });
+
+        document.getElementById('issueApplicationForm').addEventListener('submit', function (event) {
+            let uploadedFileInput = document.getElementById('uploadedFile');
+            if (uploadedFileInput.required && !uploadedFileInput.files.length) {
+                alert('Please upload a PDF file before submitting.');
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+    </script>
+}
+

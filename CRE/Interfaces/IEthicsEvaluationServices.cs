@@ -10,6 +10,7 @@ namespace CRE.Interfaces
         Task<List<EthicsEvaluator>> GetAvailableEvaluatorsAsync(string fieldOfStudy);
         Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline, int ethicsEvaluatorId);
         Task<int> CreateEvaluationAsync(EthicsEvaluation evaluation);
+        Task<List<PendingIssuance>> GetPendingApplicationsForIssuanceAsync();
         Task<List<EthicsEvaluator>> GetAllEvaluatorsAsync();
         Task AssignEvaluatorAsync(string urecNo, int evaluatorId);
         Task<AssignEvaluatorsViewModel> GetApplicationDetailsForEvaluationAsync(string urecNo);

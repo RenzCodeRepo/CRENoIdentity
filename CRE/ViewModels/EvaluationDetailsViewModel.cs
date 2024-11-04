@@ -13,6 +13,7 @@ namespace CRE.ViewModels
         public ReceiptInfo? ReceiptInfo { get; set; }
         public Chairperson? Chairperson { get; set; }
         public EthicsApplication? EthicsApplication { get; set; }
+        public EthicsClearance? EthicsClearance { get; set; }
         public Faculty? Faculty { get; set; }
         public InitialReview? InitialReview { get; set; }
         public EthicsEvaluation EthicsEvaluation { get; set; }

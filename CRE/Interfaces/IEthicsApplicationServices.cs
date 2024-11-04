@@ -21,5 +21,6 @@ namespace CRE.Interfaces
         Task<List<ApplicationViewModel>> GetApplicationsBySubmitReviewTypeAsync(string reviewType);
         Task<List<ApplicationViewModel>> GetAllApplicationViewModelsAsync();
         Task UpdateApplicationStatusAsync(int evaluationId, string urecNo, string status);
+        Task<EvaluationDetailsViewModel> GetEvaluationDetailsAsync(string urecNo);
     }
 }
