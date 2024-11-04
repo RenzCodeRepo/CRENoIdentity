@@ -21,21 +21,33 @@
                                 <strong>Proponent:</strong>
                                 @($"{Model.EthicsApplication?.User?.fName} {Model.EthicsApplication?.User?.mName} {Model.EthicsApplication?.User?.lName}")
                                 <!-- Using null-conditional operator -->
-                                <br />
-                                @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
-                                {
-                                    foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
-                                    {
-                                        @proponent.coProponentName <br />
-                                    }
-                                }
+                                <ul>
+                                    @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
+                                        {
+                                            foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
+                                            {
+                                                @proponent.coProponentName <br />
+                                            }
+                                        }
+                                </ul>
                             </div>
                         </div>
                     </p>
                     <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
                     <p><strong>College: </strong> @Model.NonFundedResearchInfo.college</p>
                     <p><strong>Branch/Campus: </strong> @Model.NonFundedResearchInfo.campus</p>
-                    <p><strong>Reviewer:</strong> @Model.ReviewerName</p>
+                    <p>
+                        <strong>Reviewer: </strong>
+                        @if (Model.EthicsEvaluator?.Faculty?.User != null)
+                        {
+                            @($"{Model.EthicsEvaluator.Faculty.User.fName} {(Model.EthicsEvaluator.Faculty.User.mName ?? "")} {Model.EthicsEvaluator.Faculty.User.lName}")
+                        }
+                        else
+                        {
+                            <span>N/A</span>
+                        }
+                    </p>
+
                 </div>
 
                 <div class="col text-end">

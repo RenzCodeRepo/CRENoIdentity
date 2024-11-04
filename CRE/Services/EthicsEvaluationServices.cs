@@ -145,26 +145,33 @@ namespace CRE.Services
         {
             var evaluation = await _context.EthicsEvaluation
                 .Include(e => e.EthicsApplication)
-                    .ThenInclude(a => a.NonFundedResearchInfo)
-                .Include(e => e.EthicsApplication.EthicsApplicationLog)
-                .Include(e => e.EthicsApplication.InitialReview)
+                    .ThenInclude(a => a.User) // Includes the main user associated with the EthicsApplication
+                .Include(e => e.EthicsApplication)
+                    .ThenInclude(a => a.NonFundedResearchInfo) // Ensure NonFundedResearchInfo is included
+                        .ThenInclude(nf => nf.CoProponent) // Includes co-proponents within NonFundedResearchInfo
+                .Include(e => e.EthicsApplication.EthicsApplicationLog) // Includes application logs
+                .Include(e => e.EthicsApplication.InitialReview) // Includes initial review information
                 .Include(e => e.EthicsEvaluator)
-                    .ThenInclude(evaluator => evaluator.Faculty.User)
-                .FirstOrDefaultAsync(e => e.urecNo == urecNo && e.evaluationId == evaluationId);
+                    .ThenInclude(evaluator => evaluator.Faculty) // Includes faculty details for evaluator
+                    .ThenInclude(f => f.User) // Includes the user details within Faculty
+                .FirstOrDefaultAsync(e => e.EthicsApplication.urecNo == urecNo && e.evaluationId == evaluationId);
 
             if (evaluation == null)
                 return null;
 
+            // Retrieve evaluator user information, if available
             var evaluatorUser = evaluation.EthicsEvaluator?.Faculty?.User;
 
+            // Create and return the view model
             return new EvaluationDetailsViewModel
             {
                 EthicsApplication = evaluation.EthicsApplication,
                 NonFundedResearchInfo = evaluation.EthicsApplication?.NonFundedResearchInfo,
-                EthicsApplicationLog = evaluation.EthicsApplication?.EthicsApplicationLog,
+                EthicsApplicationLog = evaluation.EthicsApplication?.EthicsApplicationLog ?? new List<EthicsApplicationLog>(),
                 EthicsEvaluation = evaluation,
-                InitialReview = evaluation.EthicsApplication.InitialReview,
-                AppUser = evaluatorUser // List of user details for evaluators
+                InitialReview = evaluation.EthicsApplication?.InitialReview,
+                EthicsEvaluator = evaluation.EthicsEvaluator ?? new EthicsEvaluator(),
+                AppUser = evaluatorUser // Set the evaluator user if available
             };
         }
 
@@ -306,13 +313,12 @@ namespace CRE.Services
                 {
                     EthicsApplication = e.EthicsApplication,
                     EthicsEvaluation = e,
-                    EthicsEvaluator = e.EthicsEvaluator,
+                    EthicsEvaluator = e.EthicsEvaluator, // This should be a single instance
                     NonFundedResearchInfo = e.EthicsApplication.NonFundedResearchInfo,
                     InitialReview = e.EthicsApplication.InitialReview
                 })
                 .ToListAsync();
         }
-
 
         public async Task<IEnumerable<AssignedEvaluationViewModel>> GetAcceptedEvaluationsAsync(int evaluatorId)
         {
@@ -468,45 +474,74 @@ namespace CRE.Services
 
         public async Task<List<EvaluatedExpeditedApplication>> GetEvaluatedExpeditedApplicationsAsync()
         {
-            return await _context.EthicsApplication
-                .Include(a => a.NonFundedResearchInfo)
-                .Include(a => a.EthicsEvaluation)
+            // Retrieve the applications along with their related data, including logs
+            var applications = await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo) // Include NonFundedResearchInfo
+                .Include(a => a.EthicsEvaluation) // Include EthicsEvaluation entities
+                    .ThenInclude(e => e.EthicsEvaluator) // Include evaluators
+                        .ThenInclude(ee => ee.Faculty) // Include Faculty for each evaluator
+                        .ThenInclude(f => f.User) // Include User for each Faculty
+                .Include(a => a.EthicsApplicationLog) // Include EthicsApplicationLog
                 .Where(a => a.InitialReview.ReviewType == "Expedited" && a.EthicsEvaluation.Any())
-                .Select(a => new EvaluatedExpeditedApplication
-                {
-                    EthicsApplication = a,
-                    NonFundedResearchInfo = a.NonFundedResearchInfo,
-                    EthicsEvaluation = a.EthicsEvaluation.ToList(),
-                    InitialReview = a.InitialReview,
-                    User = a.User,
-                    EthicsApplicationLog = a.EthicsApplicationLog
-                }).ToListAsync();
+                .ToListAsync();
+
+            // Select the evaluated applications with the evaluators and logs
+            return applications.Select(a => new EvaluatedExpeditedApplication
+            {
+                EthicsApplication = a,
+                NonFundedResearchInfo = a.NonFundedResearchInfo,
+                EthicsEvaluation = a.EthicsEvaluation.ToList(),
+                InitialReview = a.InitialReview,
+                // Collect all evaluators for all evaluations
+                EthicsEvaluators = a.EthicsEvaluation
+                    .Select(e => e.EthicsEvaluator)
+                    .Where(e => e != null) // Filter out nulls
+                    .Distinct()
+                    .ToList(),
+                User = a.User,
+                EthicsApplicationLog = a.EthicsApplicationLog // Include the logs in the result
+            }).ToList();
         }
+
 
         public async Task<List<EvaluatedFullReviewApplication>> GetEvaluatedFullReviewApplicationsAsync()
-        {
-            return await _context.EthicsApplication
+         {
+            // Retrieve the applications along with their related data
+            var applications = await _context.EthicsApplication
                 .Include(a => a.NonFundedResearchInfo)
+                .Include(a => a.EthicsEvaluation)
+                    .ThenInclude(e => e.EthicsEvaluator) // Include evaluators
+                        .ThenInclude(ee => ee.Faculty)
+                        .ThenInclude(f => f.User)
+                .Include(a => a.EthicsApplicationLog) // Include EthicsApplicationLog
                 .Where(a => a.InitialReview.ReviewType == "Full Review" && a.EthicsEvaluation.Any())
-                .Select(a => new EvaluatedFullReviewApplication
-                {
-                    EthicsApplication = a,
-                    NonFundedResearchInfo = a.NonFundedResearchInfo,
-                    EthicsEvaluation = a.EthicsEvaluation.ToList(),
-                    InitialReview = a.InitialReview,
-                    User = a.User,
-                    EthicsApplicationLog = a.EthicsApplicationLog
-                }).ToListAsync();
-        }
+                .ToListAsync();
 
-        public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsync(string urecNo, int evaluationId)
+            // Select the evaluated applications with the evaluators
+            return applications.Select(a => new EvaluatedFullReviewApplication
+            {
+                EthicsApplication = a,
+                NonFundedResearchInfo = a.NonFundedResearchInfo,
+                EthicsEvaluation = a.EthicsEvaluation.ToList(),
+                InitialReview = a.InitialReview,
+                // Collect all evaluators for all evaluations
+                EthicsEvaluator = a.EthicsEvaluation
+                    .Select(e => e.EthicsEvaluator)
+                    .Where(e => e != null) // Filter out nulls
+                    .Distinct()
+                    .ToList(),
+                User = a.User,
+                EthicsApplicationLog = a.EthicsApplicationLog
+            }).ToList();
+        }
+public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsync(string urecNo, int evaluationId)
         {
             // Fetch the application based on urecNo and evaluationId
             var application = await _context.EthicsApplication
                 .Include(a => a.NonFundedResearchInfo)
                     .ThenInclude(a => a.CoProponent)
                 .Include(a => a.User)
-
+                .Include(a => a.EthicsApplicationLog) // Include EthicsApplicationLog
                 .Include(a => a.EthicsApplicationForms)
                 .Include(a => a.InitialReview)
                 .Include(a => a.EthicsEvaluation)
@@ -563,5 +598,14 @@ namespace CRE.Services
                a.EthicsApplication.urecNo == urecNo && a.evaluationStatus == "Declined"))
            .ToListAsync();
         }
+        public async Task<bool> AreAllEvaluationsEvaluatedAsync(string urecNo)
+        {
+            var evaluations = await _context.EthicsEvaluation
+                .Where(e => e.EthicsApplication.urecNo == urecNo)
+                .ToListAsync();
+
+            return evaluations.All(e => e.evaluationStatus == "Evaluated");
+        }
+
     }
 }

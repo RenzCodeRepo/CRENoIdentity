@@ -97,7 +97,7 @@ namespace CRE.Services
                 InitialReview = await _context.InitialReview.FirstOrDefaultAsync(ir => ir.urecNo == urecNo),
                 AppUser = appUser,
                 EthicsEvaluation = ethicsEvaluations, // Assign as collection
-                EthicsEvaluator = ethicsEvaluations.FirstOrDefault()?.EthicsEvaluator // Get first evaluator
+                EthicsEvaluator = ethicsEvaluations.Select(e => e.EthicsEvaluator).FirstOrDefault()
             };
 
             return viewModel;
@@ -343,6 +343,7 @@ namespace CRE.Services
 
             // Retrieve the associated application for further details
             var application = await _context.EthicsApplication
+                .Include(a => a.InitialReview)
                 .Include(a => a.NonFundedResearchInfo)
                     .ThenInclude(nf => nf.CoProponent) // Assuming you want to get co-proponents too
                 .Include(a => a.ReceiptInfo)
@@ -366,19 +367,20 @@ namespace CRE.Services
             // Create and populate the ViewModel
             var viewModel = new EvaluationDetailsViewModel
             {
-                CurrentEvaluation = evaluation, // Set the current evaluation
+                CurrentEvaluation = evaluation,
                 AppUser = appUser,
-              
                 NonFundedResearchInfo = application.NonFundedResearchInfo,
                 CoProponent = application.NonFundedResearchInfo?.CoProponent ?? new List<CoProponent>(),
                 ReceiptInfo = application.ReceiptInfo,
-                
-                EthicsEvaluator = evaluation.EthicsEvaluator,
+
+                // Ensure that EthicsEvaluator is checked for null
+                EthicsEvaluator = evaluation.EthicsEvaluator ?? new EthicsEvaluator(),
                 EthicsApplication = application,
                 InitialReview = initialReview,
                 EthicsApplicationForms = application.EthicsApplicationForms ?? new List<EthicsApplicationForms>(),
                 EthicsApplicationLog = application.EthicsApplicationLog ?? new List<EthicsApplicationLog>(),
             };
+
 
             return viewModel;
         }

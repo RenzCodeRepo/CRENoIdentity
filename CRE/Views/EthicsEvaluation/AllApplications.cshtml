@@ -36,16 +36,11 @@
                         <td>
                             @if (evaluation.EthicsEvaluator != null)
                             {
-                                // Display the evaluator's full name
-                                @evaluation.EthicsEvaluator.Faculty?.User?.fName @evaluation.EthicsEvaluator.Faculty?.User?.lName
-                            }
-                            else if (evaluation.Chief != null) // If there is no evaluator, but there is a Chief
-                            {
-                                @evaluation.Chief.User?.fName
+                                <span>@evaluation.EthicsEvaluator?.Faculty?.User.lName</span>
                             }
                             else
                             {
-                                <span>No Evaluator</span>
+                                <span>N/A</span>
                             }
                         </td>
                         <td>@(evaluation.ProtocolRecommendation ?? "N/A")</td>

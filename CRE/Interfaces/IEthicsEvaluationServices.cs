@@ -5,6 +5,7 @@ namespace CRE.Interfaces
 {
     public interface IEthicsEvaluationServices
     {
+        Task<bool> AreAllEvaluationsEvaluatedAsync(string urecNo);
         EthicsEvaluation GetEvaluationByUrecNo(string urecNo);
         Task<List<EthicsEvaluator>> GetAvailableEvaluatorsAsync(string fieldOfStudy);
         Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline, int ethicsEvaluatorId);

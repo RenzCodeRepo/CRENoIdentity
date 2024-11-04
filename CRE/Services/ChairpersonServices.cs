@@ -26,13 +26,17 @@ namespace CRE.Services
             if (chairperson == null)
                 return new List<EthicsApplication>(); // Return an empty list if chairperson not found
 
-            // Retrieve applications matching the chairperson's field of study and specific review types, including evaluations and evaluators
+            // Retrieve applications matching the chairperson's field of study and specific review types, including evaluations, evaluators, and logs
             var applications = await _context.EthicsApplication
+                .Include(e => e.User)
+                .Include(e => e.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent)
                 .Include(e => e.InitialReview) // Include InitialReview
                 .Include(e => e.EthicsEvaluation) // Include EthicsEvaluation entities
                     .ThenInclude(e => e.EthicsEvaluator) // Include the related EthicsEvaluator entities
                         .ThenInclude(ev => ev.Faculty) // Include Faculty for each EthicsEvaluator
                             .ThenInclude(f => f.User) // Include User for each Faculty
+                .Include(e => e.EthicsApplicationLog) // Include EthicsApplicationLog
                 .Where(e => e.fieldOfStudy == chairperson.fieldOfStudy // Ensure correct casing for FieldOfStudy
                              && (e.InitialReview.ReviewType == "Full Review"
                              || e.InitialReview.ReviewType == "Expedited"))
@@ -100,20 +104,32 @@ namespace CRE.Services
             return ethicsApplications.Where(a =>
                 a.InitialReview != null &&
                 (a.InitialReview.ReviewType == "Expedited" || a.InitialReview.ReviewType == "Full Review") &&
-                (!a.EthicsEvaluation.Any() ||  // If there are no evaluations
-                    (a.InitialReview.ReviewType == "Expedited" &&
-                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Pending") < 2 &&
-                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Assigned") < 2 &&
-                        !a.EthicsEvaluation.Any(e => e.startDate == null)) ||  // For Expedited: less than 2 pending evaluations, max assigned is less than 2, and no evaluations with null start date
-                    (a.InitialReview.ReviewType == "Full Review" &&
-                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Pending") < 3 &&
-                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Assigned") < 3 &&
-                        !a.EthicsEvaluation.Any(e => e.startDate == null)) ||  // For Full Review: less than 3 pending evaluations, max assigned is less than 3, and no evaluations with null start date
-                    (a.EthicsEvaluation.Any(e => e.endDate == null) && a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0))) &&
-                // New condition to check if all assigned evaluators accepted the evaluation
-                !a.EthicsEvaluation.All(e => e.evaluationStatus == "Accepted")  // All assigned evaluators accepted the evaluation
+                (
+                    !a.EthicsEvaluation.Any() ||  // Include applications with no evaluations
+                    (
+                        // Expedited review conditions: fewer than 2-3 evaluators are pending/assigned and no evaluations have an end date
+                        a.InitialReview.ReviewType == "Expedited" &&
+                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Pending" || e.evaluationStatus == "Assigned") <= 3 &&
+                        !a.EthicsEvaluation.Any(e => e.startDate == null) &&
+                        !a.EthicsEvaluation.Any(e => e.endDate != null) // New condition to exclude Expedited with any completed evaluation
+                    ) ||
+                    (
+                        // Full review conditions: fewer than 3 evaluators are pending/assigned
+                        a.InitialReview.ReviewType == "Full Review" &&
+                        a.EthicsEvaluation.Count(e => e.evaluationStatus == "Pending" || e.evaluationStatus == "Assigned") < 3 &&
+                        !a.EthicsEvaluation.Any(e => e.startDate == null)
+                    ) ||
+                    (
+                        // Applications with evaluations not completed or declined
+                        a.EthicsEvaluation.Any(e => e.endDate == null) &&
+                        a.EthicsEvaluation.Any(e => e.EthicsEvaluator.declinedAssignment > 0)
+                    )
+                ) &&
+                // Exclude applications where all assigned evaluators have accepted the evaluation
+                (!a.EthicsEvaluation.Any() || !a.EthicsEvaluation.All(e => e.evaluationStatus == "Accepted"))
             );
         }
+
 
         public async Task<IEnumerable<EthicsApplication>> GetUnderEvaluationApplicationsAsync(IEnumerable<EthicsApplication> ethicsApplications)
         {

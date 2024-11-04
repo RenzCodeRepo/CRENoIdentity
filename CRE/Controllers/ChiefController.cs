@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using DocumentFormat.OpenXml.InkML;
 using Microsoft.AspNetCore.Authorization;
 using CRE.Data;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 namespace CRE.Controllers
 {
     public class ChiefController : Controller
@@ -153,6 +154,7 @@ namespace CRE.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EvaluateApplication(ChiefEvaluationViewModel model)
         {
+            ModelState.Remove("EthicsEvaluation.EthicsEvaluator");
             ModelState.Remove("EthicsApplication.fieldOfStudy");
             if (!ModelState.IsValid)
             {
@@ -266,7 +268,7 @@ namespace CRE.Controllers
             return File(fileData, contentType);
         }
 
-
+        //get the name of the evluators who are evalauting the appliaction
         public async Task<IActionResult> Evaluations()
         {
             var viewModel = new ApplicationEvaluationViewModel

@@ -24,7 +24,7 @@
     <!-- Unassigned Applications Tab -->
     <div class="tab-pane fade show active" id="unassigned" role="tabpanel" aria-labelledby="unassigned-tab">
         <h4>Unassigned Applications</h4>
-        <table class="table table-striped">
+        <table class="table">
             <thead>
                 <tr>
                     <th>UREC No</th>
@@ -70,89 +70,100 @@
     <!-- Under Evaluation Tab -->
     <div class="tab-pane fade" id="under-evaluation" role="tabpanel" aria-labelledby="under-evaluation-tab">
         <h4>Under Evaluation</h4>
-        <table class="table table-striped">
+        <table class="table">
             <thead>
                 <tr>
-                    <th>UREC No</th>
-                    <th>Details</th>
+                    <th rowspan="2">UREC No</th>
+                    <th rowspan="2">Title of the Research</th>
+                    <th rowspan="2">Proponents/ Authors</th>
+                    <th colspan="4">Evaluations</th> <!-- Colspan for evaluation headers -->
+                </tr>
+                <tr>
                     <th>Start Date</th>
-                    <th>Evaluators</th> <!-- New column for Evaluators -->
+                    <th>Status</th>
+                    <th>End Date</th>
+                    <th>Evaluators</th>
                 </tr>
             </thead>
             <tbody>
-                @if (Model.UnderEvaluationApplications.Any())
+                @if (Model.UnderEvaluationApplications == null || !Model.UnderEvaluationApplications.Any())
                 {
-                    foreach (var application in Model.UnderEvaluationApplications)
-                    {
-                        <tr>
-                            <td>@application.urecNo</td>
-                            <td>
-                                @if (application.NonFundedResearchInfo != null)
-                                {
-                                    @application.NonFundedResearchInfo.title
-                                }
-                                else
-                                {
-                                    <span>No title available</span> <!-- Fallback message if no title exists -->
-                                }
-                            </td>
-                            <td>
-                                @if (application.EthicsEvaluation.Any())
-                                {
-                                    foreach (var evaluation in application.EthicsEvaluation)
-                                    {
-                                        if (evaluation.evaluationStatus != "Declined")
-                                        {
-                                            if (evaluation.startDate != null)
-                                            {
-                                                <div>@evaluation.startDate</div> <!-- Display the assigned date -->
-                                            }
-                                            else
-                                            {
-                                                <div>Awaiting acceptance from evaluator</div> <!-- Message indicating awaiting acceptance -->
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    <span>No assigned date available</span> <!-- Fallback message if no evaluation exists -->
-                                }
-                            </td>
-                            <td>
-                                @if (Model.ApplicationEvaluatorNames.ContainsKey(application.urecNo))
-                                {
-                                    var evaluatorNames = Model.ApplicationEvaluatorNames[application.urecNo];
-
-                                    // Get the IDs of evaluators who declined this application
-                                    var declinedEvaluatorIds = application.EthicsEvaluation
-                                    .Where(e => e.evaluationStatus == "Declined")
-                                    .Select(e => e.ethicsEvaluatorId) // Assuming you have a property to get evaluator ID
-                                    .ToHashSet(); // Use a HashSet for O(1) lookup
-
-                                    // Display only those evaluators who did not decline
-                                    foreach (var evaluator in evaluatorNames)
-                                    {
-                                        if (!declinedEvaluatorIds.Contains(evaluator.ethicsEvaluatorId)) // Assuming evaluator has an EvaluatorId property
-                                        {
-                                            var fullName = $"{evaluator.Faculty.User.fName} {(string.IsNullOrEmpty(evaluator.Faculty.User.mName) ? "" : evaluator.Faculty.User.mName + " ")}{evaluator.Faculty.User.lName}";
-                                            <div>@fullName</div>
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    <span>No evaluators assigned</span> <!-- Fallback message -->
-                                }
-                            </td>
-                        </tr>
-                    }
+                    <tr>
+                        <td colspan="7" class="text-center">No evaluated full review applications found.</td>
+                    </tr>
                 }
                 else
                 {
-                    <tr>
-                        <td colspan="4" class="text-center">No applications are currently under evaluation.</td>
-                    </tr>
+                    @foreach (var application in Model.UnderEvaluationApplications)
+                    {
+                        <!-- Main application row with UREC No, Title, and Proponents -->
+                        <tr>
+                            <td rowspan="@application.EthicsEvaluation.Count">@application.urecNo</td>
+                            <td rowspan="@application.EthicsEvaluation.Count">@application.NonFundedResearchInfo.title</td>
+                            <td rowspan="@application.EthicsEvaluation.Count">
+                                <!-- Display main applicant -->
+                                @if (application.NonFundedResearchInfo?.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                                <br />
+
+                                <!-- Display coproponents if available -->
+                                @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                            </td>
+
+                            <!-- Display the first evaluation directly in this row -->
+                            @if (application.EthicsEvaluation != null && application.EthicsEvaluation.Any())
+                            {
+                                var firstEvaluation = application.EthicsEvaluation.First();
+                                <td>@firstEvaluation.startDate</td>
+                                <td>@(application.EthicsEvaluation.Last()?.evaluationStatus ?? "N/A")</td>
+                                <td>@(firstEvaluation.endDate?.ToString("yyyy-MM-dd") ?? "Pending")</td>
+                                <td>
+                                    <!-- Display evaluator's names -->
+                                    @if (firstEvaluation.EthicsEvaluator?.Faculty?.User != null)
+                                    {
+                                        @($"{firstEvaluation.EthicsEvaluator.Faculty.User.fName} {(firstEvaluation.EthicsEvaluator.Faculty.User.mName ?? "")} {firstEvaluation.EthicsEvaluator.Faculty.User.lName}")
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+
+                        <!-- Loop through remaining evaluations if any -->
+                        @foreach (var evaluation in application.EthicsEvaluation.Skip(1))
+                        {
+                            <tr>
+                                <td>@evaluation.startDate</td>
+                                <td>@(application.EthicsEvaluation.Last()?.evaluationStatus ?? "N/A")</td>
+                                <td>@(evaluation.endDate?.ToString("yyyy-MM-dd") ?? "Pending")</td>
+                                <td>
+                                    @if (evaluation.EthicsEvaluator?.Faculty?.User != null)
+                                    {
+                                        @($"{evaluation.EthicsEvaluator.Faculty.User.fName} {(evaluation.EthicsEvaluator.Faculty.User.mName ?? "")} {evaluation.EthicsEvaluator.Faculty.User.lName}")
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
                 }
             </tbody>
         </table>
@@ -164,23 +175,97 @@
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>UREC No</th>
-                    <th>Submission Date</th>
-                    <th>Field of Study</th>
-                    <th></th>
+                    <th rowspan="2">UREC No</th>
+                    <th rowspan="2">Title of the Research</th>
+                    <th rowspan="2">Proponents/ Authors</th>
+                    <th colspan="4">Evaluations</th> <!-- Colspan for evaluation headers -->
+                </tr>
+                <tr>
+                    <th>Start Date</th>
+                    <th>Status</th>
+                    <th>End Date</th>
+                    <th>Evaluators</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var application in Model.EvaluationResultApplications)
+                @if (Model.EvaluationResultApplications == null || !Model.EvaluationResultApplications.Any())
                 {
                     <tr>
-                        <td>@application.urecNo</td>
-                        <td>@application.submissionDate</td>
-                        <td>@application.fieldOfStudy</td>
-                        <td>
-                            <!-- You can add a button here to view the evaluation results if needed -->
-                        </td>
+                        <td colspan="7" class="text-center">No evaluated full review applications found.</td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var application in Model.EvaluationResultApplications)
+                    {
+                        <!-- Main application row with UREC No, Title, and Proponents -->
+                        <tr>
+                            <td rowspan="@application.EthicsEvaluation.Count">@application.urecNo</td>
+                            <td rowspan="@application.EthicsEvaluation.Count">@application.NonFundedResearchInfo.title</td>
+                            <td rowspan="@application.EthicsEvaluation.Count">
+                                <!-- Display main applicant -->
+                                @if (application.NonFundedResearchInfo?.AppUser != null)
+                                {
+                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                                <br />
+
+                                <!-- Display coproponents if available -->
+                                @if (application.NonFundedResearchInfo?.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                {
+                                    foreach (var coproponent in application.NonFundedResearchInfo.CoProponent)
+                                    {
+                                        <span>@coproponent.coProponentName</span>
+                                        <br />
+                                    }
+                                }
+                            </td>
+
+                            <!-- Display the first evaluation directly in this row -->
+                            @if (application.EthicsEvaluation != null && application.EthicsEvaluation.Any())
+                            {
+                                var firstEvaluation = application.EthicsEvaluation.First();
+                                <td>@firstEvaluation.startDate</td>
+                                <td>@(application.EthicsEvaluation.LastOrDefault()?.evaluationStatus ?? "N/A")</td>
+                                <td>@(firstEvaluation.endDate?.ToString("yyyy-MM-dd") ?? "Pending")</td>
+                                <td>
+                                    <!-- Display evaluator's names -->
+                                    @if (firstEvaluation.EthicsEvaluator?.Faculty?.User != null)
+                                    {
+                                        @($"{firstEvaluation.EthicsEvaluator.Faculty.User.fName} {(firstEvaluation.EthicsEvaluator.Faculty.User.mName ?? "")} {firstEvaluation.EthicsEvaluator.Faculty.User.lName}")
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                            }
+                        </tr>
+
+                        <!-- Loop through remaining evaluations if any -->
+                        @foreach (var evaluation in application.EthicsEvaluation.Skip(1))
+                        {
+                            <tr>
+                                <td>@evaluation.startDate</td>
+                                <td>@(application.EthicsEvaluation.Last()?.evaluationStatus ?? "N/A")</td>
+                                <td>@(evaluation.endDate?.ToString("yyyy-MM-dd") ?? "Pending")</td>
+                                <td>
+                                    @if (evaluation.EthicsEvaluator?.Faculty?.User != null)
+                                    {
+                                        @($"{evaluation.EthicsEvaluator.Faculty.User.fName} {(evaluation.EthicsEvaluator.Faculty.User.mName ?? "")} {evaluation.EthicsEvaluator.Faculty.User.lName}")
+                                    }
+                                    else
+                                    {
+                                        <span>N/A</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
                 }
             </tbody>
         </table>

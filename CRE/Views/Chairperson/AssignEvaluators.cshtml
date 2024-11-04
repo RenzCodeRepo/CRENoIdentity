@@ -235,7 +235,6 @@
             const reviewType = document.getElementById('reviewType').value;
             const evaluatorCheckboxes = document.querySelectorAll('.evaluator-checkbox');
             const selectedEvaluatorsList = document.getElementById('selectedEvaluatorsList');
-            const submitButton = document.getElementById('submitButton');
             const warningMessage = document.getElementById('warningMessage');   
             const assignButton = document.getElementById('assignButton');
 
@@ -270,41 +269,33 @@
                     }
                 });
             }
+        function checkSubmitButtonState() {
+            const maxAssignments = 3; // Set the maximum limit for evaluators
+            const alreadyAssignedCount = @Model.PendingEvaluators.Count + @Model.AcceptedEvaluators.Count; // Count of pending and accepted evaluators
+            const selectedCount = Array.from(evaluatorCheckboxes).filter(checkbox => checkbox.checked).length;
 
-            function checkSubmitButtonState() {
-                const selectedCount = Array.from(evaluatorCheckboxes).filter(checkbox => checkbox.checked).length;
+            // Total assigned and selected
+            const totalSelectedCount = alreadyAssignedCount + selectedCount;
 
-                // Clear previous warning message
-                warningMessage.classList.add('d-none'); // Hide warning message by default
-                submitButton.disabled = true; // Disable the submit button initially
-                evaluatorCheckboxes.forEach(checkbox => checkbox.disabled = false);
+            // Clear previous warning message
+            warningMessage.classList.add('d-none'); // Hide warning message by default
+            evaluatorCheckboxes.forEach(checkbox => checkbox.disabled = false);
 
-                // Enable submit button based on review type requirements
-                if (reviewType === 'Expedited') {
-                    if (selectedCount >= 2 && selectedCount <= 3) {
-                        submitButton.disabled = false; // Enable button for 2-3 evaluators
+            // Show warning if maximum is reached
+            if (totalSelectedCount >= maxAssignments) {
+                evaluatorCheckboxes.forEach(checkbox => {
+                    if (!checkbox.checked) {
+                        checkbox.disabled = true; // Disable unchecked checkboxes
                     }
-                } else if (reviewType === 'Full Review') {
-                    if (selectedCount === 3) {
-                        submitButton.disabled = false; // Enable button for exactly 3 evaluators
-                    }
-                }
-
-                // Show warning if maximum is reached
-                if (selectedCount === 3) {
-                    evaluatorCheckboxes.forEach(checkbox => {
-                        if (!checkbox.checked) {
-                            checkbox.disabled = true; // Disable unchecked checkboxes
-                        }
-                    });
-                    showWarning(`You have reached the maximum of 3 evaluator assignments.`);
-                } else {
-                    evaluatorCheckboxes.forEach(checkbox => {
-                        checkbox.disabled = false; // Re-enable checkboxes if under limit
-                    });
-                }
-
+                });
+                showWarning(`You have reached the maximum of 3 evaluator assignments.`);
+            } else {
+                evaluatorCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = false; // Re-enable checkboxes if under limit
+                });
             }
+        }
+
 
             function showWarning(message) {
                 warningMessage.textContent = message; // Set warning message text

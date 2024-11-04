@@ -82,15 +82,15 @@ namespace CRE.Controllers
 
             // Find the current user with associated EthicsEvaluator
             var currentUser = await _userManager.Users
-                .Include(u => u.Faculty.EthicsEvaluator)
+                .Include(u => u.Faculty.EthicsEvaluator) // This assumes Faculty.EthicsEvaluator is a collection
                 .FirstOrDefaultAsync(u => u.Id == currentUserId);
 
-            if (currentUser?.Faculty.EthicsEvaluator == null)
+            if (currentUser?.Faculty?.EthicsEvaluator == null)
             {
                 return NotFound("Evaluator not found for the current user.");
             }
 
-            // Extract the evaluator ID
+            // Extract the evaluator ID from the first evaluator in the collection
             var ethicsEvaluatorId = currentUser.Faculty.EthicsEvaluator.ethicsEvaluatorId;
 
             // Check if an evaluation already exists for this urecNo and evaluator
@@ -105,7 +105,7 @@ namespace CRE.Controllers
                     await _ethicsEvaluationServices.UpdateEvaluationStatusAsync(existingEvaluation.evaluationId, "Declined", reasonForDecline, ethicsEvaluatorId);
 
                     await _ethicsEvaluationServices.IncrementDeclinedAssignmentCountAsync(ethicsEvaluatorId);
-                    
+
                 }
                 else
                 {
@@ -161,8 +161,6 @@ namespace CRE.Controllers
         }
 
 
-
-
         public async Task<IActionResult> EvaluationDetails(string id)
         {
             var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(id);
@@ -191,12 +189,15 @@ namespace CRE.Controllers
             // Pass the details to the view
             return View(viewModel);
         }
+
+
         [HttpPost]
         public async Task<IActionResult> EvaluationDetails(EvaluationDetailsViewModel model)
         {
             ModelState.Remove("EthicsApplication.User");
             ModelState.Remove("EthicsApplication.userId");
             ModelState.Remove("EthicsApplication.fieldOfStudy");
+            ModelState.Remove("EthicsEvaluation.EthicsEvaluator");
 
             if (!ModelState.IsValid)
             {
@@ -250,20 +251,26 @@ namespace CRE.Controllers
                 return NotFound("No existing evaluation found for the provided urecNo and evaluator.");
             }
 
-            // Add an entry to the EthicsApplicationLog
-            var applicationLog = new EthicsApplicationLog
+            // Check if all evaluations are marked as Evaluated before logging
+            if (await _ethicsEvaluationServices.AreAllEvaluationsEvaluatedAsync(model.EthicsApplication.urecNo))
             {
-                urecNo = model.EthicsApplication.urecNo,
-                userId = currentUserId,
-                status = "Evaluated",
-                changeDate = DateTime.Now,
-                comments = "The application has been evaluated and marked as submitted."
-            };
+                // Add an entry to the EthicsApplicationLog
+                var applicationLog = new EthicsApplicationLog
+                {
+                    urecNo = model.EthicsApplication.urecNo,
+                    userId = currentUserId,
+                    status = "Application Evaluated",
+                    changeDate = DateTime.Now,
+                    comments = "The application has been evaluated and marked as submitted."
+                };
 
-            await _ethicsApplicationLogServices.AddLogAsync(applicationLog);
+                await _ethicsApplicationLogServices.AddLogAsync(applicationLog);
+            }
 
             return RedirectToAction("EvaluatorView", new { success = true });
         }
+
+
 
         private async Task<byte[]> GetFileContentAsync(IFormFile file)
         {
@@ -281,15 +288,16 @@ namespace CRE.Controllers
                 return NotFound();
             }
 
-            // Map the evaluatedApplication to EvaluationDetailsViewModel
+            // Map the evaluatedApplication to EvaluationDetailsViewModel with null checks
             var evaluationDetailsViewModel = new EvaluationDetailsViewModel
             {
                 EthicsApplication = evaluatedApplication.EthicsApplication,
                 NonFundedResearchInfo = evaluatedApplication.NonFundedResearchInfo,
-                EthicsApplicationLog = evaluatedApplication.EthicsApplicationLog,
+                EthicsApplicationLog = evaluatedApplication.EthicsApplicationLog ?? new List<EthicsApplicationLog>(),
                 EthicsEvaluation = evaluatedApplication.EthicsEvaluation,
                 InitialReview = evaluatedApplication.InitialReview,
-                AppUser = evaluatedApplication.AppUser // Assuming `User` represents the application user
+                EthicsEvaluator = evaluatedApplication.EthicsEvaluator ?? new EthicsEvaluator(), // Provide default instance if null
+                AppUser = evaluatedApplication.AppUser // Assuming this represents the application user
             };
 
             return View(evaluationDetailsViewModel);
