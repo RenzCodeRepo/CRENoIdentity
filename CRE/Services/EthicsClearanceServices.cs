@@ -1,6 +1,7 @@
 ﻿using CRE.Data;
 using CRE.Interfaces;
 using CRE.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CRE.Services
 {
@@ -11,6 +12,13 @@ namespace CRE.Services
         {
             _context = context;
         }
+
+        public async Task<EthicsClearance> GetClearanceByUrecNoAsync(string urecNo)
+        {
+            return await _context.EthicsClearance
+            .FirstOrDefaultAsync(clearance => clearance.urecNo == urecNo);
+        }
+
         public async Task<bool> IssueEthicsClearanceAsync(EthicsClearance ethicsClearance, IFormFile uploadedFile, string remarks, string userId)
         {
             // Check if there's an uploaded file to process

@@ -490,9 +490,28 @@
                     <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
                 </div>
             }
+            @if (Model.EthicsClearance != null)
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>Ethics Clearance Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Issued Date:</strong> @Model.EthicsClearance.issuedDate</p>
+                        <p><strong>Expiration Date:</strong> @Model.EthicsClearance.expirationDate</p>
+                        @if (Model.EthicsClearance.file != null)
+                        {
+                            <a href="@Url.Action("DownloadClearanceFile", "Chief", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-primary">
+                                Download Clearance Document
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
         </div>
-    </form>
-</div>
+</form>
+
+
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>
     <script type="text/javascript">

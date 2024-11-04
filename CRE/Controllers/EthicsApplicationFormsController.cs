@@ -28,6 +28,7 @@ namespace CRE.Controllers
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly ApplicationDbContext _context;
+        private readonly IEthicsClearanceServices _ethicsClearanceServices;
         public EthicsApplicationFormsController(
             IConfiguration configuration,
             IEthicsApplicationServices ethicsApplicationServices,
@@ -38,7 +39,8 @@ namespace CRE.Controllers
             ICoProponentServices coProponentServices,
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
             IInitialReviewServices initialReviewServices,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IEthicsClearanceServices ethicsClearanceServices)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -50,6 +52,7 @@ namespace CRE.Controllers
             _ethicsApplicationFormsServices = ethicsApplicationFormsServices;
             _initialReviewServices = initialReviewServices;
             _context = context;
+            _ethicsClearanceServices = ethicsClearanceServices;
         }
         public IActionResult Index()
         {
@@ -117,6 +120,7 @@ namespace CRE.Controllers
             var ethicsApplicationForms = await _ethicsApplicationFormsServices.GetAllFormsByUrecAsync(urecNo);
             var initialReview = await _initialReviewServices.GetInitialReviewByUrecNoAsync(urecNo); // Get InitialReview data
             var user = await _userServices.GetByIdAsync(userId); // Use Identity UserId (string)
+            var clearance = await _ethicsClearanceServices.GetClearanceByUrecNoAsync(urecNo);
 
             // Ensure all necessary data exists
             if (ethicsApplication == null || nonFundedResearchInfo == null || user == null)
@@ -146,6 +150,7 @@ namespace CRE.Controllers
                 EthicsApplicationLog = ethicsApplicationLogs,
                 LatestComment = latestComment, // Add the latest comment to the ViewModel
                 CoProponent = coProponents.ToList(),
+                EthicsClearance = clearance,
                 InitialReview = initialReview// Ensure it's a List
             };
 
