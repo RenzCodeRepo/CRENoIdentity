@@ -318,6 +318,7 @@ namespace CRE.Controllers
         public async Task<IActionResult> IssueApplication(EthicsApplication viewModel, IFormFile uploadedFile, string applicationDecision, string remarks)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             if (applicationDecision == "Approve" && uploadedFile != null)
             {
                 var ethicsClearance = new EthicsClearance
@@ -325,19 +326,34 @@ namespace CRE.Controllers
                     urecNo = viewModel.urecNo, // Link urecNo to EthicsClearance
                     issuedDate = DateOnly.FromDateTime(DateTime.Now), // Set issued date as DateOnly
                     expirationDate = DateOnly.FromDateTime(DateTime.Now.AddYears(1)) // Set expiration date one year from now as DateOnly
-                };  
+                };
 
                 var success = await _ethicsClearanceServices.IssueEthicsClearanceAsync(ethicsClearance, uploadedFile, remarks, userId);
 
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Ethics clearance issued successfully!";
-                    return RedirectToAction("FilteredApplications");
+                    return RedirectToAction("Evaluations");
+                }
+            }
+            else if (applicationDecision == "Minor Revisions" || applicationDecision == "Major Revisions")
+            {
+                // Logic for handling revisions
+                var result = await _ethicsClearanceServices.HandleRevisionsAsync(viewModel.urecNo, applicationDecision, remarks, userId);
+
+                if (result)
+                {
+                    TempData["SuccessMessage"] = $"{applicationDecision} processed successfully!";
+                    return RedirectToAction("Evaluations");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Failed to process the revisions.");
                 }
             }
             else
             {
-                ModelState.AddModelError("", "Please select 'Approve' and upload a PDF file.");
+                ModelState.AddModelError("", "Please select a valid decision.");
             }
 
             return View(viewModel);

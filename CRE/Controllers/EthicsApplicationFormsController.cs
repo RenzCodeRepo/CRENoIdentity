@@ -29,6 +29,7 @@ namespace CRE.Controllers
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly ApplicationDbContext _context;
         private readonly IEthicsClearanceServices _ethicsClearanceServices;
+
         public EthicsApplicationFormsController(
             IConfiguration configuration,
             IEthicsApplicationServices ethicsApplicationServices,
@@ -155,6 +156,70 @@ namespace CRE.Controllers
             };
 
             return View(model);
+        }
+        tapusin ang revision upload form 15
+            include yung fucking completion report if may clearance na
+            tas issue ulit nung completion certificate
+
+            tas pag reject, sabihin nlng na reject sa log wala upload
+        [HttpPost]
+        public async Task<IActionResult> UploadForm15(IFormFile FORM15, string urecNo)
+        {
+            if (FORM15 == null || FORM15.Length == 0)
+            {
+                ModelState.AddModelError("FORM15", "Please upload a valid PDF file.");
+                return RedirectToAction("YourViewName"); // Adjust "YourViewName" to the view displaying the upload form
+            }
+
+            if (FORM15.ContentType != "application/pdf")
+            {
+                ModelState.AddModelError("FORM15", "Only PDF files are allowed.");
+                return RedirectToAction("YourViewName");
+            }
+
+            // Convert the uploaded file to a byte array
+            byte[] fileData;
+            using (var memoryStream = new MemoryStream())
+            {
+                await FORM15.CopyToAsync(memoryStream);
+                fileData = memoryStream.ToArray();
+            }
+
+            // Save the form data into the database
+            var form15 = new EthicsApplicationForms
+            {
+                urecNo = urecNo,
+                ethicsFormId = "FORM15", // Identifier for Form 15
+                file = fileData,
+                dateUploaded = DateOnly.FromDateTime(DateTime.Now) // Convert DateTime to DateOnly
+            };
+
+
+            // Save form data using your service
+            var success = await _ethicsApplicationFormsServices.SaveEthicsFormAsync(form15);
+
+            if (success)
+            {
+                // Log the revision status update
+                var logEntry = new EthicsApplicationLog
+                {
+                    urecNo = urecNo,
+                    status = "Amendment for Uploaded",
+                    comments = "Form 15 uploaded for revisions.",
+                    changeDate = DateTime.Now,
+                    userId = User.FindFirstValue(ClaimTypes.NameIdentifier) // Set the current user ID
+                };
+
+                await _ethicsApplicationLogServices.AddLogAsync(logEntry);
+
+                TempData["SuccessMessage"] = "Form 15 uploaded and status updated successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "An error occurred while uploading Form 15.";
+            }
+
+            return RedirectToAction("UploadForms");
         }
 
         [Authorize(Roles = "Researcher, Faculty")]

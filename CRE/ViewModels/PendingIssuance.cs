@@ -11,5 +11,7 @@ namespace CRE.ViewModels
         public InitialReview InitialReview { get; set; }
         public AppUser User { get; set; }
         public ICollection<EthicsApplicationLog> EthicsApplicationLog { get; set; }
+        public EthicsClearance EthicsClearance { get; set; }
+        public bool HasClearanceIssued { get; set; }
     }
 }

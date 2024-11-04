@@ -218,6 +218,7 @@ namespace CRE.Services
                 .Include(app => app.ReceiptInfo)
                 .Include(app => app.EthicsApplicationForms)
                 .Include(app => app.EthicsApplicationLog)
+                .Include(app => app.EthicsClearance)
                 .FirstOrDefaultAsync(app => app.urecNo == urecNo);
 
             if (application == null)
@@ -237,7 +238,9 @@ namespace CRE.Services
                 EthicsApplicationLog = application.EthicsApplicationLog,
                 EthicsEvaluation = application.EthicsEvaluation.FirstOrDefault(),
                 CurrentEvaluation = application.EthicsEvaluation.FirstOrDefault(),
-                CoProponent = application.NonFundedResearchInfo.CoProponent
+                CoProponent = application.NonFundedResearchInfo.CoProponent,
+                HasEthicsClearance = application.EthicsClearance != null,
+                EthicsClearance = application.EthicsClearance
             };
 
             return viewModel;

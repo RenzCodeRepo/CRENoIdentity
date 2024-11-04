@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using CRE.Data.Validations; // Ensure you have this using directive for IFormFile
+using CRE.Data.Validations;
+using Microsoft.Identity.Client; // Ensure you have this using directive for IFormFile
 
 namespace CRE.ViewModels
 {
@@ -19,6 +20,7 @@ namespace CRE.ViewModels
         public string? LatestComment { get; set; } // To hold the latest comment from logs
         public string? NewComment { get; set; } // For the new comment input
         public EthicsClearance EthicsClearance { get; set; }
+        
 
         // Flags to determine if the study involves human subjects and minors
         public bool InvolvesHumanSubjects { get; set; }
@@ -33,6 +35,11 @@ namespace CRE.ViewModels
         [Display(Name = "Form 10 Research Study Protocol: ")]
         public IFormFile FORM10 { get; set; }
         public IFormFile? editFORM10 { get; set; }
+
+
+        [Display(Name = "Form 10 Research Study Protocol: ")]
+        public IFormFile? FORM15 { get; set; }
+        public IFormFile? editFORM15 { get; set; }
 
         [Required(ErrorMessage = "Form Upload is Required.")]
         [Display(Name = "Researcher/s Curriculum Vitae: ")]

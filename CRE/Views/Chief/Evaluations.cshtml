@@ -387,6 +387,7 @@
                     <th>UREC No</th>
                     <th>Title of the Research</th>
                     <th>Proponents/ Authors</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -394,7 +395,7 @@
                 @if (Model.PendingIssuance == null || !Model.PendingIssuance.Any())
                 {
                     <tr>
-                        <td colspan="4" class="text-center">No applications pending issuance found.</td>
+                        <td colspan="5" class="text-center">No applications pending issuance found.</td>
                     </tr>
                 }
                 else
@@ -405,7 +406,7 @@
                             <td>@application.EthicsApplication?.urecNo</td>
                             <td>@application.NonFundedResearchInfo?.title</td>
                             <td>
-                                @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
+                                @if (application.NonFundedResearchInfo?.AppUser != null)
                                 {
                                     @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
                                 }
@@ -424,7 +425,20 @@
                                 }
                             </td>
                             <td>
-                                <a asp-controller="Chief" asp-action="IssueApplication" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-success">Issue</a>
+                                <!-- Check if the clearance has been issued -->
+                                @if (application.HasClearanceIssued)
+                                {
+                                    <span class="badge bg-success">Clearance Issued</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Pending Issuance</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-controller="Chief" asp-action="IssueApplication" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-success">
+                                    Issue
+                                </a>
                             </td>
                         </tr>
                     }
@@ -432,6 +446,7 @@
             </tbody>
         </table>
     </div>
+
 <!-- Success Modal -->
 <div class="modal fade" id="evaluationSuccessModal" tabindex="-1" role="dialog" aria-labelledby="evaluationSuccessModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

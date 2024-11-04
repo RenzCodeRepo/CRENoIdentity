@@ -147,27 +147,43 @@
             <!-- Hidden field for UREC No. -->
             <input type="hidden" id="urecNo" name="urecNo" value="@Model.EthicsApplication.urecNo" />
 
-            <div class="form-group">
-                <label for="applicationDecision">Decision</label>
-                <select id="applicationDecision" name="applicationDecision" class="form-control" required>
-                    <option value="">Select a decision</option>
-                    <option value="Approve">Approve</option>
-                    <option value="Minor Revisions">Minor Revisions</option>
-                    <option value="Major Revisions">Major Revisions</option>
-                    <option value="Disapprove">Disapprove</option>
-                </select>
-            </div>
+            @if (!Model.HasEthicsClearance)
+            {
+                <!-- Decision Dropdown and File Upload for applications that are not issued -->
+                <div class="form-group">
+                    <label for="applicationDecision">Decision</label>
+                    <select id="applicationDecision" name="applicationDecision" class="form-control" required>
+                        <option value="">Select a decision</option>
+                        <option value="Approve">Approve</option>
+                        <option value="Minor Revisions">Minor Revisions</option>
+                        <option value="Major Revisions">Major Revisions</option>
+                        <option value="Disapprove">Disapprove</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="uploadedFile">Upload Ethics Application File (PDF only)</label>
-                <input type="file" class="form-control" id="uploadedFile" name="uploadedFile" accept="application/pdf" required disabled />
-                <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
-            </div>
+                <div class="form-group">
+                    <label for="uploadedFile">Upload Ethics Application File (PDF only)</label>
+                    <input type="file" class="form-control" id="uploadedFile" name="uploadedFile" accept="application/pdf" required disabled />
+                    <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
+                </div>
+            }
 
+            <!-- Remarks Section -->
             <h4>Evaluation Remarks</h4>
             <textarea name="remarks" class="form-control" rows="10" placeholder="Enter all remarks here...">
-                @if (Model.EthicsApplication.EthicsEvaluation != null && Model.EthicsApplication.EthicsEvaluation.Any())
+                @if (Model.HasEthicsClearance)
                 {
+                    // Display remarks from the log with "Clearance Issued" status
+                    var issuedLog = Model.EthicsApplicationLog
+                        .FirstOrDefault(log => log.status == "Clearance Issued");
+                    if (issuedLog != null && !string.IsNullOrEmpty(issuedLog.comments))
+                    {
+                        @issuedLog.comments
+                    }
+                }
+                else if (Model.EthicsApplication.EthicsEvaluation != null && Model.EthicsApplication.EthicsEvaluation.Any())
+                {
+                    // Display evaluation remarks if clearance hasn't been issued yet
                     var remarksBuilder = new System.Text.StringBuilder();
                     foreach (var evaluation in Model.EthicsApplication.EthicsEvaluation)
                     {
@@ -184,27 +200,35 @@
                 }
             </textarea>
 
-            <button type="submit" class="btn btn-primary" id="submitButton">Upload</button>
+            <!-- Submit Button - Only show if clearance is not issued -->
+            @if (!Model.HasEthicsClearance)
+            {
+                <button type="submit" class="btn btn-primary" id="submitButton">Upload</button>
+            }
+            @if (Model.HasEthicsClearance)
+            {
+                <a href="#" class="btn btn-sm btn-info" onclick="viewEthicsClearance('@Model.EthicsApplication.urecNo')">View Ethics Clearance</a>
+            }
         </form>
+
 
     </div>
 
-    <!-- Modal for PDF view -->
     <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
-                </div>
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
             </div>
         </div>
     </div>
+</div>
 
 </div>
 @section Scripts {
@@ -229,17 +253,16 @@
             });
         }
 
-        // Function to open PDF in modal
-        function openPdfInModal(fileType, urecNo, evaluationId) {
-            const url = `@Url.Action("ViewFile", "Chief")?fileType=${encodeURIComponent(fileType)}&urecNo=${encodeURIComponent(urecNo)}&evaluationId=${encodeURIComponent(evaluationId)}`;
-            document.getElementById("pdfViewer").src = url;
-            $('#pdfModal').modal('show'); // Show the modal
-        }
+        
        
-        document.getElementById('applicationDecision').addEventListener('change', function () {
-            let uploadedFileInput = document.getElementById('uploadedFile');
-                let submitButton = document.getElementById('submitButton');
+        document.addEventListener('DOMContentLoaded', function () {
+    let applicationDecision = document.getElementById('applicationDecision');
+    let uploadedFileInput = document.getElementById('uploadedFile');
+    let submitButton = document.getElementById('submitButton');
 
+    // Check if applicationDecision exists before adding event listener
+    if (applicationDecision) {
+        applicationDecision.addEventListener('change', function () {
             switch (this.value) {
                 case 'Approve':
                     uploadedFileInput.disabled = false; // Enable file input
@@ -247,7 +270,6 @@
                     submitButton.innerText = 'Upload'; // Change button text to 'Upload'
                     break;
                 case 'Minor Revisions':
-                
                 case 'Major Revisions':
                 case 'Disapprove':
                     uploadedFileInput.disabled = true; // Disable file input
@@ -263,6 +285,9 @@
                     break;
             }
         });
+    }
+});
+
 
         document.getElementById('issueApplicationForm').addEventListener('submit', function (event) {
             let uploadedFileInput = document.getElementById('uploadedFile');
@@ -271,6 +296,21 @@
                 event.preventDefault(); // Prevent form submission
             }
         });
+    </script>
+     <script type="text/javascript">
+        function viewEthicsClearance(urecNo) {
+            // Construct the PDF URL for the provided urecNo
+            var pdfUrl = '@Url.Action("ViewClearanceFile", "EthicsApplicationForms")' + '?urecNo=' + encodeURIComponent(urecNo);
+            openPdfInModal(pdfUrl);
+        }
+
+        function openPdfInModal(pdfUrl) {
+            // Set the iframe source to the selected PDF
+            document.getElementById("pdfViewer").src = pdfUrl;
+
+            // Show the modal
+            $('#pdfModal').modal('show');
+        }
     </script>
 }
 

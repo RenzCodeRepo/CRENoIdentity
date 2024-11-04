@@ -505,7 +505,7 @@ namespace CRE.Services
 
 
         public async Task<List<EvaluatedFullReviewApplication>> GetEvaluatedFullReviewApplicationsAsync()
-         {
+        {
             // Retrieve the applications along with their related data
             var applications = await _context.EthicsApplication
                 .Include(a => a.NonFundedResearchInfo)
@@ -534,7 +534,7 @@ namespace CRE.Services
                 EthicsApplicationLog = a.EthicsApplicationLog
             }).ToList();
         }
-public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsync(string urecNo, int evaluationId)
+        public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsync(string urecNo, int evaluationId)
         {
             // Fetch the application based on urecNo and evaluationId
             var application = await _context.EthicsApplication
@@ -612,19 +612,20 @@ public async Task<EvaluationDetailsViewModel> GetEvaluationDetailsWithUrecNoAsyn
             // Fetch applications where all related evaluations have the status 'Evaluated'
             return await _context.EthicsApplication
                 .Include(e => e.EthicsEvaluation) // Include related evaluations
+                .Include(e => e.EthicsClearance)
                 .Where(app => app.EthicsEvaluation.All(e => e.evaluationStatus == "Evaluated")) // Check that all evaluations are evaluated
                 .Select(app => new PendingIssuance // Adjust this class name if necessary
                 {
                     EthicsApplication = app,
                     NonFundedResearchInfo = app.NonFundedResearchInfo, // Adjust based on your navigation properties
                     InitialReview = app.InitialReview,
+                    HasClearanceIssued = app.EthicsClearance != null,
+                    EthicsClearance = app.EthicsClearance,
                     User = app.User, // Ensure you have the User navigation property
                     EthicsApplicationLog = app.EthicsApplicationLog // Ensure you have the logs available
-                                                                    // Add other properties as needed
                 })
-                .ToListAsync();
+                .ToListAsync(); // Apply ToListAsync to the entire query
         }
-
 
     }
 }

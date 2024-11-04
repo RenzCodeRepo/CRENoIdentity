@@ -19,7 +19,7 @@ namespace CRE.ViewModels
         public EthicsEvaluation EthicsEvaluation { get; set; }
         public IEnumerable<EthicsApplicationForms>? EthicsApplicationForms { get; set; }
         public IEnumerable<EthicsApplicationLog>? EthicsApplicationLog { get; set; }
-
+        public bool HasEthicsClearance { get; set; }
         // Property for a single evaluation
         public EthicsEvaluation? CurrentEvaluation { get; set; } // This represents the current evaluation.
 

@@ -10,7 +10,7 @@ namespace CRE.ViewModels
         public List<EvaluatedExpeditedApplication> EvaluatedExpeditedApplications { get; set; }
         public List<EvaluatedFullReviewApplication> EvaluatedFullReviewApplications { get; set; }
         public List<PendingIssuance> PendingIssuance { get; set; } // New property
-
+        
         public ApplicationEvaluationViewModel()
         {
             ExemptApplications = new List<ChiefEvaluationViewModel>();

@@ -60,5 +60,20 @@ namespace CRE.Services
             return await _context.EthicsApplicationForms
                 .FirstOrDefaultAsync(f => f.ethicsFormId == formId && f.urecNo == urecNo);
         }
+
+        public async Task<bool> SaveEthicsFormAsync(EthicsApplicationForms form)
+        {
+            try
+            {
+                _context.EthicsApplicationForms.Add(form);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                // Handle or log the exception as needed
+                return false;
+            }
+        }
     }
 }
