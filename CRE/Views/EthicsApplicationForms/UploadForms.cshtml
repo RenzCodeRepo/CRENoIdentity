@@ -496,9 +496,7 @@
                     <div class="card-header">
                         <h5>
                             Ethics Clearance Details
-                            <a href="@Url.Action("ViewClearanceFile", "EthicsApplicationForms", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-sm btn-info" toggle="modal" target="#clearanceModal" data-urec-no="@Model.EthicsApplication.urecNo" id="viewClearanceBtn">
-                                View Clearance Document
-                            </a>
+                            <a href="#" class="btn btn-sm btn-info" onclick="viewEthicsClearance('@Model.EthicsApplication.urecNo')">View Ethics Clearance</a>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -514,8 +512,23 @@
                 </div>
             }
         </div>
-</form>
 
+</form>
+<div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>
@@ -529,8 +542,7 @@
             }).catch(err => {
                 console.error("Failed to copy: ", err);
             });
-        }
-
+        
         // Function to copy DTS No. to clipboard
         function copyDtsNo() {
             const dtsNo = document.getElementById("dtsNoValue").innerText; // Get the DTS No directly
@@ -646,7 +658,6 @@
        
     </script>
     <script>
-        // Function to validate all PDF uploads
         document.querySelectorAll('.pdf-upload').forEach(input => {
             input.addEventListener('change', function () {
                 const filePath = this.value;
@@ -658,18 +669,20 @@
             });
         });
     </script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#viewClearanceBtn').click(function () {
-                var urecNo = $(this).data('urec-no'); // Get the urecNo from the button data attribute
-                var url = '@Url.Action("ViewClearanceFile", "EthicsApplicationForms")?urecNo='; // Build the URL without the parameter
+   <script type="text/javascript">
+        function viewEthicsClearance(urecNo) {
+            // Construct the PDF URL for the provided urecNo
+            var pdfUrl = '@Url.Action("ViewClearanceFile", "EthicsApplicationForms")' + '?urecNo=' + encodeURIComponent(urecNo);
+            openPdfInModal(pdfUrl);
+        }
 
-                // Log the URL to see if it's correctly formed
-                console.log(url + encodeURIComponent(urecNo)); // Check the final URL
+        function openPdfInModal(pdfUrl) {
+            // Set the iframe source to the selected PDF
+            document.getElementById("pdfViewer").src = pdfUrl;
 
-                // Set the src of the iframe to the clearance document URL
-                $('#clearanceDocument').attr('src', url + encodeURIComponent(urecNo));
-            });
-        });
+            // Show the modal
+            $('#pdfModal').modal('show');
+        }
     </script>
 }
+    
