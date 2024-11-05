@@ -60,7 +60,7 @@
                     }
                 </p>
             </div>
-            
+
             <!-- Modal for Adding/Editing DTS No. -->
             <div class="modal fade" id="editDtsModal" tabindex="-1" aria-labelledby="editDtsLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -69,16 +69,13 @@
                             <h5 class="modal-title" id="editDtsLabel">Edit DTS No.</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
-                            <div id="errorMessages" class="text-danger mb-2"></div> <!-- Error message display -->
+                        <div class="modal-body p-4">
+                            <div id="errorMessages" class="text-danger mb-3"></div> <!-- Error message display -->
                             <form id="editDtsForm" method="post" asp-action="UpdateDtsNo" asp-controller="EthicsApplicationForms">
                                 <div class="mb-3">
-                                    <label for="dtsNoInput" class="form-label">DTS No.</label>
-                                    <input type="text" class="form-control" id="dtsNoInput" name="dtsNo"
-                                           value="@Model.EthicsApplication.dtsNo"
-                                           required
-                                           pattern="\d{4}-\d{4}-\d{2}"
-                                           title="DTS No. must be in the format xxxx-xxxx-xx" />
+                                    <label for="dtsNoInput" class="form-label fw-bold">DTS No.</label>
+                                    <input type="text" class="form-control border border-2 rounded" id="dtsNoInput" name="dtsNo" required title="DTS No. must be in the format xxxx-xxxx-xx" />
+
                                     <span id="dtsNoError" class="text-danger"></span> <!-- Dynamic JS error -->
                                     @Html.ValidationMessage("dtsNo", "", new { @class = "text-danger" }) <!-- Server-side error -->
                                 </div>
@@ -107,7 +104,7 @@
                             <br />
                         }
                     }
-                    </ul>
+                </ul>
             </div>
         </div>
         <div class="row">
@@ -118,26 +115,26 @@
     </div>
 </div>
 <form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
-<div class="row">
-    <div class="card border-light mb-3 col-sm" style="width:100%">
-        <div class="card-header"><h2>Your Attachments</h2></div>
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-        <div class="card-body">
-            @* Display receipt PDF link if it exists in the database *@
-            @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
+    <div class="row">
+        <div class="card border-light mb-3 col-sm" style="width:100%">
+            <div class="card-header"><h2>Your Attachments</h2></div>
+            @if (TempData["SuccessMessage"] != null)
             {
-                <div class="mb-3">
-                    <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" target="_blank" class="btn btn-primary btn">
-                        Payment Receipt.pdf
-                    </a>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
+            <div class="card-body">
+                @* Display receipt PDF link if it exists in the database *@
+                @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
+                {
+                    <div class="mb-3">
+                        <a href="@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })" target="_blank" class="btn btn-primary btn">
+                            Payment Receipt.pdf
+                        </a>
+                    </div>
+                }
 
                 <input type="hidden" name="EthicsApplication.urecNo" value="@Model.EthicsApplication.urecNo" />
 
@@ -381,7 +378,7 @@
                             // Check if the latest ethics log status is "Applied"
                             @if (Model?.EthicsApplicationLog?.FirstOrDefault()?.status == "Applied")
                             {
-                    // Show upload option if the log status is "Applied"
+                            // Show upload option if the log status is "Applied"
                                 <label for="FORM11">Upload Ethics Form 11 Informed Consent:</label>
                                 <input asp-for="FORM11" id="form11-file" class="form-control pdf-upload" type="file" accept=".pdf" />
                                 <span asp-validation-for="FORM11" class="text-danger"></span>
@@ -457,8 +454,8 @@
                         }
                     </div>
                 </div>
+            </div>
         </div>
-    </div>
 
         <div class="card border-light mb-3 col-sm" style="width:100%">
             <div class="card-header"><h2>Your Uploads</h2></div>
@@ -512,8 +509,8 @@
                     </div>
                 </div>
             }
-            else if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Minor Revisions" 
-            || 
+            else if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Minor Revisions"
+            ||
             Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Major Revisions")
             {
                 <div class="card mt-3">
@@ -591,7 +588,6 @@
 
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
         // Clipboard Copy Functions
         function copyUrecNo() {
@@ -612,28 +608,46 @@
             });
         }
 
-        // Form State Update Based on Human Subjects and Minor Involvement
+        // Function to update the form state based on human subjects and minors involvement
         function updateFormState(hasHumanSubjects, initialReviewStatus) {
-            const ethicsLogStatus = '@Model?.EthicsApplicationLog?.FirstOrDefault()?.status';
+            const ethicsLogStatus = '@Model?.EthicsApplicationLog?.FirstOrDefault()?.status'; // Injected from the server-side
+
+            // Ignore conditions if initial review status is "Returned"
             if (initialReviewStatus === "Returned") {
+                // Enable all forms for editing if the initial review is "Returned"
                 $('#form11-file, #form12-file, #form10-1-file').prop('disabled', false);
-                $('#minors-question').show();
-                return;
+                $('#minors-question').show(); // Show minors question as well
+                return; // Exit the function
             }
 
+            // If humans are involved, disable Form 10.1
             $('#form10-1-file').prop('disabled', hasHumanSubjects);
+
             if (hasHumanSubjects) {
+                // Enable Form 11 when humans are involved
                 $('#form11-file').prop('disabled', false);
+                // Show minors question
                 $('#minors-question').show();
-                $('#form12-file').prop('disabled', $('input[name="InvolvesMinors"]:checked').val() !== "true");
+
+                // Check minors involvement
+                if ($('input[name="InvolvesMinors"]:checked').val() === "true") {
+                    // Enable Form 12 if minors are involved
+                    $('#form12-file').prop('disabled', false);
+                } else {
+                    // Disable Form 12 if minors are not involved
+                    $('#form12-file').prop('disabled', true).val('').siblings('.text-danger').text('');
+                }
             } else {
-                $('#form11-file, #form12-file').prop('disabled', true).val('').siblings('.text-danger').text('');
-                $('#minors-question').hide();
+                // If no humans are involved
+                $('#form11-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Form 11
+                $('#minors-question').hide(); // Hide minors question
+                $('#form12-file').prop('disabled', true).val('').siblings('.text-danger').text(''); // Disable Form 12
             }
         }
 
+        // Update Form 12 based on involvement with minors
         function updateFormStateWithMinors(involvesMinors) {
-            $('#form12-file').prop('disabled', !involvesMinors);
+            $('#form12-file').prop('disabled', !involvesMinors); // Enable Form 12 if minors are involved, otherwise disable
         }
 
         // Form 15 Upload Validation
@@ -653,26 +667,27 @@
             return true;
         });
 
-        // Document Ready for jQuery Events
         $(document).ready(function () {
-            // Confirmation Before Submission
+            // Confirmation before form submission
             $('#myForm').on('submit', function (event) {
-                if (!confirm('Are you sure you want to submit the form with the current files?')) {
+                var confirmSubmit = confirm('Are you sure you want to submit the form with the current files?');
+                if (!confirmSubmit) {
                     event.preventDefault();
                 } else {
+                    // Clear validation messages for disabled inputs before submitting
                     $('#form11-file, #form12-file, #form10-1-file').siblings('.text-danger').text('');
                 }
             });
 
-            // Initialize Form State
-            const initialReviewStatus = '@Model.InitialReview?.status';
+            // Initialize form states based on default selections
+            const initialReviewStatus = '@Model.InitialReview?.status'; // Injected from the server-side
             updateFormState($('input[name="InvolvesHumanSubjects"]:checked').val() === "true", initialReviewStatus);
-
-            // DTS Form Submission with Validation
+            // DTS form submission handling
             $('#submitDtsForm').click(function (e) {
                 e.preventDefault();
                 var dtsNoInput = $('#dtsNoInput').val();
-                var urecNo = $('input[name="urecNo"]').val();
+                var urecNo = $('input[name="urecNo"]').val(); // Get the UREC No.
+
                 var dtsPattern = /^\d{4}-\d{4}-\d{2}$/;
                 if (!dtsPattern.test(dtsNoInput)) {
                     $('#dtsNoError').text("DTS No. must be in the format xxxx-xxxx-xx.");
@@ -680,24 +695,26 @@
                     $.ajax({
                         url: '@Url.Action("UpdateDtsNo", "EthicsApplicationForms")',
                         type: 'POST',
-                        data: { dtsNo: dtsNoInput, urecNo: urecNo },
+                        data: {
+                            dtsNo: dtsNoInput,
+                            urecNo: urecNo
+                        },
                         success: function (response) {
                             if (response.success) {
-                                alert(response.message);
-                                $('#editDtsModal').modal('hide');
-                                location.reload();
+                                alert(response.message); // Display success message
+                                $('#editDtsModal').modal('hide'); // Close the modal
+                                location.reload(); // Refresh the page
                             } else {
-                                $('#errorMessages').text(response.message);
+                                $('#errorMessages').text(response.message); // Show error
                             }
                         },
                         error: function (xhr, status, error) {
                             $('#errorMessages').text("An error occurred while checking DTS No.");
-                            console.error("AJAX Error: ", error);
+                            console.error("AJAX Error: ", error); // Log error details
                         }
                     });
                 }
             });
-
             // Event Handlers for Form State Changes
             $('input[name="InvolvesHumanSubjects"]').change(function () {
                 updateFormState($(this).val() === "true", initialReviewStatus);
@@ -705,18 +722,6 @@
 
             $('input[name="InvolvesMinors"]').change(function () {
                 updateFormStateWithMinors($(this).val() === "true");
-            });
-        });
-
-        // PDF File Extension Validation
-        document.querySelectorAll('.pdf-upload').forEach(input => {
-            input.addEventListener('change', function () {
-                const filePath = this.value;
-                const allowedExtensions = /(\.pdf)$/i;
-                if (!allowedExtensions.exec(filePath)) {
-                    alert('Please upload a file with .pdf extension only.');
-                    this.value = '';
-                }
             });
         });
 
@@ -731,4 +736,18 @@
             $('#pdfModal').modal('show');
         }
     </script>
+    <script>
+        // Function to validate all PDF uploads
+        document.querySelectorAll('.pdf-upload').forEach(input => {
+            input.addEventListener('change', function () {
+                const filePath = this.value;
+                const allowedExtensions = /(\.pdf)$/i; // Only allow PDF files
+                if (!allowedExtensions.exec(filePath)) {
+                    alert('Please upload a file with .pdf extension only.');
+                    this.value = ''; // Clear the input
+                }
+            });
+        });
+    </script>
+
 }

@@ -62,7 +62,7 @@ namespace CRE.Controllers
 
         [Authorize(Roles = "Researcher, Faculty, Secretariat, Chief")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
+            
         public async Task<IActionResult> UpdateDtsNo(string dtsNo, string urecNo)
         {
             // Ensure dtsNo and urecNo are received correctly
@@ -157,11 +157,7 @@ namespace CRE.Controllers
 
             return View(model);
         }
-        tapusin ang revision upload form 15
-            include yung fucking completion report if may clearance na
-            tas issue ulit nung completion certificate
-
-            tas pag reject, sabihin nlng na reject sa log wala upload
+       
         [HttpPost]
         public async Task<IActionResult> UploadForm15(IFormFile FORM15, string urecNo)
         {
