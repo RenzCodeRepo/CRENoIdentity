@@ -19,7 +19,7 @@ namespace CRE.ViewModels
         public InitialReview? InitialReview { get; set; } // Add InitialReview to track status
         public string? LatestComment { get; set; } // To hold the latest comment from logs
         public string? NewComment { get; set; } // For the new comment input
-        public EthicsClearance EthicsClearance { get; set; }
+        public EthicsClearance? EthicsClearance { get; set; }
         
 
         // Flags to determine if the study involves human subjects and minors
