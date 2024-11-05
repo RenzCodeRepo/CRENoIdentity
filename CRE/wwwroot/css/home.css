@@ -170,5 +170,8 @@ main {
 }
 
     .download-btn:hover {
-        background-color: #6A0000;
+        background-color: #a00;
+        color: #fff; /* Keeps text white on hover */
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(139, 0, 0, 0.3);
     }

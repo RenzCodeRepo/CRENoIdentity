@@ -116,34 +116,37 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>
-                            <button type="button" class="btn btn-info"
-                                    onclick="openPdfInModal('ProtocolReviewSheet', '@Model.EthicsApplication.urecNo', @Model.EthicsEvaluation.evaluationId)">
-                                View Protocol Review Sheet
-                            </button>
-                        </td>
-                        <td>
-                            @Model.EthicsEvaluation.ProtocolRemarks
-                        </td>
-                        <td>
-                            @Model.EthicsEvaluation.ProtocolRecommendation
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <button type="button" class="btn btn-info"
-                                    onclick="openPdfInModal('InformedConsentForm', '@Model.EthicsApplication.urecNo', @Model.EthicsEvaluation.evaluationId)">
-                                View Informed Consent Form
-                            </button>
-                        </td>
-                        <td>
-                            @Model.EthicsEvaluation.ConsentRemarks
-                        </td>
-                        <td>
-                            @Model.EthicsEvaluation.ConsentRecommendation
-                        </td>
-                    </tr>
+                    @foreach (var evaluation in Model.EthicsEvaluation)
+                    {
+                        <tr>
+                            <td>
+                                <button type="button" class="btn btn-info"
+                                        onclick="openPdfInModal('ProtocolReviewSheet', '@Model.EthicsApplication.urecNo', @evaluation.evaluationId)">
+                                    View Protocol Review Sheet
+                                </button>
+                            </td>
+                            <td>
+                                @evaluation.ProtocolRemarks
+                            </td>
+                            <td>
+                                @evaluation.ProtocolRecommendation
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="button" class="btn btn-info"
+                                        onclick="openPdfInModal('InformedConsentForm', '@Model.EthicsApplication.urecNo', @evaluation.evaluationId)">
+                                    View Informed Consent Form
+                                </button>
+                            </td>
+                            <td>
+                                @evaluation.ConsentRemarks
+                            </td>
+                            <td>
+                                @evaluation.ConsentRecommendation
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

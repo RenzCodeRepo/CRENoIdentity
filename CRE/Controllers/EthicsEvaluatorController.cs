@@ -222,15 +222,16 @@ namespace CRE.Controllers
 
             // Check if the evaluation already exists
             var existingEvaluation = await _ethicsEvaluationServices.GetEvaluationByUrecNoAndEvaluatorIdAsync(model.EthicsApplication.urecNo, ethicsEvaluatorId);
+            var selectedEvaluation = model.EthicsEvaluation
+    .FirstOrDefault(e => e.ethicsEvaluatorId == ethicsEvaluatorId); // Adjust condition as needed
 
-            if (existingEvaluation != null)
+            if (selectedEvaluation != null)
             {
-                // Update the existing evaluation
                 existingEvaluation.evaluationStatus = "Evaluated";
-                existingEvaluation.ProtocolRecommendation = model.EthicsEvaluation.ProtocolRecommendation;
-                existingEvaluation.ProtocolRemarks = model.EthicsEvaluation.ProtocolRemarks;
-                existingEvaluation.ConsentRecommendation = model.EthicsEvaluation.ConsentRecommendation;
-                existingEvaluation.ConsentRemarks = model.EthicsEvaluation.ConsentRemarks;
+                existingEvaluation.ProtocolRecommendation = selectedEvaluation.ProtocolRecommendation;
+                existingEvaluation.ProtocolRemarks = selectedEvaluation.ProtocolRemarks;
+                existingEvaluation.ConsentRecommendation = selectedEvaluation.ConsentRecommendation;
+                existingEvaluation.ConsentRemarks = selectedEvaluation.ConsentRemarks;
                 existingEvaluation.endDate = DateOnly.FromDateTime(DateTime.Today);
 
                 if (model.ProtocolReviewSheet != null)
@@ -243,7 +244,6 @@ namespace CRE.Controllers
                     existingEvaluation.InformedConsentForm = await GetFileContentAsync(model.InformedConsentForm);
                 }
 
-                // Save the updated evaluation to the database
                 await _ethicsEvaluationServices.UpdateEvaluationAsync(existingEvaluation);
             }
             else

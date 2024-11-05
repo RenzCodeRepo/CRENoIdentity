@@ -1,6 +1,6 @@
 ﻿@model CRE.ViewModels.EvaluationDetailsViewModel
 @{
-     var successMessage = TempData["SuccessMessage"] as string;
+    var successMessage = TempData["SuccessMessage"] as string;
 }  
 
 <!-- Success Modal -->
@@ -30,6 +30,7 @@
         </div>
     </div>
 }
+
 <div class="container">
     <h2>Evaluation Details</h2>
 
@@ -38,7 +39,8 @@
             <div class="row">
                 <div class="col text-start">
                     <p id="urecNoText">
-                        <strong>UREC No.: </strong> <span id="urecNoValue">@Model.EthicsApplication.urecNo</span>
+                        <strong>UREC No.: </strong> 
+                        <span id="urecNoValue">@Model.EthicsApplication.urecNo</span>
                     </p>
                     <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
                         Copy UREC No.
@@ -46,21 +48,21 @@
 
                     <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
                     <p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <strong>Proponent:</strong>
-                                @($"{Model.EthicsApplication?.User?.fName} {Model.EthicsApplication?.User?.mName} {Model.EthicsApplication?.User?.lName}")
-                                <ul>
-                                    @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Proponent:</strong>
+                            @($"{Model.EthicsApplication?.User?.fName} {Model.EthicsApplication?.User?.mName} {Model.EthicsApplication?.User?.lName}")
+                            <ul>
+                                @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
+                                {
+                                    foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
                                     {
-                                        foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
-                                        {
-                                            <li>@proponent.coProponentName</li>
-                                        }
+                                        <li>@proponent.coProponentName</li>
                                     }
-                                </ul>
-                            </div>
+                                }
+                            </ul>
                         </div>
+                    </div>
                     </p>
                     <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
                     <p><strong>College: </strong> @Model.NonFundedResearchInfo.college</p>
@@ -143,95 +145,97 @@
                 <p>No evaluations available for this application.</p>
             }
         </div>
+
+        <div id="pdfModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">PDF Document</h5>
+                        <button type="button" class="close" onclick="document.getElementById('pdfModal').style.display='none'">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <iframe src="" width="100%" height="900px" frameborder="0"></iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('pdfModal').style.display='none'">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <form id="issueApplicationForm" asp-action="IssueApplication" asp-controller="Chief" enctype="multipart/form-data" method="post">
             <!-- Hidden field for UREC No. -->
             <input type="hidden" id="urecNo" name="urecNo" value="@Model.EthicsApplication.urecNo" />
 
-            @if (!Model.HasEthicsClearance)
+            @if (Model.EthicsClearance != null)
             {
-                <!-- Decision Dropdown and File Upload for applications that are not issued -->
-                <div class="form-group">
-                    <label for="applicationDecision">Decision</label>
-                    <select id="applicationDecision" name="applicationDecision" class="form-control" required>
-                        <option value="">Select a decision</option>
-                        <option value="Approve">Approve</option>
-                        <option value="Minor Revisions">Minor Revisions</option>
-                        <option value="Major Revisions">Major Revisions</option>
-                        <option value="Disapprove">Disapprove</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="uploadedFile">Upload Ethics Application File (PDF only)</label>
-                    <input type="file" class="form-control" id="uploadedFile" name="uploadedFile" accept="application/pdf" required disabled />
-                    <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
-                </div>
+                <span class="badge bg-success">Clearance Issued</span>
             }
-
-            <!-- Remarks Section -->
-            <h4>Evaluation Remarks</h4>
-            <textarea name="remarks" class="form-control" rows="10" placeholder="Enter all remarks here...">
-                @if (Model.HasEthicsClearance)
+            else if (Model.EthicsEvaluation.All(e => e.evaluationStatus == "Evaluated"))
+            {
+                if (Model.EthicsApplicationLog != null && Model.EthicsApplicationLog.Any())
                 {
-                    // Display remarks from the log with "Clearance Issued" status
-                    var issuedLog = Model.EthicsApplicationLog
-                        .FirstOrDefault(log => log.status == "Clearance Issued");
-                    if (issuedLog != null && !string.IsNullOrEmpty(issuedLog.comments))
+                    var latestLog = Model.EthicsApplicationLog.Last();
+
+                    // Check for "Amendment form Uploaded" status and if Form 15 is uploaded
+                    if (latestLog.status == "Amendment form Uploaded" && Model.HasForm15Uploaded)
                     {
-                        @issuedLog.comments
+                        <span class="badge bg-warning">Awaiting Amendment Review</span>
+                       
+                        <button type="button" class="btn btn-info"
+                                onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = "FORM15", urecNo = Model.EthicsApplication.urecNo })')">
+                            View Form 15
+                        </button>
+
+                        <!-- Decision Dropdown and File Upload for applications awaiting amendment review -->
+                        <div class="form-group">
+                            <label for="applicationDecision">Decision</label>
+                            <select id="applicationDecision" name="applicationDecision" class="form-control" required>
+                                <option value="">Select a decision</option>
+                                <option value="Approve">Approve</option>
+                                <option value="Minor Revisions">Minor Revisions</option>
+                                <option value="Major Revisions">Major Revisions</option>
+                                <option value="Disapprove">Disapprove</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="uploadedFile">Upload Ethics Application File (PDF only)</label>
+                            <input type="file" class="form-control" id="uploadedFile" name="uploadedFile" accept="application/pdf" required disabled />
+                            <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
+                        </div>
+                    }
+                    // Check if the latest log indicates "Minor Revisions" or "Major Revisions"
+                    else if (latestLog.status == "Minor Revisions" || latestLog.status == "Major Revisions")
+                    {
+                        <span class="badge bg-warning">Awaiting Amendment Form</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Pending Issuance</span>
                     }
                 }
-                else if (Model.EthicsApplication.EthicsEvaluation != null && Model.EthicsApplication.EthicsEvaluation.Any())
+                else
                 {
-                    // Display evaluation remarks if clearance hasn't been issued yet
-                    var remarksBuilder = new System.Text.StringBuilder();
-                    foreach (var evaluation in Model.EthicsApplication.EthicsEvaluation)
-                    {
-                        if (!string.IsNullOrEmpty(evaluation.ProtocolRemarks))
-                        {
-                            remarksBuilder.AppendLine($"- Protocol Remarks: {evaluation.ProtocolRemarks}");
-                        }
-                        if (!string.IsNullOrEmpty(evaluation.ConsentRemarks))
-                        {
-                            remarksBuilder.AppendLine($"- Informed Consent Remarks: {evaluation.ConsentRemarks}");
-                        }
-                    }
-                    @remarksBuilder.ToString()
+                    <span class="badge bg-warning">Pending Issuance</span>
                 }
-            </textarea>
+            }
+            else
+            {
+                <span class="badge bg-danger">Evaluations Incomplete</span>
+            }
 
-            <!-- Submit Button - Only show if clearance is not issued -->
-            @if (!Model.HasEthicsClearance)
-            {
-                <button type="submit" class="btn btn-primary" id="submitButton">Upload</button>
-            }
-            @if (Model.HasEthicsClearance)
-            {
-                <a href="#" class="btn btn-sm btn-info" onclick="viewEthicsClearance('@Model.EthicsApplication.urecNo')">View Ethics Clearance</a>
-            }
+            <div class="mt-3">
+                <button type="submit" class="btn btn-success">Issue Clearance</button>
+            </div>
         </form>
 
-
     </div>
-
-    <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="pdfModalLabel">PDF Viewer</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <iframe id="pdfViewer" src="" width="100%" height="800px" frameborder="0"></iframe>
-            </div>
-        </div>
-    </div>
-</div>
-
 </div>
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script>
         // Function to copy UREC No. to clipboard
         function copyUrecNo() {
@@ -253,57 +257,7 @@
             });
         }
 
-        
-       
-        document.addEventListener('DOMContentLoaded', function () {
-    let applicationDecision = document.getElementById('applicationDecision');
-    let uploadedFileInput = document.getElementById('uploadedFile');
-    let submitButton = document.getElementById('submitButton');
-
-    // Check if applicationDecision exists before adding event listener
-    if (applicationDecision) {
-        applicationDecision.addEventListener('change', function () {
-            switch (this.value) {
-                case 'Approve':
-                    uploadedFileInput.disabled = false; // Enable file input
-                    uploadedFileInput.required = true; // Mark as required
-                    submitButton.innerText = 'Upload'; // Change button text to 'Upload'
-                    break;
-                case 'Minor Revisions':
-                case 'Major Revisions':
-                case 'Disapprove':
-                    uploadedFileInput.disabled = true; // Disable file input
-                    uploadedFileInput.required = false; // Not required
-                    uploadedFileInput.value = ''; // Clear input value
-                    submitButton.innerText = (this.value === 'Disapprove') ? 'Disapprove' : 'Submit'; // Adjust button text
-                    break;
-                default:
-                    uploadedFileInput.disabled = true; // Disable file input
-                    uploadedFileInput.required = false; // Not required
-                    uploadedFileInput.value = ''; // Clear input value
-                    submitButton.innerText = 'Submit'; // Reset button text
-                    break;
-            }
-        });
-    }
-});
-
-
-        document.getElementById('issueApplicationForm').addEventListener('submit', function (event) {
-            let uploadedFileInput = document.getElementById('uploadedFile');
-            if (uploadedFileInput.required && !uploadedFileInput.files.length) {
-                alert('Please upload a PDF file before submitting.');
-                event.preventDefault(); // Prevent form submission
-            }
-        });
-    </script>
-     <script type="text/javascript">
-        function viewEthicsClearance(urecNo) {
-            // Construct the PDF URL for the provided urecNo
-            var pdfUrl = '@Url.Action("ViewClearanceFile", "EthicsApplicationForms")' + '?urecNo=' + encodeURIComponent(urecNo);
-            openPdfInModal(pdfUrl);
-        }
-
+        // Function to open PDF in modal
         function openPdfInModal(pdfUrl) {
             // Set the iframe source to the selected PDF
             document.getElementById("pdfViewer").src = pdfUrl;
@@ -311,6 +265,79 @@
             // Show the modal
             $('#pdfModal').modal('show');
         }
-    </script>
-}
 
+        // Function to view ethics clearance
+        function viewEthicsClearance(urecNo) {
+            // Construct the PDF URL for the provided urecNo
+            var pdfUrl = '@Url.Action("ViewClearanceFile", "EthicsApplicationForms")' + '?urecNo=' + encodeURIComponent(urecNo);
+            openPdfInModal(pdfUrl);
+        }
+
+        // Document ready function
+        document.addEventListener('DOMContentLoaded', function () {
+            let applicationDecision = document.getElementById('applicationDecision');
+            let uploadedFileInput = document.getElementById('uploadedFile');
+            let submitButton = document.getElementById('submitButton');
+
+            // Check if applicationDecision exists before adding event listener
+            if (applicationDecision) {
+                applicationDecision.addEventListener('change', function () {
+                    switch (this.value) {
+                        case 'Approve':
+                            uploadedFileInput.disabled = false; // Enable file input
+                            uploadedFileInput.required = true; // Mark as required
+                            submitButton.innerText = 'Upload'; // Change button text to 'Upload'
+                            break;
+                        case 'Minor Revisions':
+                        case 'Major Revisions':
+                        case 'Disapprove':
+                            uploadedFileInput.disabled = true; // Disable file input
+                            uploadedFileInput.required = false; // Not required
+                            uploadedFileInput.value = ''; // Clear input value
+                            submitButton.innerText = (this.value === 'Disapprove') ? 'Disapprove' : 'Submit'; // Adjust button text
+                            break;
+                        default:
+                            uploadedFileInput.disabled = true; // Disable file input
+                            uploadedFileInput.required = false; // Not required
+                            uploadedFileInput.value = ''; // Clear input value
+                            submitButton.innerText = 'Submit'; // Reset button text
+                            break;
+                    }
+                });
+            }
+
+            // Validate form submission
+            document.getElementById('issueApplicationForm').addEventListener('submit', function (event) {
+                let uploadedFileInput = document.getElementById('uploadedFile');
+                if (uploadedFileInput.required && !uploadedFileInput.files.length) {
+                    alert('Please upload a PDF file before submitting.');
+                    event.preventDefault(); // Prevent form submission
+                }
+            });
+
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                const modal = document.getElementById('pdfModal');
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                    modal.querySelector('iframe').src = ''; // Clear the iframe source
+                }
+            }
+        });
+    </script>
+    <script>
+    function openPdfInModal(formType, urecNo, evaluationId) {
+        // Construct the URL for fetching the PDF
+        var url = '@Url.Action("ViewEvaluationSheet", "Chief")'; // Change to your action method for fetching PDF
+        url += '?formType=' + encodeURIComponent(formType) + '&urecNo=' + encodeURIComponent(urecNo) + '&evaluationId=' + encodeURIComponent(evaluationId);
+
+        // Set the iframe source to the constructed URL
+        var modalBody = document.querySelector('#pdfModal .modal-body iframe');
+        modalBody.src = url;
+
+        // Show the modal
+        $('#pdfModal').modal('show');
+    }
+</script>
+
+}

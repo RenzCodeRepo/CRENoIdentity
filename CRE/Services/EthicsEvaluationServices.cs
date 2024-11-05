@@ -9,6 +9,7 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Collections.Generic;
 using System;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CRE.Services
 {
@@ -168,7 +169,7 @@ namespace CRE.Services
                 EthicsApplication = evaluation.EthicsApplication,
                 NonFundedResearchInfo = evaluation.EthicsApplication?.NonFundedResearchInfo,
                 EthicsApplicationLog = evaluation.EthicsApplication?.EthicsApplicationLog ?? new List<EthicsApplicationLog>(),
-                EthicsEvaluation = evaluation,
+                EthicsEvaluation = new List<EthicsEvaluation> { evaluation },
                 InitialReview = evaluation.EthicsApplication?.InitialReview,
                 EthicsEvaluator = evaluation.EthicsEvaluator ?? new EthicsEvaluator(),
                 AppUser = evaluatorUser // Set the evaluator user if available
@@ -591,7 +592,7 @@ namespace CRE.Services
                 CoProponent = application.NonFundedResearchInfo.CoProponent.ToList(),
                 EthicsApplicationForms = application.EthicsApplicationForms,
                 InitialReview = application.InitialReview,
-                EthicsEvaluation = evaluation,
+                EthicsEvaluation = new List<EthicsEvaluation> { evaluation },
                 ReceiptInfo = application.ReceiptInfo // Assuming you have a ReceiptInfo property
             };
 
@@ -631,22 +632,49 @@ namespace CRE.Services
 
         public async Task<List<PendingIssuance>> GetPendingApplicationsForIssuanceAsync()
         {
-            // Fetch applications where all related evaluations have the status 'Evaluated'
-            return await _context.EthicsApplication
-                .Include(e => e.EthicsEvaluation) // Include related evaluations
-                .Include(e => e.EthicsClearance)
-                .Where(app => app.EthicsEvaluation.All(e => e.evaluationStatus == "Evaluated")) // Check that all evaluations are evaluated
-                .Select(app => new PendingIssuance // Adjust this class name if necessary
+            var pendingApplications = await _context.EthicsApplication
+                .Include(a => a.NonFundedResearchInfo)
+                .Include(a => a.EthicsApplicationForms)
+                .Include(a => a.EthicsEvaluation) // Include evaluations
+                .Include(a => a.EthicsApplicationLog)
+                .Include(a => a.EthicsClearance)
+                .ToListAsync();
+
+            var pendingIssuanceList = new List<PendingIssuance>();
+
+            foreach (var application in pendingApplications)
+            {
+                var evaluations = await _context.EthicsEvaluation
+                    .Where(e => e.urecNo == application.urecNo) // Fetch evaluations for each application
+                    .ToListAsync();
+
+                var allEvaluationsCompleted = evaluations.All(e => e.evaluationStatus == "Evaluated");
+
+                // Check if Form 15 is uploaded
+                bool hasForm15Uploaded = application.EthicsApplicationForms
+                    .Any(f => f.ethicsFormId == "FORM15");
+
+                // Check for minor or major revisions
+                bool hasMinorOrMajorRevisions = application.EthicsApplicationLog
+                    .Any(log => log.status == "Minor Revisions" || log.status == "Major Revisions");
+
+                var pendingIssuance = new PendingIssuance
                 {
-                    EthicsApplication = app,
-                    NonFundedResearchInfo = app.NonFundedResearchInfo, // Adjust based on your navigation properties
-                    InitialReview = app.InitialReview,
-                    HasClearanceIssued = app.EthicsClearance != null,
-                    EthicsClearance = app.EthicsClearance,
-                    User = app.User, // Ensure you have the User navigation property
-                    EthicsApplicationLog = app.EthicsApplicationLog // Ensure you have the logs available
-                })
-                .ToListAsync(); // Apply ToListAsync to the entire query
+                    EthicsApplication = application,
+                    EthicsApplicationLog = application.EthicsApplicationLog,
+                    NonFundedResearchInfo = application.NonFundedResearchInfo,
+                    EthicsEvaluation = evaluations,
+                    EthicsClearance = application.EthicsClearance,
+                    HasClearanceIssued = application.EthicsClearance != null,
+                    AllEvaluationsCompleted = allEvaluationsCompleted,
+                    HasForm15Uploaded = hasForm15Uploaded, // Fixed this line
+                    HasMinorOrMajorRevisions = hasMinorOrMajorRevisions // Adjusted for clarity
+                };
+
+                pendingIssuanceList.Add(pendingIssuance);
+            }
+
+            return pendingIssuanceList;
         }
 
     }

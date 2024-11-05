@@ -12,5 +12,6 @@ namespace CRE.Interfaces
         Task UpdateFormAsync(EthicsApplicationForms form);
         Task RemoveFormAsync(int ethicsApplicationFormId);
         Task<bool> SaveEthicsFormAsync(EthicsApplicationForms form);
+        Task<EthicsApplicationForms> GetForm15ByUrecNoAsync(string urecNo);
     }
 }

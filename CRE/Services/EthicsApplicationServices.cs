@@ -236,7 +236,7 @@ namespace CRE.Services
                 ReceiptInfo = application.ReceiptInfo,
                 EthicsApplicationForms = application.EthicsApplicationForms,
                 EthicsApplicationLog = application.EthicsApplicationLog,
-                EthicsEvaluation = application.EthicsEvaluation.FirstOrDefault(),
+                EthicsEvaluation = application.EthicsEvaluation,
                 CurrentEvaluation = application.EthicsEvaluation.FirstOrDefault(),
                 CoProponent = application.NonFundedResearchInfo.CoProponent,
                 HasEthicsClearance = application.EthicsClearance != null,

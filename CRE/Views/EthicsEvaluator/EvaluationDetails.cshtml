@@ -2,25 +2,38 @@
 @{
     ViewData["Title"] = "Application Details";
 }
+<head>
+    <link rel="stylesheet" href="~/css/EvaluationDetails.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" />
+ </head>
 
-<h2>Application Details</h2>
+            <h2>Application Evaluation</h2>
+            
 
-<div class="card border-light mb-3" style="width: 100%;">
-    <div class="card-header">
+    <div class="main-card">
         <div class="row">
-            <div class="col text-start">
-                <p id="urecNoText">
-                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
-                </p>
-                <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
-                    Copy UREC No.
-                </button>
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <!-- UREC Number -->
+                <div class="col d-flex align-items-center">
+                    <span id="urecNoText" class="mb-0 appDetails">UREC No.:<span class="appContent"> @Model.EthicsApplication.urecNo</span></span>
+                    <button class="btn-outline-secondary btn-sm ms-2" onclick="copyUrecNo()" title="Copy">
+                        <i class="fa-regular fa-copy copy-icon"></i>
+                    </button>
+                </div>
+                <!-- Research Title -->
+                <div class="detail-section">
+                <div class="appDetails">RESEARCH TITLE:</div>
+                <div class="appContent"> @Model.NonFundedResearchInfo?.title</div>
+                </div>
+                
+                <!-- Proponents -->
+                <div class="detail-section">
 
-                <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo?.title</h4>
-                <p>
                     <div class="row">
                         <div class="col-md-6">
-                            <strong>Proponent/s:</strong><br />
+                            <div class="appDetails">PROPONENT/S:</div>
+                            <div class="appContent indented">
                             @($"{Model.AppUser?.fName} {Model.AppUser?.mName} {Model.AppUser?.lName}")
                             <br />
                             @if (Model.CoProponent != null && Model.CoProponent.Any())
@@ -30,48 +43,47 @@
                                     @proponent.coProponentName <br />
                                 }
                             }
+                            </div>
                         </div>
                     </div>
-                </p>
-                <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
-                <p><strong>College: </strong> @Model.NonFundedResearchInfo?.college</p>
-                <p><strong>Branch/Campuses: </strong> @Model.NonFundedResearchInfo?.campus</p>
+                </div>
             </div>
-
-            <div class="col text-end">
-                <p id="dtsNoText">
-                    <strong>DTS No.:</strong>
-                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
-                    {
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
-                    }
-                    else
-                    {
-                        @Model.EthicsApplication.dtsNo
-                    }
-                </p>
-
-                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
-                {
-                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                        Copy DTS No.
-                    </button>
-                }
-            </div>
+                <!-- Right Column -->
+                <div class="col-md-6">
+                    <div class="col d-flex justify-content-end align-items-center">
+                        <span class="mb-0 appDetails">DTS No.:
+                            <span class="appContent align-items-center">
+                                @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                                {
+                                    <button class="btn-outline-secondary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#editDtsModal">
+                                        <i class="fa-solid fa-pencil"></i>
+                                     </button>
+                                }
+                                else
+                                {
+                                    <span id="dtsNoText">@Model.EthicsApplication.dtsNo</span>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
+                                {
+                                    <button class="btn-outline-secondary btn-sm ms-2" onclick="copyDtsNo()" title="Copy">
+                                        <i class="fa-regular fa-copy copy-icon"></i>
+                                    </button>
+                                }
+                                </span></span>
+                    </div>
+                    <div class="detail-section">
+                        <div class="appDetails">Field of Study:</div><div class="appContent">@Model.EthicsApplication.fieldOfStudy</div>
+                        <div class="appDetails">College: </div><div class="appContent"> @Model.NonFundedResearchInfo?.college</div>
+                        <div class="appDetails">Branch/Campuses: </div> <div class="appContent">@Model.NonFundedResearchInfo?.campus</div>
+                        <div class="appDetails">Review Type</div><div class="appContent">@Model.InitialReview.ReviewType</div>
+                    </div>
+                </div>
         </div>
+   </div>
 
-        <div class="form-group">
-            <label>Review Type</label>
-            <p><strong>@Model.InitialReview.ReviewType</strong></p>
-        </div>
-
-    </div>
-
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <h4>Application Forms</h4>
-
+   <div class="row">
+            <div class="col-md-7 mb-4">
+                <div class="tab-list">
                 @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
                 {
                     <ul class="nav nav-tabs" id="pdfTabs" role="tablist">
@@ -86,7 +98,7 @@
 
                         @foreach (var form in Model.EthicsApplicationForms)
                         {
-                            <li class="nav-item" role="presentation">
+                            <li class="tab-button" role="presentation">
                                 <a class="nav-link @((Model.ReceiptInfo == null || Model.ReceiptInfo.scanReceipt == null) && form == Model.EthicsApplicationForms.First() ? "active" : "")" id="form-@form.ethicsFormId-tab" data-bs-toggle="tab" href="#form-@form.ethicsFormId" role="tab" aria-controls="form-@form.ethicsFormId" aria-selected="false">
                                     @form.ethicsFormId
                                 </a>
@@ -114,18 +126,23 @@
                 {
                     <p>No forms submitted.</p>
                 }
+                </div>
 
             </div>
-            <div class="col-md-4">
+       
+        <div class="col-md-4 mb-4">
+            <div class="protocol-review">
                 <h4>Evaluation Inputs</h4>
                 <form asp-action="EvaluationDetails" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmission()">
+                    @foreach (var evaluation in Model.EthicsApplication.EthicsEvaluation)
+{
                     <!-- Hidden Input for urecNo -->
                     <input type="hidden" asp-for="EthicsApplication.urecNo" />
-
+                  
                     <!-- Protocol Recommendation and Remarks -->
                     <div class="form-group">
                         <label for="protocolRecommendation">Protocol Recommendation</label>
-                        <select id="protocolRecommendation" asp-for="EthicsEvaluation.ProtocolRecommendation" class="form-control">
+                        <select id="protocolRecommendation" asp-for="@evaluation.ProtocolRecommendation" class="form-control">
                             <option value="Approved">Approved</option>
                             <option value="Major Revisions Required">Major Revisions Required</option>
                             <option value="Minor Revisions Required">Minor Revisions Required</option>
@@ -135,13 +152,13 @@
 
                     <div class="form-group">
                         <label for="protocolRemarks">Protocol Remarks</label>
-                        <textarea id="protocolRemarks" asp-for="EthicsEvaluation.ProtocolRemarks" class="form-control" placeholder="Enter remarks for the protocol evaluation"></textarea>
+                        <textarea id="protocolRemarks" asp-for="@evaluation.ProtocolRemarks" class="form-control" placeholder="Enter remarks for the protocol evaluation"></textarea>
                     </div>
 
                     <!-- Consent Recommendation and Remarks -->
                     <div class="form-group">
                         <label for="consentRecommendation">Consent Recommendation</label>
-                        <select id="consentRecommendation" asp-for="EthicsEvaluation.ConsentRecommendation" class="form-control">
+                        <select id="consentRecommendation" asp-for="@evaluation.ConsentRecommendation" class="form-control">
                             <option value="Exempt form Review">Exempt form Review</option>
                             <option value="Approved">Approved</option>
                             <option value="Major Revisions Required">Major Revisions Required</option>
@@ -152,7 +169,7 @@
 
                     <div class="form-group">
                         <label for="consentRemarks">Consent Remarks</label>
-                        <textarea id="consentRemarks" asp-for="EthicsEvaluation.ConsentRemarks" class="form-control" placeholder="Enter remarks for the consent evaluation"></textarea>
+                        <textarea id="consentRemarks" asp-for="@evaluation.ConsentRemarks" class="form-control" placeholder="Enter remarks for the consent evaluation"></textarea>
                     </div>
 
                     <!-- Protocol Review Sheet Upload -->
@@ -168,14 +185,12 @@
                         <input type="file" id="informedConsentForm" asp-for="InformedConsentForm" class="form-control" accept="application/pdf" />
                         <span asp-validation-for="InformedConsentForm" class="text-danger"></span> <!-- Display validation message -->
                     </div>
-
+}
 
                     <button type="submit" class="btn btn-success">Submit Evaluation</button>
                 </form>
             </div>
-
         </div>
-    </div>
 </div>
 
 <!-- Modal for file view-->
@@ -198,21 +213,25 @@
     <script>
         function copyUrecNo() {
             const urecNoText = document.getElementById("urecNoText").innerText;
-            navigator.clipboard.writeText(urecNoText.replace("UREC No.: ", "")).then(function () {
-                alert('UREC No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
+                // Remove the "UREC No.: " prefix when copying
+            const urecNo = urecNoText.replace("UREC No.:", "").trim();
+            navigator.clipboard.writeText(urecNo).then(function () {
+            alert('UREC No. copied to clipboard!');
+            }).catch(function (err) {
+        console.error('Could not copy text: ', err);
+    });
+}
 
         function copyDtsNo() {
-            const dtsNoText = document.getElementById("dtsNoText").innerText;
-            navigator.clipboard.writeText(dtsNoText.replace("DTS No.: ", "")).then(function () {
-                alert('DTS No. copied to clipboard!');
-            }, function (err) {
-                console.error('Could not copy text: ', err);
-            });
-        }
+    const dtsNoText = document.getElementById("dtsNoText").innerText;
+    // Remove the "DTS No.: " prefix when copying
+    const dtsNo = dtsNoText.replace("DTS No.:", "").trim();
+    navigator.clipboard.writeText(dtsNo).then(function () {
+        alert('DTS No. copied to clipboard!');
+    }).catch(function (err) {
+        console.error('Could not copy text: ', err);
+    });
+}
 
         function openPdfInModal(pdfUrl) {
             // Set the iframe source to the selected PDF

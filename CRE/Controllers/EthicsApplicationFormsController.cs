@@ -164,21 +164,27 @@ namespace CRE.Controllers
             if (FORM15 == null || FORM15.Length == 0)
             {
                 ModelState.AddModelError("FORM15", "Please upload a valid PDF file.");
-                return RedirectToAction("YourViewName"); // Adjust "YourViewName" to the view displaying the upload form
+                return RedirectToAction("UploadForms"); // Adjust "YourViewName" to the view displaying the upload form
             }
 
             if (FORM15.ContentType != "application/pdf")
             {
                 ModelState.AddModelError("FORM15", "Only PDF files are allowed.");
-                return RedirectToAction("YourViewName");
+                return RedirectToAction("UploadForms");
             }
 
             // Convert the uploaded file to a byte array
             byte[] fileData;
+            string fileName;
+
             using (var memoryStream = new MemoryStream())
             {
+                // Copy the uploaded file to the memory stream
                 await FORM15.CopyToAsync(memoryStream);
                 fileData = memoryStream.ToArray();
+
+                // Extract the file name
+                fileName = FORM15.FileName; // This gets the original file name
             }
 
             // Save the form data into the database
@@ -187,8 +193,10 @@ namespace CRE.Controllers
                 urecNo = urecNo,
                 ethicsFormId = "FORM15", // Identifier for Form 15
                 file = fileData,
-                dateUploaded = DateOnly.FromDateTime(DateTime.Now) // Convert DateTime to DateOnly
+                dateUploaded = DateOnly.FromDateTime(DateTime.Now), // Convert DateTime to DateOnly
+                fileName = fileName // Add the file name property
             };
+
 
 
             // Save form data using your service
@@ -200,7 +208,7 @@ namespace CRE.Controllers
                 var logEntry = new EthicsApplicationLog
                 {
                     urecNo = urecNo,
-                    status = "Amendment for Uploaded",
+                    status = "Amendment form Uploaded",
                     comments = "Form 15 uploaded for revisions.",
                     changeDate = DateTime.Now,
                     userId = User.FindFirstValue(ClaimTypes.NameIdentifier) // Set the current user ID

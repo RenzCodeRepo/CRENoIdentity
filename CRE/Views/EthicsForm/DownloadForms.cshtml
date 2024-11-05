@@ -8,6 +8,7 @@
 }
 <head>
     <link rel="stylesheet" href="~/css/downloadforms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" />
 </head>
 <h1 id="h1">APPLICATION FORMS</h1>
 
@@ -24,7 +25,7 @@
             {
                 <div class="card-body text-center">
                     <a href="@Url.Action("DownloadForm", "EthicsForm", new { id = form.ethicsFormId })" class="form-link">
-                        @form.ethicsFormId - @form.formName
+                        <i class="fas fa-file-pdf me-2"></i>@form.ethicsFormId - @form.formName
                     </a>
                     <br />
                     <i class="text-secondary">@form.formDescription</i>
@@ -45,7 +46,7 @@
             {
                 <div class="card-body text-center">
                     <a href="@Url.Action("DownloadForm", "EthicsForm", new { id = form.ethicsFormId })" class="form-link">
-                        @form.ethicsFormId - @form.formName
+                        <i class="fas fa-file-pdf me-2"></i>@form.ethicsFormId - @form.formName
                     </a>
                     <br />
                     <i class="form-description">@form.formDescription</i>

@@ -75,5 +75,11 @@ namespace CRE.Services
                 return false;
             }
         }
+
+        public async Task<EthicsApplicationForms> GetForm15ByUrecNoAsync(string urecNo)
+        {
+            return await _context.EthicsApplicationForms
+          .FirstOrDefaultAsync(form => form.urecNo == urecNo && form.ethicsFormId == "FORM15"); // Adjust condition as necessary
+        }
     }
 }

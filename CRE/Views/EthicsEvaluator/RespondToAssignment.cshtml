@@ -115,7 +115,11 @@
                 <h4>Evaluation Input</h4>
                 <form id="evaluationForm" asp-action="RespondToAssignment" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmission()">
                     <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                    <input type="hidden" name="evalId" value="@Model.EthicsEvaluation.evaluationId" />
+                    @foreach (var evaluation in Model.EthicsEvaluation)
+                    {
+                        <input type="hidden" name="evalId" value="@evaluation.evaluationId" />
+                        <!-- Other form elements here for each evaluation -->
+                    }
 
                     <!-- Acceptance Dropdown -->
                     <div class="form-group">
@@ -144,7 +148,11 @@
                         <div class="modal-body">
                             <form id="reasonForm">
                                 <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                    <input type="hidden" name="evalId" value="@Model.EthicsEvaluation.evaluationId" />
+                                @foreach (var evaluation in Model.EthicsEvaluation)
+                                {
+                                    <input type="hidden" name="evalId" value="@evaluation.evaluationId" />
+                                   
+                                }
                                 <div class="form-group">
                                     <label for="reasonForDecline">Please provide a reason for declining:</label>
                                     <textarea id="reasonForDecline" name="reasonForDecline" class="form-control" required></textarea>

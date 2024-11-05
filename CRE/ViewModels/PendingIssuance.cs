@@ -13,5 +13,9 @@ namespace CRE.ViewModels
         public ICollection<EthicsApplicationLog> EthicsApplicationLog { get; set; }
         public EthicsClearance EthicsClearance { get; set; }
         public bool HasClearanceIssued { get; set; }
+
+        public bool AllEvaluationsCompleted { get; set; } 
+        public bool HasForm15Uploaded { get; set; } 
+        public bool HasMinorOrMajorRevisions { get; set; } 
     }
 }

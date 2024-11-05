@@ -237,9 +237,9 @@ namespace CRE.Controllers
             }
             return View(evaluatedApplication);
         }
-
+        // Existing method for retrieving evaluation sheets
         [HttpGet]
-        public async Task<IActionResult> ViewFile(string fileType, string urecNo, int evaluationId)
+        public async Task<IActionResult> ViewEvaluationSheet(string fileType, string urecNo, int evaluationId)
         {
             // Fetch the EthicsEvaluation based on urecNo and evaluationId
             var ethicsEvaluation = await _ethicsEvaluationServices.GetEvaluationByUrecNoAndIdAsync(urecNo, evaluationId);
@@ -250,19 +250,19 @@ namespace CRE.Controllers
             }
 
             byte[] fileData = null;
-            string contentType = "";
+            string contentType = "application/pdf"; // Set content type for PDF files
 
+            // Determine which file to retrieve
             if (fileType == "ProtocolReviewSheet")
             {
                 fileData = ethicsEvaluation.ProtocolReviewSheet;
-                contentType = "application/pdf"; // Ensure the content type matches your file type
             }
             else if (fileType == "InformedConsentForm")
             {
                 fileData = ethicsEvaluation.InformedConsentForm;
-                contentType = "application/pdf"; // Ensure the content type matches your file type
             }
 
+            // Check if fileData was retrieved successfully
             if (fileData == null)
             {
                 return NotFound();
@@ -271,6 +271,23 @@ namespace CRE.Controllers
             return File(fileData, contentType);
         }
 
+        // New method for retrieving Form15
+        [HttpGet]
+        public async Task<IActionResult> ViewForm15(string urecNo)
+            {
+            // Fetch Form15 using the ethicsFormId from the EthicsApplicationForms table
+            var form15 = await _ethicsApplicationFormsServices.GetForm15ByUrecNoAsync(urecNo);
+
+            if (form15 == null || form15.file == null)
+            {
+                return NotFound();
+            }
+
+            byte[] fileData = form15.file; // Assuming FileData holds the byte array for Form15
+            string contentType = "application/pdf"; // Set content type for PDF files
+
+            return File(fileData, contentType);
+        }
 
         public async Task<IActionResult> Evaluations()
         {
@@ -358,6 +375,8 @@ namespace CRE.Controllers
 
             return View(viewModel);
         }
+       
+
 
     }
 }

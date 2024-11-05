@@ -28,7 +28,12 @@
 }
 
 <h2>Application Requirements</h2>
-
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
 <div class="card border-light mb-3" style="width:contain">
     <div class="card-header">
         <div class="row">
@@ -515,63 +520,66 @@
                 </div>
             </div>
         }
-        else if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Minor Revisions"
-        ||
-        Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Major Revisions")
+        @if (Model.EthicsApplicationLog.Any())
         {
+            var latestLog = Model.EthicsApplicationLog
+            .OrderByDescending(log => log.changeDate)
+            .FirstOrDefault();
             <div class="card mt-3">
-                <div class="card-header">
-                    <h5>Application Revision Details</h5>
+                    <div class="card-header">
+                        <h5>Application Revision Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Status:</strong> @latestLog.status</p>
+                        @if (!string.IsNullOrEmpty(latestLog.comments))
+                        {
+                            <p><strong>Remarks:</strong> @latestLog.comments</p>
+                        }
+                        else
+                        {
+                            <p><em>No remarks provided.</em></p>
+                        }
+                    </div>
                 </div>
-                <div class="card-body">
-                    <p><strong>Status:</strong> @Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status</p>
-                    @if (!string.IsNullOrEmpty(Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().comments))
-                    {
-                        <p><strong>Remarks:</strong> @Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().comments</p>
-                    }
-                    else
-                    {
-                        <p><em>No remarks provided.</em></p>
-                    }
-                </div>
-            </div>
-            <div>
+            if (latestLog != null && (latestLog.status == "Minor Revisions" || latestLog.status == "Major Revisions"))
+            {
                 @* Check if Form 15 has already been uploaded *@
-                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM15") == true)
+                if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM15") == true)
                 {
-                    @* If the status of the application is "Returned," allow replacing the form *@
-                    if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Returned")
-                    {
-                        <label for="editFORM15">Replace Ethics Form 15:</label>
-                        <input asp-for="editFORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" />
-                    }
-                    else
-                    {
-                        <p>
-                            <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
-                                View Form 15
-                            </a>
-                            <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
-                                Download Form 15
-                            </a>
-                        </p>
-                    }
+                @* If the status of the application is "Returned," allow replacing the form *@
+                if (latestLog?.status == "Returned Amendment")
+                {
+                <label for="editFORM15">Replace Ethics Form 15:</label>
+                <input asp-for="editFORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" />
                 }
                 else
                 {
-                    @if (Model?.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Minor Revisions"
-                   || Model?.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Major Revisions")
-                    {
-                        <form id="form15-upload-form" method="post" enctype="multipart/form-data" action="@Url.Action("UploadForm15", "EthicsApplicationForms")">
-                            <label for="FORM15">Upload Ethics Form 15:</label>
-                            <input asp-for="FORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" required />
-                            <span asp-validation-for="FORM15" class="text-danger"></span>
-
-                            <button type="submit" id="form15-submit-btn" class="btn btn-primary mt-2">Submit Form 15</button>
-                        </form>
-                    }
+                <p>
+                    <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                        View Form 15
+                    </a>
+                    <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                        Download Form 15
+                    </a>
+                </p>
                 }
-            </div>
+                }
+                else
+                {
+                @* Only show the upload form if there are logs with specific statuses *@
+                if (latestLog?.status == "Minor Revisions" || latestLog?.status == "Major Revisions")
+                {
+                <form id="form15-upload-form" method="post" enctype="multipart/form-data" action="@Url.Action("UploadForm15", "EthicsApplicationForms")">
+                    <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                    <label for="FORM15">Upload Ethics Form 15:</label>
+                    <input asp-for="FORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" required />
+                    <span asp-validation-for="FORM15" class="text-danger"></span>
+
+                    <button type="submit" id="form15-submit-btn" class="btn btn-primary mt-2">Submit Form 15</button>
+                </form>
+                }
+             }
+            }
         }
     </div>
 </div>
