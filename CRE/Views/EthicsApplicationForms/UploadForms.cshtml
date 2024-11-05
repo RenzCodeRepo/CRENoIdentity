@@ -114,9 +114,11 @@
         </div>
     </div>
 </div>
-<form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
-    <div class="row">
-        <div class="card border-light mb-3 col-sm" style="width:100%">
+<div class="row">
+    <div class="card border-light mb-3 col-sm" style="width:100%">
+        <form id="myForm" asp-action="UploadForms" enctype="multipart/form-data" method="post">
+
+
             <div class="card-header"><h2>Your Attachments</h2></div>
             @if (TempData["SuccessMessage"] != null)
             {
@@ -452,13 +454,7 @@
                                 <span asp-validation-for="FORM10_1" class="text-danger"></span>
                             }
                         }
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card border-light mb-3 col-sm" style="width:100%">
-            <div class="card-header"><h2>Your Uploads</h2></div>
+                 
             <!-- Track Application / Submit Button -->
             @if (Model.InitialReview?.status == "Returned")
             {
@@ -487,89 +483,98 @@
                     <label for="Comment">Comments:</label>
                     <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
                 </div>
-            }
-            @if (Model.EthicsClearance != null)
-            {
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h5>
-                            Ethics Clearance Details
-                            <a href="#" class="btn btn-sm btn-info" onclick="viewEthicsClearance('@Model.EthicsApplication.urecNo')">View Ethics Clearance</a>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Issued Date:</strong> @Model.EthicsClearance.issuedDate</p>
-                        <p><strong>Expiration Date:</strong> @Model.EthicsClearance.expirationDate</p>
-                        @if (Model.EthicsClearance.file != null)
-                        {
-                            <a href="@Url.Action("DownloadClearanceFile", "EthicsApplicationForms", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-primary">
-                                Download Clearance Document
-                            </a>
                         }
                     </div>
                 </div>
-            }
-            else if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Minor Revisions"
-            ||
-            Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Major Revisions")
-            {
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h5>Application Revision Details</h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Status:</strong> @Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status</p>
-                        @if (!string.IsNullOrEmpty(Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().comments))
-                        {
-                            <p><strong>Remarks:</strong> @Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().comments</p>
-                        }
-                        else
-                        {
-                            <p><em>No remarks provided.</em></p>
-                        }
-                    </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    <div class="card border-light mb-3 col-sm" style="width:100%">
+        <div class="card-header"><h2>Your Uploads</h2></div>
+        @if (Model.EthicsClearance != null)
+        {
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>
+                        Ethics Clearance Details
+                        <a href="#" class="btn btn-sm btn-info" onclick="viewEthicsClearance('@Model.EthicsApplication.urecNo')">View Ethics Clearance</a>
+                    </h5>
                 </div>
-                <div>
-                    @* Check if Form 15 has already been uploaded *@
-                    @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM15") == true)
+                <div class="card-body">
+                    <p><strong>Issued Date:</strong> @Model.EthicsClearance.issuedDate</p>
+                    <p><strong>Expiration Date:</strong> @Model.EthicsClearance.expirationDate</p>
+                    @if (Model.EthicsClearance.file != null)
                     {
-                        @* If the status of the application is "Returned," allow replacing the form *@
-                        if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Returned")
-                        {
-                            <label for="editFORM15">Replace Ethics Form 15:</label>
-                            <input asp-for="editFORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" />
-                        }
-                        else
-                        {
-                            <p>
-                                <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
-                                    View Form 15
-                                </a>
-                                <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
-                                    Download Form 15
-                                </a>
-                            </p>
-                        }
+                        <a href="@Url.Action("DownloadClearanceFile", "EthicsApplicationForms", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-primary">
+                            Download Clearance Document
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+        else if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Minor Revisions"
+        ||
+        Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status == "Major Revisions")
+        {
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Application Revision Details</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Status:</strong> @Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().status</p>
+                    @if (!string.IsNullOrEmpty(Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().comments))
+                    {
+                        <p><strong>Remarks:</strong> @Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault().comments</p>
                     }
                     else
                     {
-                        @if (Model?.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Minor Revisions"
-                       || Model?.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Major Revisions")
-                        {
-                            <form id="form15-upload-form" method="post" enctype="multipart/form-data" action="@Url.Action("UploadForm15", "EthicsApplicationForms")">
-                                <label for="FORM15">Upload Ethics Form 15:</label>
-                                <input asp-for="FORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" required />
-                                <span asp-validation-for="FORM15" class="text-danger"></span>
-
-                                <button type="submit" id="form15-submit-btn" class="btn btn-primary mt-2">Submit Form 15</button>
-                            </form>
-                        }
+                        <p><em>No remarks provided.</em></p>
                     }
                 </div>
-            }
-        </div>
+            </div>
+            <div>
+                @* Check if Form 15 has already been uploaded *@
+                @if (Model?.EthicsApplicationForms?.Any(f => f.ethicsFormId == "FORM15") == true)
+                {
+                    @* If the status of the application is "Returned," allow replacing the form *@
+                    if (Model.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Returned")
+                    {
+                        <label for="editFORM15">Replace Ethics Form 15:</label>
+                        <input asp-for="editFORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" />
+                    }
+                    else
+                    {
+                        <p>
+                            <a href="@Url.Action("ViewFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" target="_blank" class="btn btn-primary">
+                                View Form 15
+                            </a>
+                            <a href="@Url.Action("DownloadFile", "EthicsApplicationForms", new { formId = "FORM15", urecNo = Model.EthicsApplication.urecNo })" class="btn btn-secondary">
+                                Download Form 15
+                            </a>
+                        </p>
+                    }
+                }
+                else
+                {
+                    @if (Model?.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Minor Revisions"
+                   || Model?.EthicsApplicationLog.OrderByDescending(log => log.changeDate).FirstOrDefault()?.status == "Major Revisions")
+                    {
+                        <form id="form15-upload-form" method="post" enctype="multipart/form-data" action="@Url.Action("UploadForm15", "EthicsApplicationForms")">
+                            <label for="FORM15">Upload Ethics Form 15:</label>
+                            <input asp-for="FORM15" id="form15-file" class="form-control pdf-upload" type="file" accept=".pdf" required />
+                            <span asp-validation-for="FORM15" class="text-danger"></span>
 
-</form>
+                            <button type="submit" id="form15-submit-btn" class="btn btn-primary mt-2">Submit Form 15</button>
+                        </form>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
 <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog" aria-labelledby="pdfModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -651,20 +656,29 @@
         }
 
         // Form 15 Upload Validation
-        const form15Form = document.getElementById("form15-upload-form");
-        const form15FileInput = document.getElementById("form15-file");
+        $(document).ready(function () {
+            // Form 15 Upload Validation
+            const form15Form = document.getElementById("form15-upload-form");
+            const form15FileInput = document.getElementById("form15-file");
 
-        form15Form?.addEventListener("submit", function (e) {
-            const filePath = form15FileInput.value;
-            const allowedExtension = /(\.pdf)$/i;
-            if (!filePath || !allowedExtension.exec(filePath)) {
-                e.preventDefault();
-                alert("Please upload a PDF file for Form 15.");
-                form15FileInput.value = "";
-                form15FileInput.focus();
-                return false;
+            if (form15Form) {
+                form15Form.addEventListener("submit", function (e) {
+                    const filePath = form15FileInput.value;
+                    const allowedExtension = /(\.pdf)$/i;
+                    if (!filePath || !allowedExtension.exec(filePath)) {
+                        e.preventDefault();
+                        alert("Please upload a PDF file for Form 15.");
+                        form15FileInput.value = "";
+                        form15FileInput.focus();
+                        return false;
+                    }
+                    // Optionally confirm submission
+                    const confirmSubmit = confirm('Are you sure you want to submit Form 15?');
+                    if (!confirmSubmit) {
+                        e.preventDefault();
+                    }
+                });
             }
-            return true;
         });
 
         $(document).ready(function () {

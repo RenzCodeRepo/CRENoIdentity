@@ -2,9 +2,16 @@
 
 @{
     ViewBag.Title = "Evaluator View";
+    
 }
 
 <h2>Evaluator View</h2>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["SuccessMessage"]
+    </div>
+}
 
 <!-- Tab Navigation -->
 <ul class="nav nav-tabs" id="myTab" role="tablist">

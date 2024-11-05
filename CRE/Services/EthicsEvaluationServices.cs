@@ -178,39 +178,62 @@ namespace CRE.Services
         public async Task UpdateEvaluationStatusAsync(int evaluationId, string status, string? reasonForDecline, int ethicsEvaluatorId)
         {
             var evaluation = await _context.EthicsEvaluation
-                .Include(e => e.EthicsApplication) // Eager load EthicsApplication to access UREC number
-                .FirstOrDefaultAsync(e => e.evaluationId == evaluationId); // Using FirstOrDefault for clarity
+                .Include(e => e.EthicsApplication)
+                .FirstOrDefaultAsync(e => e.evaluationId == evaluationId);
 
             if (evaluation != null)
             {
                 if (status == "Declined")
                 {
-                    // Create a new DeclinedEvaluation entry
                     var declinedEvaluation = new EthicsEvaluationDeclined
                     {
                         evaluationId = evaluationId,
                         reasonForDecline = reasonForDecline,
-                        urecNo = evaluation.EthicsApplication?.urecNo, // Access UREC number here
+                        urecNo = evaluation.EthicsApplication?.urecNo,
                         ethicsEvaluatorId = ethicsEvaluatorId,
-                        declineDate = DateOnly.FromDateTime(DateTime.UtcNow) // Set decline date to today's date
+                        declineDate = DateOnly.FromDateTime(DateTime.UtcNow)
                     };
 
-                    // Add the declined evaluation to the context
                     await _context.EthicsEvaluationDeclined.AddAsync(declinedEvaluation);
 
-                    // Remove the evaluation from EthicsEvaluation
+                    // Instead of removing, just set a property if needed.
                     _context.EthicsEvaluation.Remove(evaluation);
+
+                    await _context.SaveChangesAsync();
+
+                    var declinedRecord = await _context.EthicsEvaluationDeclined
+                        .FirstOrDefaultAsync(de => de.evaluationId == evaluationId && de.ethicsEvaluatorId == ethicsEvaluatorId);
+
+                    if (declinedRecord == null)
+                    {
+                        // Re-add the original evaluation without specifying its identity value
+                        var newEvaluation = new EthicsEvaluation
+                        {
+                            // Copy necessary properties from the original evaluation
+                            // Exclude the identity property and any other properties that should not be duplicated
+                            evaluationStatus = evaluation.evaluationStatus,
+                            startDate = evaluation.startDate,
+                            // Add other properties that you need to retain...
+                        };
+
+                        await _context.EthicsEvaluation.AddAsync(newEvaluation);
+                        await _context.SaveChangesAsync();
+
+                        throw new Exception("Failed to save the declined evaluation record. Decline action canceled.");
+                    }
                 }
                 else
                 {
-                    evaluation.evaluationStatus = status; // Update status for other cases
+                    evaluation.evaluationStatus = status;
                     evaluation.reasonForDecline = null; // Clear the reason for accepted evaluations
                     evaluation.startDate = DateOnly.FromDateTime(DateTime.UtcNow);
-                }
 
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                }
             }
         }
+
+
 
         public async Task AssignEvaluatorAsync(string urecNo, int evaluatorId)
         {
@@ -363,21 +386,20 @@ namespace CRE.Services
         public async Task<IEnumerable<AssignedEvaluationViewModel>> GetDeclinedEvaluationsAsync(int evaluatorId)
         {
             return await _context.EthicsEvaluationDeclined
-                .Include(de => de.EthicsEvaluation) // Include the original evaluation details
+                    .Include(e => e.EthicsEvaluator) // Include evaluator in EthicsEvaluation
                 .Include(de => de.EthicsApplication)
                     .ThenInclude(a => a.InitialReview)
                 .Include(de => de.EthicsApplication)
                     .ThenInclude(a => a.NonFundedResearchInfo)
                 .Include(de => de.EthicsApplication)
-                    .ThenInclude(a => a.ReceiptInfo) // Include ReceiptInfo if needed
+                    .ThenInclude(a => a.ReceiptInfo)
                 .Include(de => de.EthicsApplication)
-                    .ThenInclude(a => a.EthicsApplicationLog) // Include application logs if needed
-                .Where(de => de.EthicsEvaluation.ethicsEvaluatorId == evaluatorId)
+                    .ThenInclude(a => a.EthicsApplicationLog)
+                .Where(de => de.ethicsEvaluatorId == evaluatorId)
                 .Select(de => new AssignedEvaluationViewModel
                 {
                     EthicsApplication = de.EthicsApplication,
-                    EthicsEvaluation = de.EthicsEvaluation, // Original evaluation details
-                    EthicsEvaluator = null, // You may need to retrieve evaluator info if available
+                    EthicsEvaluator = de.EthicsEvaluator, // Assign evaluator information
                     NonFundedResearchInfo = de.EthicsApplication.NonFundedResearchInfo,
                     InitialReview = de.EthicsApplication.InitialReview,
                     EthicsApplicationLogs = de.EthicsApplication.EthicsApplicationLog,

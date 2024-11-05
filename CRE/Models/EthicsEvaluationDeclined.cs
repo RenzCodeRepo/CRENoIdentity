@@ -7,7 +7,6 @@ namespace CRE.Models
     {
         [Key]
         public int id { get; set; } // Primary key
-        [ForeignKey(nameof(EthicsEvaluation))]
         public int evaluationId { get; set; } // Foreign key to the original evaluation
         [ForeignKey(nameof(EthicsApplication))]
         public string urecNo { get; set; }
@@ -18,7 +17,6 @@ namespace CRE.Models
 
 
         //nav properties
-        public EthicsEvaluation EthicsEvaluation { get; set; }
         public EthicsApplication EthicsApplication { get; set; }
         public EthicsEvaluator EthicsEvaluator { get; set; }    
     }

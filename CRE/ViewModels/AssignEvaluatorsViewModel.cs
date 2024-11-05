@@ -19,5 +19,6 @@ namespace CRE.ViewModels
         public IEnumerable<EthicsApplicationForms> EthicsApplicationForms { get; set; }
         public IEnumerable<EthicsApplicationLog> EthicsApplicationLog { get; set; }
         public ReceiptInfo ReceiptInfo { get; set; }
+        public bool IsEvaluatorLimitReached { get; set; }
     }
 }

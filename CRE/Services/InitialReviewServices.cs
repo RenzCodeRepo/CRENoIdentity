@@ -71,6 +71,7 @@ namespace CRE.Services
                     .ThenInclude(nf => nf.CoProponent)
                 .Include(e => e.EthicsEvaluation)
                     .ThenInclude(e => e.EthicsEvaluator)
+                .Include(e => e.EthicsEvaluationDeclined)
                 .Include(e => e.ReceiptInfo)
                 .Include(e => e.EthicsApplicationLog)
                 .Include(e => e.EthicsApplicationForms)
@@ -96,8 +97,9 @@ namespace CRE.Services
                 EthicsApplicationForms = application.EthicsApplicationForms ?? new List<EthicsApplicationForms>(),
                 InitialReview = await _context.InitialReview.FirstOrDefaultAsync(ir => ir.urecNo == urecNo),
                 AppUser = appUser,
-                EthicsEvaluation = ethicsEvaluations, // Assign as collection
-                EthicsEvaluator = ethicsEvaluations.Select(e => e.EthicsEvaluator).FirstOrDefault()
+                EthicsEvaluation = ethicsEvaluations,
+                EthicsEvaluator = ethicsEvaluations.Select(e => e.EthicsEvaluator).FirstOrDefault(),
+                EthicsEvaluationDeclined = application.EthicsEvaluationDeclined // Assign declined evaluations
             };
 
             return viewModel;

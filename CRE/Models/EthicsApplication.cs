@@ -26,6 +26,7 @@ namespace CRE.Models
         public ICollection<EthicsApplicationLog> EthicsApplicationLog { get; set; } = new List<EthicsApplicationLog>();
         public ICollection<EthicsApplicationForms> EthicsApplicationForms { get; set; } = new List<EthicsApplicationForms>();
         public ICollection<EthicsEvaluation>? EthicsEvaluation { get; set; } = new List<EthicsEvaluation>();
+        public ICollection<EthicsEvaluationDeclined> EthicsEvaluationDeclined { get; set; } = new List<EthicsEvaluationDeclined>();
         public CompletionReport? CompletionReport { get; set; }
         public EthicsClearance? EthicsClearance { get; set; }
     }

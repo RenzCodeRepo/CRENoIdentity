@@ -219,7 +219,13 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Assign Selected Evaluators</button>
+                                <button type="submit" class="btn btn-primary"
+                                @(Model.IsEvaluatorLimitReached ? "disabled" : "")>
+                                    Assign Selected Evaluators
+                                </button>   
+                                <div id="warningMessage" class="alert alert-warning @(Model.IsEvaluatorLimitReached ? "" : "d-none")" role="alert">
+                                    The maximum number of evaluators has been assigned for this review.
+                                </div>
                             </div>
                         </div>
                     </div>

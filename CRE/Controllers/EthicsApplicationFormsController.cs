@@ -64,7 +64,7 @@ namespace CRE.Controllers
         [HttpPost]
             
         public async Task<IActionResult> UpdateDtsNo(string dtsNo, string urecNo)
-        {
+            {
             // Ensure dtsNo and urecNo are received correctly
             if (string.IsNullOrEmpty(dtsNo) || string.IsNullOrEmpty(urecNo))
             {

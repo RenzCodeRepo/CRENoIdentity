@@ -153,11 +153,11 @@ namespace CRE.Controllers
                 EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
             };
 
-            // Add a success message
-            TempData["SuccessMessage"] = "Evaluation has been successfully processed.";
+            // Add a success message to TempData
+            TempData["SuccessMessage"] = "Respond to evaluation successfully.";
 
-            // Redirect to the EvaluatorView with success
-            return RedirectToAction("EvaluatorView", new { success = true });
+            // Redirect to the EvaluatorView
+            return RedirectToAction("EvaluatorView");
         }
 
 
@@ -266,7 +266,8 @@ namespace CRE.Controllers
 
                 await _ethicsApplicationLogServices.AddLogAsync(applicationLog);
             }
-
+            // Add a success message to TempData
+            TempData["SuccessMessage"] = "Evaluation successful.";
             return RedirectToAction("EvaluatorView", new { success = true });
         }
 
