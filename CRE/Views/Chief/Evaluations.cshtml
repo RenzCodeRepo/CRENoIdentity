@@ -60,7 +60,7 @@
                             <td>
                                 @if (application.NonFundedResearchInfo != null && application.NonFundedResearchInfo.AppUser != null)
                                 {
-                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                    @($"{application.NonFundedResearchInfo.AppUser.fName} {application.NonFundedResearchInfo.AppUser.lName}");
                                 }
                                 else
                                 {
@@ -212,7 +212,7 @@
                                 <!-- Display main applicant -->
                                 @if (application.NonFundedResearchInfo?.AppUser != null)
                                 {
-                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                    @($"{application.NonFundedResearchInfo.AppUser.fName} {application.NonFundedResearchInfo.AppUser.lName}")
                                 }
                                 else
                                 {
@@ -315,7 +315,7 @@
                                 <!-- Display main applicant -->
                                 @if (application.NonFundedResearchInfo?.AppUser != null)
                                 {
-                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                    @($"{application.NonFundedResearchInfo.AppUser.fName} {application.NonFundedResearchInfo.AppUser.lName}")
                                 }
                                 else
                                 {
@@ -408,7 +408,7 @@
                             <td>
                                 @if (application.NonFundedResearchInfo?.AppUser != null)
                                 {
-                                    @application.NonFundedResearchInfo.AppUser.fName @application.NonFundedResearchInfo.AppUser.lName
+                                    @($"{application.NonFundedResearchInfo.AppUser.fName} {application.NonFundedResearchInfo.AppUser.lName}")
                                 }
                                 else
                                 {
