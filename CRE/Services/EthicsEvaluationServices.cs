@@ -677,5 +677,11 @@ namespace CRE.Services
             return pendingIssuanceList;
         }
 
+        public async Task AddEvaluationAsync(EthicsEvaluation evaluation)
+        {
+            _context.EthicsEvaluation.Add(evaluation);
+            await _context.SaveChangesAsync();
+        }
+    
     }
 }

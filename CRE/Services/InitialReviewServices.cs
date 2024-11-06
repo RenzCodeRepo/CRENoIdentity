@@ -237,6 +237,8 @@ namespace CRE.Services
         {
             return await _context.EthicsApplication
                 .Include(e => e.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent)
+                .Include(e => e.User)
                 .Include(e => e.EthicsApplicationLog)
                 .Where(e => e.EthicsApplicationLog
                     .OrderByDescending(log => log.changeDate)  // Get logs in descending order by changeDate
@@ -260,6 +262,8 @@ namespace CRE.Services
 
             return await _context.EthicsApplication
                 .Include(e => e.NonFundedResearchInfo)
+                   .ThenInclude(nf => nf.CoProponent)
+                .Include(e => e.User)
                 .Include(e => e.EthicsApplicationLog)
                 .Where(e => e.EthicsApplicationLog
                     .Where(log => log.status == "Approved for Evaluation" && log.changeDate.Year == currentYear) // Filter logs to only include those approved this year
@@ -284,6 +288,8 @@ namespace CRE.Services
             // Fetch applications that have been returned
             return await _context.EthicsApplication
                 .Include(e => e.NonFundedResearchInfo)
+                    .ThenInclude(nf => nf.CoProponent)
+                .Include(e => e.User)
                 .Include(e => e.EthicsApplicationLog)
                 .Where(e => e.EthicsApplicationLog
                     .OrderByDescending(log => log.changeDate) // Order logs by changeDate

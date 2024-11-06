@@ -157,8 +157,11 @@
                                     <h6>Recommended Evaluators (Least Pending)</h6>
                                     <div class="row mb-4">
                                         @foreach (var evaluator in Model.RecommendedEvaluators
-                                        .Where(e => e.declinedAssignment == 0 && !Model.PendingEvaluators.Any(pe => pe.ethicsEvaluatorId == e.ethicsEvaluatorId) && !Model.AcceptedEvaluators.Any(ace => ace.ethicsEvaluatorId == e.ethicsEvaluatorId)) // Filter out declined and already assigned evaluators
-                                        .OrderBy(e => e.pendingEval).Take(3))
+                                        .Where(e => e.declinedAssignment == 0
+                                        && !Model.PendingEvaluators.Any(pe => pe.ethicsEvaluatorId == e.ethicsEvaluatorId)
+                                        && !Model.AcceptedEvaluators.Any(ace => ace.ethicsEvaluatorId == e.ethicsEvaluatorId)) // Filter out declined and already assigned evaluators
+                                        .OrderBy(e => e.pendingEval)
+                                        .Take(3))
                                         {
                                             <div class="col-md-4 mb-3">
                                                 <div class="form-check">
@@ -185,10 +188,12 @@
                                             </div>
                                         }
                                     </div>
+
                                     <!-- All Available Evaluators Section -->
                                     <h6>All Available Evaluators</h6>
                                     <div class="row">
-                                        @foreach (var evaluator in Model.AllAvailableEvaluators)
+                                        @foreach (var evaluator in Model.AllAvailableEvaluators
+                                        .Where(e => !Model.RecommendedEvaluators.Any(re => re.ethicsEvaluatorId == e.ethicsEvaluatorId))) // Exclude evaluators already in Recommended section
                                         {
                                             <div class="col-md-4 mb-3">
                                                 <div class="form-check">

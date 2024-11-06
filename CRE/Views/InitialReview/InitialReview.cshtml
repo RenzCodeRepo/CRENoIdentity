@@ -91,15 +91,33 @@
                             </td>
                             <td class="title-column">@application.NonFundedResearchInfo?.title</td>
                             <td class="authors-column">
-                                @if (application.AppUser == null)
-                                {
-                                    <span>No Author Data</span>
-                                }
-                                else
-                                {
-                                    @application.AppUser.lName
-                                }
+                                    @if (application.NonFundedResearchInfo?.AppUser == null)
+                                    {
+                                        <span>No Author Data</span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            @($"{application.NonFundedResearchInfo.AppUser.fName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.mName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.lName}")
+                                        </span>
+
+                                        <!-- Loop through all co-proponents -->
+                                        @if (application.NonFundedResearchInfo.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                        {
+                                            @foreach (var coProponent in application.NonFundedResearchInfo.CoProponent)
+                                            {
+                                            <ul>
+                                               
+                                                @($"{coProponent.coProponentName} ")
+
+                                            </ul>
+                                            }
+                                        }
+                                    }
                             </td>
+
 
                             <td class="status-column"><span class="status bg-pending">@application.EthicsApplicationLog.FirstOrDefault()?.status</span></td>
                             <td class="date-column">@application.EthicsApplication?.submissionDate.ToShortDateString()</td>
@@ -141,16 +159,32 @@
                             </td>
                             <td class="title-column">@application.NonFundedResearchInfo?.title</td>
                             <td class="authors-column">
-                                @if (application.AppUser == null)
-                                {
-                                    <span>No Author Data</span>
-                                }
-                                else
-                                {
-                                    @application.AppUser.lName
-                                }
-                            </td>
+                                    @if (application.NonFundedResearchInfo?.AppUser == null)
+                                    {
+                                        <span>No Author Data</span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            @($"{application.NonFundedResearchInfo.AppUser.fName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.mName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.lName}")
+                                        </span>
 
+                                        <!-- Loop through all co-proponents -->
+                                        @if (application.NonFundedResearchInfo.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                        {
+                                            @foreach (var coProponent in application.NonFundedResearchInfo.CoProponent)
+                                            {
+                                            <ul>
+                                               
+                                                @($"{coProponent.coProponentName} ")
+
+                                            </ul>
+                                            }
+                                        }
+                                    }
+                            </td>
                             <td class="status-column"><span class="status bg-approve">@application.EthicsApplicationLog.FirstOrDefault()?.status</span></td>
                             <td class="date-column">@application.EthicsApplication?.submissionDate.ToShortDateString()</td>
                         </tr>
@@ -190,15 +224,32 @@
                                 </a>
                             </td>
                             <td class="title-column">@application.NonFundedResearchInfo?.title</td>
-                            <td class="authors-column">
-                                @if (application.AppUser == null)
-                                {
-                                    <span>No Author Data</span>
-                                }
-                                else
-                                {
-                                    @application.AppUser.lName
-                                }
+                           <td class="authors-column">
+                                    @if (application.NonFundedResearchInfo?.AppUser == null)
+                                    {
+                                        <span>No Author Data</span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            @($"{application.NonFundedResearchInfo.AppUser.fName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.mName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.lName}")
+                                        </span>
+
+                                        <!-- Loop through all co-proponents -->
+                                        @if (application.NonFundedResearchInfo.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                        {
+                                            @foreach (var coProponent in application.NonFundedResearchInfo.CoProponent)
+                                            {
+                                            <ul>
+                                               
+                                                @($"{coProponent.coProponentName} ")
+
+                                            </ul>
+                                            }
+                                        }
+                                    }
                             </td>
 
                             <td class="status-column"><span class="status bg-return">@application.EthicsApplicationLog.FirstOrDefault()?.status</span></td>
@@ -241,24 +292,42 @@
                             </td>
                             <td class="title-column">@application.NonFundedResearchInfo?.title</td>
                             <td class="authors-column">
-                                @if (application.AppUser == null)
-                                {
-                                    <span>No Author Data</span>
-                                }
-                                else
-                                {
-                                    @application.AppUser.lName
-                                }
+                                    @if (application.NonFundedResearchInfo?.AppUser == null)
+                                    {
+                                        <span>No Author Data</span>
+                                    }
+                                    else
+                                    {
+                                        <span>
+                                            @($"{application.NonFundedResearchInfo.AppUser.fName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.mName} " +
+                                              $"{application.NonFundedResearchInfo.AppUser.lName}")
+                                        </span>
+
+                                        <!-- Loop through all co-proponents -->
+                                        @if (application.NonFundedResearchInfo.CoProponent != null && application.NonFundedResearchInfo.CoProponent.Any())
+                                        {
+                                            @foreach (var coProponent in application.NonFundedResearchInfo.CoProponent)
+                                            {
+                                            <ul>
+                                               
+                                                @($"{coProponent.coProponentName} ")
+
+                                            </ul>
+                                            }
+                                        }
+                                    }
                             </td>
-                            <td class="status-column">
+                            <td>
                                 <span class="status
-                        @(application.EthicsApplicationLog.FirstOrDefault()?.status == "Approved for Evaluation" ? "bg-approve" :
-                          application.EthicsApplicationLog.FirstOrDefault()?.status == "Pending for Evaluation" ? "bg-pending" :
-                          application.EthicsApplicationLog.FirstOrDefault()?.status == "Returned for Revisions" ? "bg-return" : "")">
-                                    @application.EthicsApplicationLog.FirstOrDefault()?.status
-                                </span>
-                            </td>
+                                @(application.EthicsApplicationLog.FirstOrDefault()?.status == "Approved for Evaluation" ? "bg-approve" :
+                                  application.EthicsApplicationLog.FirstOrDefault()?.status == "Pending for Evaluation" ? "bg-pending" :
+                                  application.EthicsApplicationLog.FirstOrDefault()?.status == "Returned for Revisions" ? "bg-return" : "")">
+                                            @application.EthicsApplicationLog.FirstOrDefault()?.status
+                                 </span>
+                                 </td>
                             <td class="date-column">@application.EthicsApplication?.submissionDate.ToShortDateString()</td>
+
                         </tr>
                     }
                 }

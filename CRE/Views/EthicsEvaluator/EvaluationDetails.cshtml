@@ -134,15 +134,16 @@
             <div class="protocol-review">
                 <h4>Evaluation Inputs</h4>
                 <form asp-action="EvaluationDetails" method="post" enctype="multipart/form-data" onsubmit="return confirmSubmission()">
-                    @foreach (var evaluation in Model.EthicsApplication.EthicsEvaluation)
-{
-                    <!-- Hidden Input for urecNo -->
-                    <input type="hidden" asp-for="EthicsApplication.urecNo" />
-                  
+                <input type="hidden" asp-for="CurrentEvaluation.startDate" />
+                <input type="hidden" asp-for="CurrentEvaluation.urecNo" />
+                <input type="hidden" asp-for="CurrentEvaluation.evaluationId" />
+                <input type="hidden" asp-for="CurrentEvaluation.EthicsEvaluator" />
+                <input type="hidden" asp-for="CurrentEvaluation.evaluationStatus" />
+                <input type="hidden" asp-for="EthicsApplication.urecNo" />
                     <!-- Protocol Recommendation and Remarks -->
                     <div class="form-group">
                         <label for="protocolRecommendation">Protocol Recommendation</label>
-                        <select id="protocolRecommendation" asp-for="@evaluation.ProtocolRecommendation" class="form-control">
+                        <select id="protocolRecommendation" asp-for="@Model.CurrentEvaluation.ProtocolRecommendation" class="form-control">
                             <option value="Approved">Approved</option>
                             <option value="Major Revisions Required">Major Revisions Required</option>
                             <option value="Minor Revisions Required">Minor Revisions Required</option>
@@ -152,13 +153,13 @@
 
                     <div class="form-group">
                         <label for="protocolRemarks">Protocol Remarks</label>
-                        <textarea id="protocolRemarks" asp-for="@evaluation.ProtocolRemarks" class="form-control" placeholder="Enter remarks for the protocol evaluation"></textarea>
+                        <textarea id="protocolRemarks" asp-for="@Model.CurrentEvaluation.ProtocolRemarks" class="form-control" placeholder="Enter remarks for the protocol evaluation"></textarea>
                     </div>
 
                     <!-- Consent Recommendation and Remarks -->
                     <div class="form-group">
                         <label for="consentRecommendation">Consent Recommendation</label>
-                        <select id="consentRecommendation" asp-for="@evaluation.ConsentRecommendation" class="form-control">
+                        <select id="consentRecommendation" asp-for="@Model.CurrentEvaluation.ConsentRecommendation" class="form-control">
                             <option value="Exempt form Review">Exempt form Review</option>
                             <option value="Approved">Approved</option>
                             <option value="Major Revisions Required">Major Revisions Required</option>
@@ -169,7 +170,7 @@
 
                     <div class="form-group">
                         <label for="consentRemarks">Consent Remarks</label>
-                        <textarea id="consentRemarks" asp-for="@evaluation.ConsentRemarks" class="form-control" placeholder="Enter remarks for the consent evaluation"></textarea>
+                        <textarea id="consentRemarks" asp-for="@Model.CurrentEvaluation.ConsentRemarks" class="form-control" placeholder="Enter remarks for the consent evaluation"></textarea>
                     </div>
 
                     <!-- Protocol Review Sheet Upload -->
@@ -185,7 +186,6 @@
                         <input type="file" id="informedConsentForm" asp-for="InformedConsentForm" class="form-control" accept="application/pdf" />
                         <span asp-validation-for="InformedConsentForm" class="text-danger"></span> <!-- Display validation message -->
                     </div>
-}
 
                     <button type="submit" class="btn btn-success">Submit Evaluation</button>
                 </form>

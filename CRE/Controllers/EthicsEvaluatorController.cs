@@ -7,6 +7,7 @@ using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -163,15 +164,35 @@ namespace CRE.Controllers
 
         public async Task<IActionResult> EvaluationDetails(string id)
         {
+            // Retrieve the current user's ID from the claims
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Get the current user along with their associated EthicsEvaluator through Faculty
+            var currentUser = await _userManager.Users
+                .Include(u => u.Faculty.EthicsEvaluator)
+                .FirstOrDefaultAsync(u => u.Id == currentUserId);
+
+            if (currentUser?.Faculty.EthicsEvaluator == null)
+            {
+                return NotFound("Evaluator not found for the current user.");
+            }
+
+            var ethicsEvaluatorId = currentUser.Faculty.EthicsEvaluator.ethicsEvaluatorId;
+
+            // Retrieve application details for the given application ID
             var applicationDetails = await _initialReviewServices.GetApplicationDetailsAsync(id);
 
-
-            // Check if evaluation details were found
+            // Check if application details were found
             if (applicationDetails == null)
             {
                 return NotFound(); // Return a 404 if not found
             }
-            // Create the view model
+
+            // Retrieve the specific EthicsEvaluation for the current evaluator and application
+            var currentEvaluation = applicationDetails.EthicsEvaluation?
+                .FirstOrDefault(e => e.ethicsEvaluatorId == ethicsEvaluatorId);
+
+            // Create the view model with the details
             var viewModel = new EvaluationDetailsViewModel
             {
                 AppUser = applicationDetails.AppUser,
@@ -185,7 +206,10 @@ namespace CRE.Controllers
                 InitialReview = applicationDetails.InitialReview,
                 EthicsApplicationForms = applicationDetails.EthicsApplicationForms,
                 EthicsApplicationLog = applicationDetails.EthicsApplicationLog,
+                EthicsEvaluation = applicationDetails.EthicsEvaluation,
+                CurrentEvaluation = currentEvaluation, // Assign the specific evaluation for this evaluator
             };
+
             // Pass the details to the view
             return View(viewModel);
         }
@@ -194,21 +218,7 @@ namespace CRE.Controllers
         [HttpPost]
         public async Task<IActionResult> EvaluationDetails(EvaluationDetailsViewModel model)
         {
-            ModelState.Remove("EthicsApplication.User");
-            ModelState.Remove("EthicsApplication.userId");
-            ModelState.Remove("EthicsApplication.fieldOfStudy");
-            ModelState.Remove("EthicsEvaluation.EthicsEvaluator");
-
-            if (!ModelState.IsValid)
-            {
-                // Return the same view with the model to show validation errors
-                return View(model);
-            }
-
-            // Retrieve the current user ID from the claims
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            // Find the current user
             var currentUser = await _userManager.Users
                 .Include(u => u.Faculty.EthicsEvaluator)
                 .FirstOrDefaultAsync(u => u.Id == currentUserId);
@@ -219,42 +229,50 @@ namespace CRE.Controllers
             }
 
             var ethicsEvaluatorId = currentUser.Faculty.EthicsEvaluator.ethicsEvaluatorId;
+            var selectedEvaluation = model.CurrentEvaluation;
 
-            // Check if the evaluation already exists
-            var existingEvaluation = await _ethicsEvaluationServices.GetEvaluationByUrecNoAndEvaluatorIdAsync(model.EthicsApplication.urecNo, ethicsEvaluatorId);
-            var selectedEvaluation = model.EthicsEvaluation
-    .FirstOrDefault(e => e.ethicsEvaluatorId == ethicsEvaluatorId); // Adjust condition as needed
-
-            if (selectedEvaluation != null)
+            if (selectedEvaluation == null)
             {
-                existingEvaluation.evaluationStatus = "Evaluated";
-                existingEvaluation.ProtocolRecommendation = selectedEvaluation.ProtocolRecommendation;
-                existingEvaluation.ProtocolRemarks = selectedEvaluation.ProtocolRemarks;
-                existingEvaluation.ConsentRecommendation = selectedEvaluation.ConsentRecommendation;
-                existingEvaluation.ConsentRemarks = selectedEvaluation.ConsentRemarks;
-                existingEvaluation.endDate = DateOnly.FromDateTime(DateTime.Today);
+                // Log or handle the case where the evaluation is not found
+                return NotFound("Current evaluation not found.");
+            }
 
-                if (model.ProtocolReviewSheet != null)
-                {
-                    existingEvaluation.ProtocolReviewSheet = await GetFileContentAsync(model.ProtocolReviewSheet);
-                }
+            // Log model data for debugging
+            Debug.WriteLine($"StartDate: {selectedEvaluation.startDate}, UrecNo: {selectedEvaluation.urecNo}");
 
-                if (model.InformedConsentForm != null)
-                {
-                    existingEvaluation.InformedConsentForm = await GetFileContentAsync(model.InformedConsentForm);
-                }
+            selectedEvaluation.ethicsEvaluatorId = ethicsEvaluatorId;
 
-                await _ethicsEvaluationServices.UpdateEvaluationAsync(existingEvaluation);
+            // Assign other values
+            selectedEvaluation.ProtocolRecommendation = model.CurrentEvaluation.ProtocolRecommendation;
+            selectedEvaluation.ProtocolRemarks = model.CurrentEvaluation.ProtocolRemarks;
+            selectedEvaluation.ConsentRecommendation = model.CurrentEvaluation.ConsentRecommendation;
+            selectedEvaluation.ConsentRemarks = model.CurrentEvaluation.ConsentRemarks;
+            selectedEvaluation.endDate = DateOnly.FromDateTime(DateTime.Today);
+
+            // Process uploaded files
+            if (model.ProtocolReviewSheet != null)
+            {
+                selectedEvaluation.ProtocolReviewSheet = await GetFileContentAsync(model.ProtocolReviewSheet);
+            }
+            if (model.InformedConsentForm != null)
+            {
+                selectedEvaluation.InformedConsentForm = await GetFileContentAsync(model.InformedConsentForm);
+            }
+
+            // Save or update evaluation
+            if (model.CurrentEvaluation == null)
+            {
+                await _ethicsEvaluationServices.AddEvaluationAsync(selectedEvaluation);
             }
             else
             {
-                return NotFound("No existing evaluation found for the provided urecNo and evaluator.");
+                selectedEvaluation.evaluationStatus = "Evaluated";
+                await _ethicsEvaluationServices.UpdateEvaluationAsync(selectedEvaluation);
             }
 
-            // Check if all evaluations are marked as Evaluated before logging
+            // Check for all evaluations completed
             if (await _ethicsEvaluationServices.AreAllEvaluationsEvaluatedAsync(model.EthicsApplication.urecNo))
             {
-                // Add an entry to the EthicsApplicationLog
                 var applicationLog = new EthicsApplicationLog
                 {
                     urecNo = model.EthicsApplication.urecNo,
@@ -263,13 +281,13 @@ namespace CRE.Controllers
                     changeDate = DateTime.Now,
                     comments = "The application has been evaluated and marked as submitted."
                 };
-
                 await _ethicsApplicationLogServices.AddLogAsync(applicationLog);
             }
-            // Add a success message to TempData
+
             TempData["SuccessMessage"] = "Evaluation successful.";
             return RedirectToAction("EvaluatorView", new { success = true });
         }
+
 
 
 

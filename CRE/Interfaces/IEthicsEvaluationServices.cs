@@ -37,5 +37,6 @@ namespace CRE.Interfaces
         Task<List<EthicsEvaluator>> GetPendingEvaluatorsAsync(string urecNo);
         Task<List<EthicsEvaluator>> GetAcceptedEvaluatorsAsync(string urecNo);
         Task<List<EthicsEvaluator>> GetDeclinedEvaluatorsAsync(string urecNo);
+        Task AddEvaluationAsync(EthicsEvaluation evaluation);
     }
 }
