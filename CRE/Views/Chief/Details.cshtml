@@ -2,8 +2,15 @@
 @{
     ViewData["Title"] = "Application Details";
 }
+<head>
+    <link rel="stylesheet" href="~/css/AssignEval.css" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" />
+</head>
 
+<div class="header-container">
 <h2>Application Details</h2>
+    <button class="btn-back" onclick="goBack()">Back</button>
+</div>
 
 <div class="card border-light mb-3" style="width: contain;">
     <div class="card-header">
@@ -12,8 +19,8 @@
                 <p id="urecNoText">
                     <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
                 </p>
-                <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
-                    Copy UREC No.
+                <button id="copybut" type="button" class="btn-outline-transparent btn-sm ms-2" onclick="copyUrecNo()">
+                    <i class="fas fa-copy"></i>
                 </button>
 
                 <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo?.title</h4>
@@ -44,7 +51,9 @@
                     <strong>DTS No.:</strong>
                     @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                     {
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
+                        <button id="editbut" class="btn-outline-transparent btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#editDtsModal">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
                     }
                     else
                     {
@@ -55,8 +64,8 @@
                 <!-- Button to Copy DTS No. if it exists -->
                 @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                 {
-                    <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                        Copy DTS No.
+                    <button id="copybut" type="button" class="btn-outline-transparent btn-sm ms-2" onclick="copyDtsNo()">
+                        <i class="fas fa-copy"></i>
                     </button>
                 }
             </div>
@@ -88,7 +97,7 @@
                     </select>
                 </div>
                 <div class="form-group mt-3">
-                    <button type="submit" class="btn btn-primary">Submit Review Type</button>
+                    <button id="assignButton" type="submit" class="btn">Submit Review Type</button>
                 </div>
                 <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
             </form>
@@ -108,30 +117,35 @@
         <h4>Application Forms</h4>
 
         <ul class="nav nav-tabs" id="pdfTabs" role="tablist">
+            <div class="d-flex" id="buttons">
             @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
             {
+                
                 // Create tabs for each form and make the first one active
                 int index = 0; // To track the first tab
                 foreach (var form in Model.EthicsApplicationForms)
                 {
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link @(index == 0 ? "active" : "")" id="form-@form.ethicsFormId-tab" data-bs-toggle="tab" href="#form-@form.ethicsFormId" role="tab" aria-controls="form-@form.ethicsFormId" aria-selected="@(index == 0 ? "true" : "false")">
+                        <a class="btn-nav @(index == 0 ? "active" : "")" id="form-@form.ethicsFormId-tab" data-bs-toggle="tab" href="#form-@form.ethicsFormId" role="tab" aria-controls="form-@form.ethicsFormId" aria-selected="@(index == 0 ? "true" : "false")">
                             @form.ethicsFormId
                         </a>
                     </li>
                     index++;
                 }
+               
             }
 
             @if (Model.ReceiptInfo != null && Model.ReceiptInfo.scanReceipt != null)
             {
             <li class="nav-item" role="presentation">
-                <a class="nav-link @(Model.EthicsApplicationForms == null || !Model.EthicsApplicationForms.Any() ? "active" : "")" id="receipt-tab" data-bs-toggle="tab" href="#receipt" role="tab" aria-controls="receipt" aria-selected="@(!Model.EthicsApplicationForms.Any() ? "true" : "false")">
+                    <a class="btn-nav @(Model.EthicsApplicationForms == null || !Model.EthicsApplicationForms.Any() ? "active" : "")" id="receipt-tab" data-bs-toggle="tab" href="#receipt" role="tab" aria-controls="receipt" aria-selected="@(!Model.EthicsApplicationForms.Any() ? "true" : "false")">
                     Receipt
                 </a>
             </li>
             }
+            </div>
         </ul>
+       
 
         <div class="tab-content" id="pdfTabContent">
             @if (Model.EthicsApplicationForms != null && Model.EthicsApplicationForms.Any())
@@ -227,5 +241,8 @@
                     });
                 }
             });
+            function goBack() {
+                window.history.back();
+            }
         </script>
     }

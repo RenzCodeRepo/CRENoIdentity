@@ -1,32 +1,52 @@
 ﻿@model CRE.ViewModels.ApplicationEvaluationViewModel
 
+<head>
+    <link rel="stylesheet" href="~/css/InitialReview.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" />
+
+</head>
+
+<div class="title-section">
 <h2>Ethics Applications</h2>
 
 <!-- Tabs Navigation -->
-<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <div class="d-flex" id="buttons">
     <li class="nav-item">
-        <a class="nav-link active" id="exempt-tab" data-toggle="tab" href="#exempt" role="tab" aria-controls="exempt" aria-selected="true">Pending Exempt Evaluations</a>
+        <a class="btn-nav active" id="exempt-tab" data-toggle="tab" href="#exempt" role="tab" aria-controls="exempt" aria-selected="true">Pending Exempt Evaluations</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="evaluated-exempt-tab" data-toggle="tab" href="#evaluated-exempt" role="tab" aria-controls="evaluated-exempt" aria-selected="false">Evaluated Exempt Applications</a>
+        <a class="btn-nav" id="evaluated-exempt-tab" data-toggle="tab" href="#evaluated-exempt" role="tab" aria-controls="evaluated-exempt" aria-selected="false">Evaluated Exempt Applications</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="evaluated-expedited-tab" data-toggle="tab" href="#evaluated-expedited" role="tab" aria-controls="evaluated-expedited" aria-selected="false">Evaluated Expedited Applications</a>
+        <a class="btn-nav" id="evaluated-expedited-tab" data-toggle="tab" href="#evaluated-expedited" role="tab" aria-controls="evaluated-expedited" aria-selected="false">Evaluated Expedited Applications</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="evaluated-full-review-tab" data-toggle="tab" href="#evaluated-full-review" role="tab" aria-controls="evaluated-full-review" aria-selected="false">Evaluated Full Review Applications</a>
+            <a class="btn-nav" id="evaluated-full-review-tab" data-toggle="tab" href="#evaluated-full-review" role="tab" aria-controls="evaluated-full-review" aria-selected="false">Evaluated Full Review Applications</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="pending-issuance-tab" data-toggle="tab" href="#pending-issuance" role="tab" aria-controls="pending-issuance" aria-selected="false">Pending Issuance</a>
+            <a class="btn-nav" id="pending-issuance-tab" data-toggle="tab" href="#pending-issuance" role="tab" aria-controls="pending-issuance" aria-selected="false">Pending Issuance</a>
     </li>
-</ul>
+        </div>
+    </ul>
+</div>
+
+<div class="divider"></div>
+
+<div class="search-filter-container">
+    <!-- Search Bar with Icon -->
+    <div class="search-container">
+        <input type="text" id="searchBar" onkeyup="searchApplications()" placeholder="Search by Urec No or Title">
+        <i class="fas fa-search"></i>
+    </div>
+</div>
 
 <!-- Tab Content -->
 <div class="tab-content mt-3" id="myTabContent">
     <!-- Exempt Applications Tab -->
     <div class="tab-pane fade show active" id="exempt" role="tabpanel" aria-labelledby="exempt-tab">
         <!-- Pending Exempt Applications Table -->
-        <table class="table table-bordered">
+        <table class="table">
             <!-- Table Header -->
             <thead>
                 <tr>
@@ -42,8 +62,14 @@
             <tbody>
                 @if (Model.ExemptApplications == null || !Model.ExemptApplications.Any())
                 {
+
                     <tr>
-                        <td colspan="6" class="text-center">No exempt applications found.</td>
+                        <td colspan="6" class="text-center">
+                            <div style="text-align: center; padding: 20px; opacity: 50%;">
+                                <i class="fa-solid fa-file" style="font-size: 80px;"></i>
+                                <p style="font-size: 20px; font-family: 'Montserrat', sans-serif;">No exempt applications found.</p>
+                            </div>
+                        </td>
                     </tr>
                 }
                 else
@@ -51,8 +77,8 @@
                     foreach (var application in Model.ExemptApplications)
                     {
                         <tr>
-                            <td>
-                                <a asp-controller="Chief" asp-action="EvaluateApplication" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="btn btn-primary">
+                            <td class="urec-column underline">
+                                <a asp-controller="Chief" asp-action="EvaluateApplication" asp-route-urecNo="@application.EthicsApplication?.urecNo" class="">
                                     @application.EthicsApplication?.urecNo
                                 </a>
                             </td>
@@ -89,7 +115,7 @@
 
     <!-- Evaluated Exempt Applications Tab -->
     <div class="tab-pane fade" id="evaluated-exempt" role="tabpanel" aria-labelledby="evaluated-exempt-tab">
-        <table class="table table-bordered">
+        <table class="table">
             <thead>
                 <tr>
                     <th>UREC No</th>
@@ -104,8 +130,15 @@
             <tbody>
                 @if (Model.EvaluatedExemptApplications == null || !Model.EvaluatedExemptApplications.Any())
                 {
+                   
+
                     <tr>
-                        <td colspan="7" class="text-center">No evaluated exempt applications found.</td>
+                        <td colspan="7" class="text-center">
+                            <div style="text-align: center; padding: 20px; opacity: 50%;">
+                                <i class="fa-solid fa-file" style="font-size: 80px;"></i>
+                                <p style="font-size: 20px; font-family: 'Montserrat', sans-serif;">No evaluated exempt applications found.</p>
+                            </div>
+                        </td>
                     </tr>
                 }
                 else
@@ -178,7 +211,7 @@
 
     <!-- Evaluated Expedited Applications Tab -->
     <div class="tab-pane fade" id="evaluated-expedited" role="tabpanel" aria-labelledby="evaluated-expedited-tab">
-        <table class="table table-bordered">
+        <table class="table">
             <thead>
                 <tr>
                     <th rowspan="2">UREC No</th>
@@ -197,7 +230,12 @@
                 @if (Model.EvaluatedExpeditedApplications == null || !Model.EvaluatedExpeditedApplications.Any())
                 {
                     <tr>
-                        <td colspan="7" class="text-center">No evaluated full review applications found.</td>
+                        <td colspan="7" class="text-center">
+                            <div style="text-align: center; padding: 20px; opacity: 50%;">
+                                <i class="fa-solid fa-file" style="font-size: 80px;"></i>
+                                <p style="font-size: 20px; font-family: 'Montserrat', sans-serif;">No evaluated full review applications found.</p>
+                            </div>
+                        </td>
                     </tr>
                 }
                 else
@@ -281,7 +319,7 @@
 
     <!-- Evaluated Full Review Applications Tab -->
     <div class="tab-pane fade" id="evaluated-full-review" role="tabpanel" aria-labelledby="evaluated-full-review-tab">
-        <table class="table table-bordered">
+        <table class="table">
             <thead>
                 <tr>
                     <th rowspan="2">UREC No</th>
@@ -299,8 +337,14 @@
             <tbody>
                 @if (Model.EvaluatedFullReviewApplications == null || !Model.EvaluatedFullReviewApplications.Any())
                 {
+                  
                     <tr>
-                        <td colspan="7" class="text-center">No evaluated full review applications found.</td>
+                        <td colspan="7" class="text-center">
+                            <div style="text-align: center; padding: 20px; opacity: 50%;">
+                                <i class="fa-solid fa-file" style="font-size: 80px;"></i>
+                                <p style="font-size: 20px; font-family: 'Montserrat', sans-serif;">No evaluated full review applications found.</p>
+                            </div>
+                        </td>
                     </tr>
                 }
                 else
@@ -381,7 +425,7 @@
     </div>
     <!-- Pending Issuance Tab -->
     <div class="tab-pane fade" id="pending-issuance" role="tabpanel" aria-labelledby="pending-issuance-tab">
-        <table class="table table-bordered">
+        <table class="table">
             <thead>
                 <tr>
                     <th>UREC No</th>
@@ -394,8 +438,14 @@
             <tbody>
                 @if (Model.PendingIssuance == null || !Model.PendingIssuance.Any())
                 {
+
                     <tr>
-                        <td colspan="5" class="text-center">No applications pending issuance found.</td>
+                        <td colspan="5" class="text-center">
+                            <div style="text-align: center; padding: 20px; opacity: 50%;">
+                                <i class="fa-solid fa-file" style="font-size: 80px;"></i>
+                                <p style="font-size: 20px; font-family: 'Montserrat', sans-serif;">No applications pending issuance found.</p>
+                            </div>
+                        </td>
                     </tr>
                 }
                 else
@@ -496,6 +546,59 @@
 
     @section Scripts {
         <script>
+            function searchApplications() {
+                // Get the search query and convert to lowercase for case-insensitive search
+                const searchQuery = document.getElementById("searchBar").value.toLowerCase();
+
+                // Get all tables within tab-panes
+                const tabPanes = document.querySelectorAll('.tab-pane');
+
+                tabPanes.forEach(tabPane => {
+                    // Get all table rows except the header row (first row)
+                    const rows = tabPane.querySelectorAll('table tbody tr');
+
+                    // Track whether any rows are visible after filtering
+                    let hasVisibleRows = false;
+
+                    rows.forEach(row => {
+                        // Skip if this is a "No applications found" row
+                        if (row.cells.length === 1 && row.classList.contains('no-results-row')) {
+                            return;
+                        }
+
+                        // Get the urecNo and title cells
+                        const urecNoCell = row.querySelector('td:nth-child(1)');
+                        const titleCell = row.querySelector('td:nth-child(2)');
+
+                        // Get the text content, handling null values and the button inside urecNo cell
+                        const urecNo = urecNoCell ? urecNoCell.textContent.trim().toLowerCase() : '';
+                        const title = titleCell ? titleCell.textContent.trim().toLowerCase() : '';
+
+                        // Show/hide row based on whether either field matches the search query
+                        if (urecNo.includes(searchQuery) || title.includes(searchQuery)) {
+                            row.style.display = '';
+                            hasVisibleRows = true; // Mark row as visible
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    // Show "No results found" if all rows are hidden
+                    let noResultsRow = tabPane.querySelector('.no-results-row');
+                    if (!hasVisibleRows && searchQuery !== '') {
+                        if (!noResultsRow) {
+                            const tbody = tabPane.querySelector('tbody');
+                            noResultsRow = document.createElement('tr');
+                            noResultsRow.className = 'no-results-row';
+                            noResultsRow.innerHTML = '<td colspan="7" class="text-center">No matching applications found.</td>';
+                            tbody.appendChild(noResultsRow);
+                        }
+                    } else if (noResultsRow) {
+                        // Remove the "No results found" row if there are visible rows
+                        noResultsRow.remove();
+                    }
+                });
+            }
             $(document).ready(function () {
                 // Initialize Bootstrap tabs if necessary
                 $('#myTab a').on('click', function (e) {

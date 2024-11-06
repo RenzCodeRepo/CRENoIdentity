@@ -93,8 +93,8 @@
         {
             <div class="mb-3">
                 <label><strong>Receipt:</strong></label>
-                <button class="btn btn-primary btn-sm" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
-                    View Receipt (PDF)
+                <button id="red-background" class="" onclick="openPdfInModal('@Url.Action("ViewReceipt", "ReceiptInfo", new { urecNo = Model.EthicsApplication?.urecNo })')">
+                    <i class="fas fa-file-pdf text-white"></i>View Receipt (PDF)
                 </button>
             </div>
         }
