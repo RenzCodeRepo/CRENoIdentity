@@ -39,20 +39,12 @@
                 <div class="col text-end">
                     <p id="dtsNoText">
                         <strong>DTS No.:</strong>
-                        @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
-                        {
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
-                        }
-                        else
-                        {
-                            <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
-                        }
                     </p>
 
                     @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                     {
-                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                            Copy DTS No.
+                        <button class="btn-outline-secondary btn-sm ms-2" onclick="copyDtsNo()" title="Copy">
+                            <i class="fa-regular fa-copy copy-icon"></i>
                         </button>
                     }
                 </div>

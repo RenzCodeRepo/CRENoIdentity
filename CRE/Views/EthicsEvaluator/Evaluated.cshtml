@@ -1,22 +1,24 @@
 ﻿@model CRE.ViewModels.EvaluationDetailsViewModel
 
 <head>
-    <link rel="stylesheet" href="~/css/InitialReview.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/DetailsInitialReview.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" />
 
 </head>
-<div class="container">
-    <h2>Evaluation Details</h2>
+<div class="header-container">
+    <h2 class="title">Evaluation Details</h2>
+    <button class="btn-back" onclick="goBack()">Back</button>
+</div>
 
     <div class="card border-light mb-3" style="width:contain">
         <div class="card-header">
             <div class="row">
                 <div class="col text-start">
                     <p id="urecNoText">
-                        <strong>UREC No.: </strong> <span id="urecNoValue">@Model.EthicsApplication.urecNo</span>
-                    </p>
-                    <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
-                        Copy UREC No.
+                    <strong>UREC No.: </strong> @Model.EthicsApplication.urecNo
+                     </p>
+                    <button id="copybut" type="button" class="btn-outline-transparent btn-sm ms-2" onclick="copyUrecNo()">
+                        <i class="fas fa-copy"></i>
                     </button>
 
                     <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
@@ -58,20 +60,12 @@
                 <div class="col text-end">
                     <p id="dtsNoText">
                         <strong>DTS No.:</strong>
-                        @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
-                        {
-                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editDtsModal">Add DTS No.</button>
-                        }
-                        else
-                        {
-                            <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
-                        }
                     </p>
 
                     @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                     {
-                        <button type="button" class="btn btn-primary ms-2" onclick="copyDtsNo()">
-                            Copy DTS No.
+                        <button id="copybut" type="button" class="btn-outline-transparent btn-sm ms-2" onclick="copyDtsNo()">
+                        <i class="fas fa-copy"></i>
                         </button>
                     }
                 </div>
@@ -125,7 +119,7 @@
                     {
                         <tr>
                             <td>
-                                <button type="button" class="btn btn-info"
+                                <button id="viewBut" type="button" class=""
                                         onclick="openPdfInModal('ProtocolReviewSheet', '@Model.EthicsApplication.urecNo', @evaluation.evaluationId)">
                                     View Protocol Review Sheet
                                 </button>
@@ -139,7 +133,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <button type="button" class="btn btn-info"
+                                <button id="viewBut" type="button" class=""
                                         onclick="openPdfInModal('InformedConsentForm', '@Model.EthicsApplication.urecNo', @evaluation.evaluationId)">
                                     View Informed Consent Form
                                 </button>
@@ -173,7 +167,7 @@
             </div>
         </div>
     </div>
-</div>
+
 
 @section Scripts {
     <script>
@@ -201,6 +195,9 @@
 
             // Show the modal
             $('#pdfModal').modal('show');
+        }
+        function goBack() {
+            window.history.back();
         }
     </script>
 }

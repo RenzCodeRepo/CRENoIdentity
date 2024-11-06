@@ -367,3 +367,208 @@
         padding: 20px;
     }
 }
+
+.table-container {
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.table {
+    font-family: 'Montserrat', sans-serif;
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border-radius: 15px !important;
+    border-color: white;
+}
+
+    .table thead th {
+        background-color: #850000;
+        font-size: 20px;
+        font-weight: bold;
+        color: white;
+    }
+
+    .table thead tr {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+    }
+
+    .table thead th:first-child {
+        border-top-left-radius: 15px;
+    }
+
+    .table thead th:last-child {
+        border-top-right-radius: 15px;
+    }
+
+    .table thead th {
+        text-align: center;
+        padding: 20px 15px;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        border-top: 1px solid #dee2e6;
+        border-bottom: 1px solid #dee2e6;
+        padding: 20px 15px;
+        text-align: center;
+        word-wrap: break-word;
+        background-color: white;
+    }
+
+        .table tbody td:first-child {
+            border-bottom-left-radius: 15px;
+        }
+
+        .table tbody td:last-child {
+            border-bottom-right-radius: 15px;
+        }
+
+        .table tbody td.title-column,
+        .table tbody td.authors-column,
+        .table tbody td.status-column,
+        .table tbody td.date-column {
+            font-size: 18px;
+            padding: 20px 15px;
+            word-wrap: break-word;
+        }
+
+        .table tbody td.urec-column {
+            font-size: 20px;
+            padding: 20px 15px;
+            word-wrap: break-word;
+        }
+
+#viewBut {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+    #viewBut:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #viewBut#viewBut:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    #viewBut::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    #viewBut:hover::after {
+        width: 300px;
+        height: 300px;
+    }
+
+.badge {
+    display: inline-block;
+    padding: 0.5em 0.85em; /* Increased padding */
+    font-size: 0.95em; /* Increased font size */
+    font-weight: 600;
+    line-height: 1.2; /* Increased line height */
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.5rem; /* Slightly larger border radius */
+    transition: all 0.2s ease-in-out;
+    font-family: system-ui, -apple-system, sans-serif;
+    letter-spacing: 0.01em; /* Added slight letter spacing */
+}
+
+    .badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); /* Increased shadow */
+    }
+
+/* Warning badge */
+.bg-warning {
+    background-color: #ffc107;
+    color: #000;
+    border: 1.5px solid rgba(0, 0, 0, 0.05); /* Slightly thicker border */
+}
+
+    .bg-warning:hover {
+        background-color: #ffca2c;
+    }
+
+/* Danger badge */
+.bg-danger {
+    background-color: #dc3545;
+    color: white;
+    border: 1.5px solid rgba(0, 0, 0, 0.05); /* Slightly thicker border */
+}
+
+    .bg-danger:hover {
+        background-color: #bb2d3b;
+    }
+
+/* Optional: Add animation for new badges */
+@keyframes badgeAppear {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.badge {
+    animation: badgeAppear 0.3s ease-out forwards;
+}
+
+/* Optional: Add subtle border glow for emphasis */
+.bg-warning {
+    box-shadow: 0 0 0 rgba(255, 193, 7, 0);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+    .bg-warning:hover {
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.4); /* Increased glow */
+    }
+
+.bg-danger {
+    box-shadow: 0 0 0 rgba(220, 53, 69, 0);
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+    .bg-danger:hover {
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.4); /* Increased glow */
+    }
+
+/* Optional: Add margin between badges */
+.badge + .badge {
+    margin-left: 0.75rem; /* Increased margin between badges */
+}

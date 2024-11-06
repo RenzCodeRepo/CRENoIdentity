@@ -54,16 +54,6 @@
                 <span class="mb-0 appDetails">
                     DTS No.:
                     <span class="appContent align-items-center">
-                        @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
-                        {
-                            <button class="btn-outline-secondary btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#editDtsModal">
-                                <i class="fa-solid fa-pencil"></i>
-                            </button>
-                        }
-                        else
-                        {
-                            <span id="dtsNoText">@Model.EthicsApplication.dtsNo</span>
-                        }
                         @if (!string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
                         {
                             <button class="btn-outline-secondary btn-sm ms-2" onclick="copyDtsNo()" title="Copy">

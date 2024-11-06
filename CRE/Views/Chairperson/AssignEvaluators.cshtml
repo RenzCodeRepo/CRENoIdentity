@@ -34,16 +34,6 @@
             <div class="col text-end">
                 <p id="dtsNoText">
                     <strong>DTS No.:</strong>
-                    @if (string.IsNullOrEmpty(Model.EthicsApplication.dtsNo))
-                    {
-                        <button id="editbut" class="btn-outline-transparent btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#editDtsModal">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </button>
-                    }
-                    else
-                    {
-                        <span id="dtsNoValue">@Model.EthicsApplication.dtsNo</span>
-                    }
                 </p>
 
                 <!-- Button to Copy DTS No. if it exists -->
