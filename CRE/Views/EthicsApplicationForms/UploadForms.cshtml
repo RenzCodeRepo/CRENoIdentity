@@ -81,6 +81,7 @@
                         <div class="modal-body p-4">
                             <div id="errorMessages" class="text-danger mb-3"></div> <!-- Error message display -->
                             <form id="editDtsForm" method="post" asp-action="UpdateDtsNo" asp-controller="EthicsApplicationForms">
+                                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
                                 <div class="mb-3">
                                     <label for="dtsNoInput" class="form-label fw-bold">DTS No.</label>
                                     <input type="text" class="form-control border border-2 rounded" id="dtsNoInput" name="dtsNo"
@@ -794,9 +795,65 @@
        
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+
     <script type="text/javascript">
-        
+        function updateDtsNumber(dtsNoInput, urecNo) {
+    var dtsPattern = /^\d{4}-\d{4}-\d{2}$/;
+    if (!dtsPattern.test(dtsNoInput)) {
+        document.getElementById('dtsNoError').textContent = "DTS No. must be in the format xxxx-xxxx-xx.";
+        return; // Stop the function if validation fails
+    }
+
+    // CSRF Token - Ensure this is added if required
+    const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+    // Prepare the data for submission
+    const formData = new FormData();
+    formData.append("dtsNo", dtsNoInput);
+    formData.append("urecNo", urecNo);
+    formData.append("__RequestVerificationToken", csrfToken);
+
+    fetch('@Url.Action("UpdateDtsNo", "EthicsApplicationForms")', {
+        method: 'POST',
+        body: formData // Send form data instead of JSON
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert(data.message); // Display success message
+            $('#editDtsModal').modal('hide'); // Close the modal
+            location.reload(); // Refresh the page
+        } else {
+            document.getElementById('errorMessages').textContent = data.message; // Show error message
+        }
+    })
+    .catch(error => {
+        document.getElementById('errorMessages').textContent = "An error occurred while updating DTS No.";
+        console.error("Error occurred:", error); // Log the error details
+    });
+}
+
+
+        // Event handler for DTS form submission
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('submitDtsForm').addEventListener('click', function (e) {
+                e.preventDefault();
+                var dtsNoInput = document.getElementById('dtsNoInput').value;
+                var urecNo = document.querySelector('input[name="urecNo"]').value; // Get the UREC No.
+
+                // Call the updateDtsNumber function with the DTS number and UREC No.
+                updateDtsNumber(dtsNoInput, urecNo);
+            });
+        });
+
+
         // Clipboard Copy Functions
         function copyUrecNo() {
             const urecNo = document.getElementById("urecNoValue").innerText;
@@ -899,38 +956,7 @@
             const initialReviewStatus = '@Model.InitialReview?.status'; // Injected from the server-side
             updateFormState($('input[name="InvolvesHumanSubjects"]:checked').val() === "true", initialReviewStatus);
             // DTS form submission handling
-            $('#submitDtsForm').click(function (e) {
-                e.preventDefault();
-                var dtsNoInput = $('#dtsNoInput').val();
-                var urecNo = $('input[name="urecNo"]').val(); // Get the UREC No.
-
-                var dtsPattern = /^\d{4}-\d{4}-\d{2}$/;
-                if (!dtsPattern.test(dtsNoInput)) {
-                    $('#dtsNoError').text("DTS No. must be in the format xxxx-xxxx-xx.");
-                } else {
-                    $.ajax({
-                        url: '@Url.Action("UpdateDtsNo", "EthicsApplicationForms")',
-                        type: 'POST',
-                        data: {
-                            dtsNo: dtsNoInput,
-                            urecNo: urecNo
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                alert(response.message); // Display success message
-                                $('#editDtsModal').modal('hide'); // Close the modal
-                                location.reload(); // Refresh the page
-                            } else {
-                                $('#errorMessages').text(response.message); // Show error
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            $('#errorMessages').text("An error occurred while checking DTS No.");
-                            console.error("AJAX Error: ", error); // Log error details
-                        }
-                    });
-                }
-            });
+            
             // Event Handlers for Form State Changes
             $('input[name="InvolvesHumanSubjects"]').change(function () {
                 updateFormState($(this).val() === "true", initialReviewStatus);

@@ -172,11 +172,14 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="returnForm" asp-action="ReturnApplication" method="post">
+                <form id="returnForm" asp-action="ReturnApplication" method="post" onsubmit="return validateReturnForm()">
                     <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
                     <div class="mb-3">
                         <label for="returnFeedback" class="form-label">Feedback</label>
                         <textarea class="form-control" id="returnFeedback" name="comments" rows="3" placeholder="Provide feedback on why the application is being returned..."></textarea>
+                        <div id="feedbackError" class="text-danger mt-2" style="display: none;">
+                            Please provide feedback before submitting.
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -233,6 +236,18 @@
         }
         function goBack() {
             window.history.back();
+        }
+        function validateReturnForm() {
+            const feedbackInput = document.getElementById("returnFeedback");
+            const feedbackError = document.getElementById("feedbackError");
+
+            if (feedbackInput.value.trim() === "") {
+                feedbackError.style.display = "block";
+                return false; // Prevent form submission
+            } else {
+                feedbackError.style.display = "none";
+                return true; // Allow form submission
+            }
         }
     </script>
 }

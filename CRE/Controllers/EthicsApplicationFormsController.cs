@@ -306,6 +306,7 @@ namespace CRE.Controllers
                 ModelState.Remove(nameof(model.FORM12));
             }
             ModelState.Remove("EthicsApplication.fieldOfStudy");
+            ModelState.Remove("EthicsApplication.CompletionCertificate");
             if (!ModelState.IsValid)
             {
                 return View("UploadForms", model);
