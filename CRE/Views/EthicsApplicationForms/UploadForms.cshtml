@@ -604,7 +604,7 @@
             @if (Model.InitialReview?.status == "Returned")
             {
                 <div class="d-flex">
-                    <button type="submit" id="resubmitButton" class="btn btn-warning me-2">Re-submit</button>
+                    <button type="submit" id="trackApp" class="btn btn-warning me-2">Re-submit</button>
                     <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" id="trackApp" class="btn btn-success mt-2">
                         Track Application
                     </a>

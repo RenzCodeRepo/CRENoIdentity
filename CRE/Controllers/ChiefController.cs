@@ -165,6 +165,8 @@ namespace CRE.Controllers
         public async Task<IActionResult> EvaluateApplication(ChiefEvaluationViewModel model)
         {
             ModelState.Remove("EthicsEvaluation.EthicsEvaluator");
+            
+                ModelState.Remove("EthicsApplication.CompletionCertificate");
             ModelState.Remove("EthicsApplication.fieldOfStudy");
             if (!ModelState.IsValid)
             {
