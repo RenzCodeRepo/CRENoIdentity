@@ -28,6 +28,7 @@ namespace CRE.Models
         public ICollection<EthicsEvaluation>? EthicsEvaluation { get; set; } = new List<EthicsEvaluation>();
         public ICollection<EthicsEvaluationDeclined> EthicsEvaluationDeclined { get; set; } = new List<EthicsEvaluationDeclined>();
         public CompletionReport? CompletionReport { get; set; }
+        public CompletionCertificate CompletionCertificate { get; set; }
         public EthicsClearance? EthicsClearance { get; set; }
     }
 }

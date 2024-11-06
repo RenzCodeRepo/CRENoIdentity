@@ -17,6 +17,6 @@ namespace CRE.Models
 
         //navigation properties
         public NonFundedResearchInfo NonFundedResearchInfo { get; set; }
-
+        public EthicsApplication EthicsApplication { get; set; }
     }
 }

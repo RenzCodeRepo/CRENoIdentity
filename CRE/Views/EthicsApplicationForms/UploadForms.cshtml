@@ -459,35 +459,35 @@
                                 <span asp-validation-for="FORM10_1" class="text-danger"></span>
                             }
                         }
-                 
-            <!-- Track Application / Submit Button -->
-            @if (Model.InitialReview?.status == "Returned")
-            {
-                <div class="d-flex">
-                    <button type="submit" id="resubmitButton" class="btn btn-warning me-2">Re-submit</button>
-                    <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">
-                        Track Application
-                    </a>
-                </div>
-            }
-            else if (allFormsUploaded || Model.EthicsApplicationLog?.LastOrDefault()?.status == "Pending for Evaluation")
-            {
-                <!-- Show Track Application button if all forms are uploaded -->
-                <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success mt-2">
-                    Track Application
-                </a>
-            }
-            else
-            {
-                <!-- Show Submit button if application is not returned -->
-                <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
-            }
-            @if (Model.InitialReview?.status == "Returned" || allFormsUploaded)
-            {
-                <div class="form-group">
-                    <label for="Comment">Comments:</label>
-                    <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
-                </div>
+
+                        <!-- Track Application / Submit Button -->
+                        @if (Model.InitialReview?.status == "Returned")
+                        {
+                            <div class="d-flex">
+                                <button type="submit" id="resubmitButton" class="btn btn-warning me-2">Re-submit</button>
+                                <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success">
+                                    Track Application
+                                </a>
+                            </div>
+                        }
+                        else if (allFormsUploaded || Model.EthicsApplicationLog?.LastOrDefault()?.status == "Pending for Evaluation")
+                        {
+                            <!-- Show Track Application button if all forms are uploaded -->
+                            <a href="@Url.Action("TrackApplication", "EthicsApplicationlog", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-success mt-2">
+                                Track Application
+                            </a>
+                        }
+                        else
+                        {
+                            <!-- Show Submit button if application is not returned -->
+                            <button type="submit" id="submitButton" class="btn btn-success mt-2">Submit</button>
+                        }
+                        @if (Model.InitialReview?.status == "Returned" || allFormsUploaded)
+                        {
+                            <div class="form-group">
+                                <label for="Comment">Comments:</label>
+                                <textarea id="Comment" name="LatestComment" class="form-control" rows="3" readonly>@Model.InitialReview?.feedback</textarea>
+                            </div>
                         }
                     </div>
                 </div>
@@ -517,17 +517,64 @@
                             Download Clearance Document
                         </a>
                     }
+                    <p><strong>Completion Report Submitted: </strong> @Model.CompletionReport?.submissionDate</p>
+
+                    <!-- Check if Completion Certificate is null -->
+                    @if (Model.CompletionCertificate == null)
+                    {
+                        @if (Model.CompletionReport != null)
+                        {
+                            <span class="badge bg-warning">Completion Certificate Pending Issuance</span>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Display the Completion Certificate and its download link -->
+                        <p><strong>Completion Certificate:</strong> @Model.CompletionCertificate?.urecNo</p>
+
+                        @if (Model.CompletionCertificate?.file != null)
+                        {
+                            <a href="@Url.Action("DownloadCertificateFile", "CompletionReport", new { urecNo = Model.EthicsApplication.urecNo })" class="btn btn-primary">
+                                Download Completion Certificate
+                            </a>
+                             <button type="button" class="btn btn-primary" id="viewCertificateBtn">
+        View Completion Certificate
+    </button>
+                        }
+             }
+             <!-- Modal for Viewing the Certificate -->
+<div class="modal fade" id="certificateModal" tabindex="-1" role="dialog" aria-labelledby="certificateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="max-width: 90%; height: 90%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="certificateModalLabel">View Completion Certificate</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="overflow: hidden;">
+                <!-- iframe to display the PDF file -->
+                <iframe id="certificateIframe" width="100%" height="600px" frameborder="0" src=""></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 
                     <!-- Apply for Completion Certificate section -->
-                    <div class="mt-3">
-                        <h5>Apply for Completion Certificate</h5>
-                        <form method="post" action="@Url.Action("ApplyForCompletionCertificate", "EthicsApplicationForms")">
-                            <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-                            <button type="submit" class="btn btn-success">Apply for Completion Certificate</button>
-                        </form>
-                    </div>
+                    @if (Model.CompletionReport == null)
+                    {
+                        <div class="mt-3">
+                            <h5>Apply for Completion Certificate</h5>
+                            <form method="get" action="@Url.Action("ApplyForCompletionCertificate", "CompletionReport")">
+                                <input type="hidden" name="urecNo" value="@Model.EthicsApplication.urecNo" />
+                                <button type="submit" class="btn btn-success">Apply for Completion Certificate</button>
+                            </form>
+                        </div>
+                    }
                 </div>
             </div>
+
+
         }
         @if (Model.EthicsApplicationLog.Any())
         {
@@ -588,6 +635,7 @@
                         </form>
                     }
                 }
+
             }
         }
     </div>
@@ -607,10 +655,12 @@
         </div>
     </div>
 </div>
-
+       
 @section Scripts {
     <script src="~/lib/jquery/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script type="text/javascript">
+        
         // Clipboard Copy Functions
         function copyUrecNo() {
             const urecNo = document.getElementById("urecNoValue").innerText;
@@ -697,7 +747,6 @@
                 });
             }
         });
-
         $(document).ready(function () {
             // Confirmation before form submission
             $('#myForm').on('submit', function (event) {
@@ -766,6 +815,22 @@
             document.getElementById("pdfViewer").src = pdfUrl;
             $('#pdfModal').modal('show');
         }
+        document.getElementById("viewCertificateBtn")?.addEventListener("click", function () {
+            // Get the urecNo from the model (assuming it's available in the view)
+            var urecNo = '@Model.EthicsApplication.urecNo';
+            
+            // Set the iframe's source to the appropriate action URL for the certificate
+            var iframe = document.getElementById("certificateIframe");
+            iframe.src = '@Url.Action("ViewCertificateFile", "EthicsApplicationForms", new { urecNo = "__urecNo__" })'.replace('__urecNo__', urecNo);
+
+            // Show the modal (this triggers the Bootstrap modal)
+            $('#certificateModal').modal('show');
+        });
+
+        // Optionally, if you want to close the modal and reset the iframe when the modal is closed
+        $('#certificateModal').on('hidden.bs.modal', function () {
+            document.getElementById("certificateIframe").src = "";
+        });
     </script>
     <script>
         // Function to validate all PDF uploads

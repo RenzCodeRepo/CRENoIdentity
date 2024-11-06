@@ -28,6 +28,8 @@ namespace CRE.Controllers
         private readonly IEthicsClearanceServices _ethicsClearanceServices;
         private readonly UserManager<AppUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly ICompletionCertificateServices _completionCertificateServices;
+        private readonly ICompletionReportServices _completionReportServices;
 
         public ChiefController(
             IConfiguration configuration,
@@ -42,7 +44,9 @@ namespace CRE.Controllers
             IEthicsEvaluationServices ethicsEvaluationServices,
             UserManager<AppUser> userManager,
             ApplicationDbContext context,
-            IEthicsClearanceServices ethicsClearanceServices)
+            IEthicsClearanceServices ethicsClearanceServices,
+            ICompletionCertificateServices completionCertificateServices,
+            ICompletionReportServices completionReportServices)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -57,6 +61,8 @@ namespace CRE.Controllers
             _userManager = userManager;
             _context = context;
             _ethicsClearanceServices = ethicsClearanceServices;
+            _completionCertificateServices = completionCertificateServices;
+            _completionReportServices = completionReportServices;
         }
 
         public IActionResult Index()
@@ -197,7 +203,7 @@ namespace CRE.Controllers
                 ProtocolReviewSheet = model.ProtocolReviewSheet != null ? await GetFileContentAsync(model.ProtocolReviewSheet) : null,
                 InformedConsentForm = model.InformedConsentForm != null ? await GetFileContentAsync(model.InformedConsentForm) : null,
             };
-            
+
             // Save the evaluation to the database
             await _ethicsEvaluationServices.SaveEvaluationAsync(ethicsEvaluation);
 
@@ -274,7 +280,7 @@ namespace CRE.Controllers
         // New method for retrieving Form15
         [HttpGet]
         public async Task<IActionResult> ViewForm15(string urecNo)
-            {
+        {
             // Fetch Form15 using the ethicsFormId from the EthicsApplicationForms table
             var form15 = await _ethicsApplicationFormsServices.GetForm15ByUrecNoAsync(urecNo);
 
@@ -375,8 +381,129 @@ namespace CRE.Controllers
 
             return View();
         }
-       
 
 
+        public async Task<IActionResult> GetCompletionReport(string urecNo)
+        {
+            var report = await _completionReportServices.GetCompletionReportByUrecNoAsync(urecNo);
+
+            if (report == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new CompletionReportViewModel
+            {
+                AppUser = report.EthicsApplication.User,
+                NonFundedResearchInfo = report.EthicsApplication.NonFundedResearchInfo,
+                CoProponent = report.EthicsApplication.NonFundedResearchInfo.CoProponent,
+                EthicsApplication = report.EthicsApplication,
+                EthicsApplicationLog = report.EthicsApplication.EthicsApplicationLog,
+                CompletionReport = report,
+                CompletionCertificate = report.EthicsApplication.CompletionCertificate
+            };
+
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> CompletionReports()
+        {
+            var completionReports = await _completionReportServices.GetCompletionReportsAsync();
+
+            // Convert to ViewModel
+            var viewModel = completionReports.Select(report => new CompletionReportViewModel
+            {
+                AppUser = report.AppUser,
+                NonFundedResearchInfo = report.NonFundedResearchInfo,
+                CoProponent = report.CoProponent,
+                EthicsApplication = report.EthicsApplication,
+                CompletionReport = report.CompletionReport,
+                CompletionCertificate = report.CompletionCertificate
+            }).ToList();
+
+            return View(viewModel);
+        }
+        public async Task<IActionResult> DownloadTerminalReport(string urecNo)
+        {
+            // Fetch the terminal report as a byte array (PDF format) from your database or file storage
+            var reportBytes = await _completionReportServices.GetTerminalReportAsync(urecNo);
+
+            if (reportBytes == null)
+            {
+                return NotFound();
+            }
+
+            return File(reportBytes, "application/pdf");
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> IssueCompletionCertificate(CompletionReportViewModel model)
+        {
+            ModelState.Remove("CompletionReport.terminalReport");
+            ModelState.Remove("CompletionReport.EthicsApplication");
+            ModelState.Remove("EthicsApplication.fieldOfStudy");
+            ModelState.Remove("EthicsApplication.CompletionCertificate");
+            if (ModelState.IsValid)
+            {
+                // Fetch the CompletionReport based on the UREC number
+                var completionReport = await _completionReportServices.GetCompletionReportByUrecNoAsync(model.EthicsApplication.urecNo);
+
+                if (completionReport == null)
+                {
+                    ModelState.AddModelError("", "Completion report not found.");
+                    return View(model);
+                }
+
+                // Handle the file upload: Convert the IFormFile to a byte array for storage
+                byte[] certificateBytes = null;
+
+                if (model.CertificateFile != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await model.CertificateFile.CopyToAsync(memoryStream);
+                        certificateBytes = memoryStream.ToArray();
+                    }
+                }
+
+                // Create a new CompletionCertificate or update the existing one
+                var completionCertificate = new CompletionCertificate
+                {
+                    urecNo = model.EthicsApplication.urecNo,
+                    file = certificateBytes, // Store the byte array of the certificate
+                    issuedDate = model.CompletionCertificate?.issuedDate ?? DateOnly.FromDateTime(DateTime.UtcNow)
+                };
+
+                // Save the certificate to the database (via service or repository)
+                await _completionCertificateServices.SaveCompletionCertificateAsync(completionCertificate);
+
+                // Now, update the researchEndDate in the CompletionReport to match the issuedDate
+                completionReport.researchEndDate = model.CompletionReport.researchEndDate;
+
+                // Save the updated CompletionReport
+                await _completionReportServices.SaveCompletionReportAsync(completionReport);
+
+
+                // Add a log entry for this action (optional)
+                var log = new EthicsApplicationLog
+                {
+                    urecNo = model.EthicsApplication.urecNo,
+                    status = "Completion Certificate Issued",
+                    changeDate = DateTime.UtcNow,
+                    userId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    comments = "Completion certificate has been issued."
+                };
+
+                await _ethicsApplicationLogServices.AddLogAsync(log);
+
+                // Redirect to the page that lists completion certificates (or another appropriate action)
+                return RedirectToAction("CompletionReports", "Chief");
+            }
+
+            // If model is invalid, return the form with validation messages
+            return View(model);
+        }
     }
 }

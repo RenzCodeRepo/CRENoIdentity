@@ -29,6 +29,8 @@ namespace CRE.Controllers
         private readonly IInitialReviewServices _initialReviewServices;
         private readonly ApplicationDbContext _context;
         private readonly IEthicsClearanceServices _ethicsClearanceServices;
+        private readonly ICompletionCertificateServices _completionCertificateServices;
+        private readonly ICompletionReportServices _completionReportServices;
 
         public EthicsApplicationFormsController(
             IConfiguration configuration,
@@ -41,7 +43,9 @@ namespace CRE.Controllers
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
             IInitialReviewServices initialReviewServices,
             ApplicationDbContext context,
-            IEthicsClearanceServices ethicsClearanceServices)
+            IEthicsClearanceServices ethicsClearanceServices, 
+            ICompletionCertificateServices completionCertificateServices,
+            ICompletionReportServices completionReportServices)
         {
             _configuration = configuration;
             _ethicsApplicationServices = ethicsApplicationServices;
@@ -54,6 +58,8 @@ namespace CRE.Controllers
             _initialReviewServices = initialReviewServices;
             _context = context;
             _ethicsClearanceServices = ethicsClearanceServices;
+            _completionCertificateServices = completionCertificateServices;
+            _completionReportServices = completionReportServices;
         }
         public IActionResult Index()
         {
@@ -123,6 +129,10 @@ namespace CRE.Controllers
             var user = await _userServices.GetByIdAsync(userId); // Use Identity UserId (string)
             var clearance = await _ethicsClearanceServices.GetClearanceByUrecNoAsync(urecNo);
 
+            // Retrieve CompletionCertificate and CompletionReport
+            var completionCertificate = await _completionCertificateServices.GetCompletionCertificateByUrecNoAsync(urecNo);
+            var completionReport = await _completionReportServices.GetCompletionReportByUrecNoAsync(urecNo);
+
             // Ensure all necessary data exists
             if (ethicsApplication == null || nonFundedResearchInfo == null || user == null)
             {
@@ -152,11 +162,14 @@ namespace CRE.Controllers
                 LatestComment = latestComment, // Add the latest comment to the ViewModel
                 CoProponent = coProponents.ToList(),
                 EthicsClearance = clearance,
-                InitialReview = initialReview// Ensure it's a List
+                InitialReview = initialReview, // Ensure it's a List
+                CompletionCertificate = completionCertificate, // Add CompletionCertificate data
+                CompletionReport = completionReport // Add CompletionReport data
             };
 
             return View(model);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> UploadForm15(IFormFile FORM15, string urecNo)
@@ -451,6 +464,22 @@ namespace CRE.Controllers
 
             return File(fileContent, contentType, fileName);
         }
+
+        public async Task<IActionResult> ViewCertificateFile(string urecNo)
+        {
+            // Fetch the certificate from the database using urecNo
+            var certificate = await _context.CompletionCertificate
+                .FirstOrDefaultAsync(c => c.urecNo == urecNo);
+
+            if (certificate == null || certificate.file == null)
+            {
+                return NotFound();  // Return a 404 if the file is not found
+            }
+
+            // Return the certificate file as a PDF
+            return File(certificate.file, "application/pdf");
+        }
+
     }
 }
 
