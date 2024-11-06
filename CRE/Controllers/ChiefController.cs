@@ -332,7 +332,7 @@ namespace CRE.Controllers
             return View(viewModel); // Return the view with the populated model
         }
         [HttpPost]
-        public async Task<IActionResult> IssueApplication(EthicsApplication viewModel, IFormFile uploadedFile, string applicationDecision, string remarks)
+        public async Task<IActionResult> IssueApplication(string urecNo, IFormFile? uploadedFile, string applicationDecision, string remarks)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -340,7 +340,7 @@ namespace CRE.Controllers
             {
                 var ethicsClearance = new EthicsClearance
                 {
-                    urecNo = viewModel.urecNo, // Link urecNo to EthicsClearance
+                    urecNo = urecNo, // Link urecNo to EthicsClearance
                     issuedDate = DateOnly.FromDateTime(DateTime.Now), // Set issued date as DateOnly
                     expirationDate = DateOnly.FromDateTime(DateTime.Now.AddYears(1)) // Set expiration date one year from now as DateOnly
                 };
@@ -356,7 +356,7 @@ namespace CRE.Controllers
             else if (applicationDecision == "Minor Revisions" || applicationDecision == "Major Revisions")
             {
                 // Logic for handling revisions
-                var result = await _ethicsClearanceServices.HandleRevisionsAsync(viewModel.urecNo, applicationDecision, remarks, userId);
+                var result = await _ethicsClearanceServices.HandleRevisionsAsync(urecNo, applicationDecision, remarks, userId);
 
                 if (result)
                 {
@@ -373,7 +373,7 @@ namespace CRE.Controllers
                 ModelState.AddModelError("", "Please select a valid decision.");
             }
 
-            return View(viewModel);
+            return View();
         }
        
 

@@ -157,14 +157,20 @@ namespace CRE.Controllers
 
             return View(model);
         }
-       
+
         [HttpPost]
         public async Task<IActionResult> UploadForm15(IFormFile FORM15, string urecNo)
         {
+            if (string.IsNullOrEmpty(urecNo))
+            {
+                TempData["ErrorMessage"] = "UrecNo is required.";
+                return RedirectToAction("UploadForms");
+            }
+
             if (FORM15 == null || FORM15.Length == 0)
             {
                 ModelState.AddModelError("FORM15", "Please upload a valid PDF file.");
-                return RedirectToAction("UploadForms"); // Adjust "YourViewName" to the view displaying the upload form
+                return RedirectToAction("UploadForms");
             }
 
             if (FORM15.ContentType != "application/pdf")
@@ -173,58 +179,57 @@ namespace CRE.Controllers
                 return RedirectToAction("UploadForms");
             }
 
-            // Convert the uploaded file to a byte array
             byte[] fileData;
             string fileName;
 
-            using (var memoryStream = new MemoryStream())
+            try
             {
-                // Copy the uploaded file to the memory stream
-                await FORM15.CopyToAsync(memoryStream);
-                fileData = memoryStream.ToArray();
+                using (var memoryStream = new MemoryStream())
+                {
+                    await FORM15.CopyToAsync(memoryStream);
+                    fileData = memoryStream.ToArray();
+                    fileName = FORM15.FileName;
+                }
 
-                // Extract the file name
-                fileName = FORM15.FileName; // This gets the original file name
-            }
-
-            // Save the form data into the database
-            var form15 = new EthicsApplicationForms
-            {
-                urecNo = urecNo,
-                ethicsFormId = "FORM15", // Identifier for Form 15
-                file = fileData,
-                dateUploaded = DateOnly.FromDateTime(DateTime.Now), // Convert DateTime to DateOnly
-                fileName = fileName // Add the file name property
-            };
-
-
-
-            // Save form data using your service
-            var success = await _ethicsApplicationFormsServices.SaveEthicsFormAsync(form15);
-
-            if (success)
-            {
-                // Log the revision status update
-                var logEntry = new EthicsApplicationLog
+                var form15 = new EthicsApplicationForms
                 {
                     urecNo = urecNo,
-                    status = "Amendment form Uploaded",
-                    comments = "Form 15 uploaded for revisions.",
-                    changeDate = DateTime.Now,
-                    userId = User.FindFirstValue(ClaimTypes.NameIdentifier) // Set the current user ID
+                    ethicsFormId = "FORM15",
+                    file = fileData,
+                    dateUploaded = DateOnly.FromDateTime(DateTime.Now),
+                    fileName = fileName
                 };
 
-                await _ethicsApplicationLogServices.AddLogAsync(logEntry);
+                var success = await _ethicsApplicationFormsServices.SaveEthicsFormAsync(form15);
 
-                TempData["SuccessMessage"] = "Form 15 uploaded and status updated successfully.";
+                if (success)
+                {
+                    var logEntry = new EthicsApplicationLog
+                    {
+                        urecNo = urecNo,
+                        status = "Amendment form Uploaded",
+                        comments = "Form 15 uploaded for revisions.",
+                        changeDate = DateTime.Now,
+                        userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                    };
+
+                    await _ethicsApplicationLogServices.AddLogAsync(logEntry);
+
+                    TempData["SuccessMessage"] = "Form 15 uploaded and status updated successfully.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "An error occurred while uploading Form 15.";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "An error occurred while uploading Form 15.";
+                TempData["ErrorMessage"] = $"An error occurred: {ex.Message}";
             }
 
             return RedirectToAction("UploadForms");
         }
+
 
         [Authorize(Roles = "Researcher, Faculty")]
         [HttpPost]
