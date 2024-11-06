@@ -1,7 +1,7 @@
 ﻿@model CRE.ViewModels.EvaluationDetailsViewModel
 @{
     var successMessage = TempData["SuccessMessage"] as string;
-}  
+}
 
 <!-- Success Modal -->
 @if (!string.IsNullOrEmpty(successMessage))
@@ -39,7 +39,7 @@
             <div class="row">
                 <div class="col text-start">
                     <p id="urecNoText">
-                        <strong>UREC No.: </strong> 
+                        <strong>UREC No.: </strong>
                         <span id="urecNoValue">@Model.EthicsApplication.urecNo</span>
                     </p>
                     <button type="button" class="btn btn-primary ms-2" onclick="copyUrecNo()">
@@ -48,21 +48,21 @@
 
                     <h4><strong>Research Title:</strong> @Model.NonFundedResearchInfo.title</h4>
                     <p>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <strong>Proponent:</strong>
-                            @($"{Model.EthicsApplication?.User?.fName} {Model.EthicsApplication?.User?.mName} {Model.EthicsApplication?.User?.lName}")
-                            <ul>
-                                @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
-                                {
-                                    foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Proponent:</strong>
+                                @($"{Model.EthicsApplication?.User?.fName} {Model.EthicsApplication?.User?.mName} {Model.EthicsApplication?.User?.lName}")
+                                <ul>
+                                    @if (Model.NonFundedResearchInfo != null && Model.NonFundedResearchInfo.CoProponent.Any())
                                     {
-                                        <li>@proponent.coProponentName</li>
+                                        foreach (var proponent in Model.NonFundedResearchInfo.CoProponent)
+                                        {
+                                            <li>@proponent.coProponentName</li>
+                                        }
                                     }
-                                }
-                            </ul>
+                                </ul>
+                            </div>
                         </div>
-                    </div>
                     </p>
                     <p><strong>Field of Study:</strong> @Model.EthicsApplication.fieldOfStudy</p>
                     <p><strong>College: </strong> @Model.NonFundedResearchInfo.college</p>
@@ -146,29 +146,9 @@
             }
         </div>
 
-        <div id="pdfModal" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">PDF Document</h5>
-                        <button type="button" class="close" onclick="document.getElementById('pdfModal').style.display='none'">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <iframe src="" width="100%" height="900px" frameborder="0"></iframe>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('pdfModal').style.display='none'">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <form id="issueApplicationForm" asp-action="IssueApplication" asp-controller="Chief" enctype="multipart/form-data" method="post">
             <!-- Hidden field for UREC No. -->
             <input type="hidden" id="urecNo" name="urecNo" value="@Model.EthicsApplication.urecNo" />
-
             @if (Model.EthicsClearance != null)
             {
                 <span class="badge bg-success">Clearance Issued</span>
@@ -179,11 +159,51 @@
                 {
                     var latestLog = Model.EthicsApplicationLog.Last();
 
+                    // Check for "Application Evaluated" status and show dropdowns, remarks, and uploads
+                    if (latestLog.status == "Application Evaluated")
+                    {
+                        <div class="form-group">
+                            <label for="applicationDecision">Decision</label>
+                            <select id="applicationDecision" name="applicationDecision" class="form-control" required>
+                                <option value="">Select a decision</option>
+                                <option value="Approve">Approve</option>
+                                <option value="Minor Revisions">Minor Revisions</option>
+                                <option value="Major Revisions">Major Revisions</option>
+                                <option value="Disapprove">Disapprove</option>
+                            </select>
+                        </div>
+
+                        <!-- Concatenate all the remarks into one string for display, with bullet points -->
+                        <div class="form-group">
+                            <label for="remarks">Remarks for all Evaluations</label>
+                            <textarea id="remarks" name="remarks" class="form-control" rows="10" cols="50" placeholder="Enter all remarks for this evaluation">
+                                @foreach (var evaluation in Model.EthicsEvaluation)
+                                {
+                                    if (!string.IsNullOrEmpty(evaluation.ProtocolRecommendation) && !string.IsNullOrEmpty(evaluation.ProtocolRemarks))
+                                    {
+                                        @Html.Raw(evaluation.ProtocolRemarks + "\n")
+                                    }
+
+                                    if (!string.IsNullOrEmpty(evaluation.ConsentRecommendation) && !string.IsNullOrEmpty(evaluation.ConsentRemarks))
+                                    {
+                                        @Html.Raw(evaluation.ConsentRemarks + "\n")
+                                    }
+                                }
+                            </textarea>
+
+                        </div>
+
+                        <div class="form-group">
+                            <label for="uploadedFile">Upload Ethics Application File (PDF only)</label>
+                            <input type="file" class="form-control" id="uploadedFile" name="uploadedFile" accept="application/pdf" required />
+                            <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
+                        </div>
+                    }
                     // Check for "Amendment form Uploaded" status and if Form 15 is uploaded
-                    if (latestLog.status == "Amendment form Uploaded" && Model.HasForm15Uploaded)
+                    else if (latestLog.status == "Amendment form Uploaded" && Model.HasForm15Uploaded)
                     {
                         <span class="badge bg-warning">Awaiting Amendment Review</span>
-                       
+
                         <button type="button" class="btn btn-info"
                                 onclick="openPdfInModal('@Url.Action("ViewFile", "EthicsApplicationForms", new { formid = "FORM15", urecNo = Model.EthicsApplication.urecNo })')">
                             View Form 15
@@ -207,7 +227,7 @@
                             <small class="form-text text-muted">File upload is enabled only if the decision is "Approve".</small>
                         </div>
                     }
-                    // Check if the latest log indicates "Minor Revisions" or "Major Revisions"
+                    // Check for "Minor Revisions" or "Major Revisions" status
                     else if (latestLog.status == "Minor Revisions" || latestLog.status == "Major Revisions")
                     {
                         <span class="badge bg-warning">Awaiting Amendment Form</span>
@@ -316,7 +336,7 @@
             });
 
             // Close modal when clicking outside of it
-            window.onclick = function(event) {
+            window.onclick = function (event) {
                 const modal = document.getElementById('pdfModal');
                 if (event.target == modal) {
                     modal.style.display = 'none';
@@ -326,18 +346,18 @@
         });
     </script>
     <script>
-    function openPdfInModal(formType, urecNo, evaluationId) {
-        // Construct the URL for fetching the PDF
-        var url = '@Url.Action("ViewEvaluationSheet", "Chief")'; // Change to your action method for fetching PDF
-        url += '?formType=' + encodeURIComponent(formType) + '&urecNo=' + encodeURIComponent(urecNo) + '&evaluationId=' + encodeURIComponent(evaluationId);
+        function openPdfInModal(formType, urecNo, evaluationId) {
+            // Construct the URL for fetching the PDF
+            var url = '@Url.Action("ViewEvaluationSheet", "Chief")'; // Change to your action method for fetching PDF
+            url += '?formType=' + encodeURIComponent(formType) + '&urecNo=' + encodeURIComponent(urecNo) + '&evaluationId=' + encodeURIComponent(evaluationId);
 
-        // Set the iframe source to the constructed URL
-        var modalBody = document.querySelector('#pdfModal .modal-body iframe');
-        modalBody.src = url;
+            // Set the iframe source to the constructed URL
+            var modalBody = document.querySelector('#pdfModal .modal-body iframe');
+            modalBody.src = url;
 
-        // Show the modal
-        $('#pdfModal').modal('show');
-    }
-</script>
+            // Show the modal
+            $('#pdfModal').modal('show');
+        }
+    </script>
 
 }
