@@ -54,6 +54,18 @@
                 </tr>
             </thead>
             <tbody>
+                @if (Model.UnassignedApplications == null || !Model.UnassignedApplications.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div style="text-align: center; padding: 20px; opacity: 50%;">
+                                <i class="fa-solid fa-file" style="font-size: 80px;"></i>
+                                <p style="font-size: 20px; font-family: 'Montserrat', sans-serif;">No Unassigned Applications.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else{
                 @foreach (var application in Model.UnassignedApplications)
                 {
                     <tr>
@@ -82,7 +94,7 @@
                             <a asp-action="AssignEvaluators" asp-route-urecNo="@application.urecNo" class="action-button"><i class="fa fa-user-plus" aria-hidden="true"></i></a>
                         </td>
                     </tr>
-                }
+                }}
             </tbody>
         </table>
     </div>

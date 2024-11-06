@@ -232,7 +232,7 @@ namespace CRE.Controllers
             ModelState.Remove("ReceiptInfo.urecNo");
             ModelState.Remove("ReceiptInfo.scanReceipt");
             ModelState.Remove("ReceiptInfo.EthicsApplication");
-
+            ModelState.Remove("EthicsApplication.CompletionCertificate");
             // Clear existing ModelState errors for CoProponents
             for (int i = 0; i < model.CoProponent.Count; i++)
             {
