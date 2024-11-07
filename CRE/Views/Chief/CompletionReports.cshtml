@@ -3,12 +3,16 @@
 @{
     ViewData["Title"] = "Completion Reports";
 }
-
+<head>
+    <link rel="stylesheet" href="~/css/CompletionReport.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" asp-append-version="true" />
+</head>
 <div class="container mt-4">
     <h2>@ViewData["Title"]</h2>
 
     @if (Model != null && Model.Any())
     {
+        <div class="table-responsive">
         <table class="table table-bordered table-striped mt-3">
             <thead>
                 <tr>
@@ -65,6 +69,7 @@
                 }
             </tbody>
         </table>
+        </div>
     }
     else
     {
