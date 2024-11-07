@@ -8,8 +8,8 @@ namespace CRE.Services
 {
     public class CompletionReportServices : ICompletionReportServices
     {
-        private readonly ApplicationDbContext _context;
-        public CompletionReportServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public CompletionReportServices(CREdbContext context)
         {
             _context = context;
         }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CRE.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(CREdbContext))]
     [Migration("20241102131729_addEthicsEvalDeclinedTable")]
     partial class addEthicsEvalDeclinedTable
     {

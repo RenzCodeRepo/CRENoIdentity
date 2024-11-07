@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CRE.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(CREdbContext))]
     [Migration("20241030105827_changeMemoId")]
     partial class changeMemoId
     {

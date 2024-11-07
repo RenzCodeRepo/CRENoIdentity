@@ -3,15 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CRE.Models
 {
-    public class AppUser : IdentityUser
+    public class AppUser
     {
-
-        [Required, StringLength(30)]
+        [Key]
+        public string userId { get; set; }
         public string fName { get; set; }
-
-        [Required, StringLength(30)]
         public string mName { get; set; }
-        [Required, StringLength(30)]
         public string lName { get; set; }
         public string type { get; set; } //internal and external
 

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CRE.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(CREdbContext))]
     [Migration("20241027183421_AddEvaluationFormTable")]
     partial class AddEvaluationFormTable
     {

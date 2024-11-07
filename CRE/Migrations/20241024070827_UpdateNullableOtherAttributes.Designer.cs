@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CRE.Migrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
+    [DbContext(typeof(CREdbContext))]
     [Migration("20241024070827_UpdateNullableOtherAttributes")]
     partial class UpdateNullableOtherAttributes
     {

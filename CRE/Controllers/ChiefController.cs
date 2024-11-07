@@ -27,7 +27,7 @@ namespace CRE.Controllers
         private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
         private readonly IEthicsClearanceServices _ethicsClearanceServices;
         private readonly UserManager<AppUser> _userManager;
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
         private readonly ICompletionCertificateServices _completionCertificateServices;
         private readonly ICompletionReportServices _completionReportServices;
 
@@ -43,7 +43,7 @@ namespace CRE.Controllers
             IInitialReviewServices initialReviewServices,
             IEthicsEvaluationServices ethicsEvaluationServices,
             UserManager<AppUser> userManager,
-            ApplicationDbContext context,
+            CREdbContext context,
             IEthicsClearanceServices ethicsClearanceServices,
             ICompletionCertificateServices completionCertificateServices,
             ICompletionReportServices completionReportServices)

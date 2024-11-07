@@ -37,7 +37,7 @@ namespace CRE.Data
 
                 var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
-                var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+                var context = serviceScope.ServiceProvider.GetService<CREdbContext>();
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Faculty', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Chief', RESEED, 1);");
                 context.Database.ExecuteSqlRaw("DBCC CHECKIDENT ('Chairperson', RESEED, 1);");

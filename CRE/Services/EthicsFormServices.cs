@@ -7,8 +7,8 @@ namespace CRE.Services
 {
     public class EthicsFormServices : IEthicsFormServices
     {
-        private readonly ApplicationDbContext _context;
-        public EthicsFormServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public EthicsFormServices(CREdbContext context)
         {
             _context = context;
         }

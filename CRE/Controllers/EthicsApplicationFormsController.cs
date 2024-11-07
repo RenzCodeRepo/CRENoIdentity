@@ -27,7 +27,7 @@ namespace CRE.Controllers
         private readonly ICoProponentServices _coProponentServices;
         private readonly IEthicsApplicationFormsServices _ethicsApplicationFormsServices;
         private readonly IInitialReviewServices _initialReviewServices;
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
         private readonly IEthicsClearanceServices _ethicsClearanceServices;
         private readonly ICompletionCertificateServices _completionCertificateServices;
         private readonly ICompletionReportServices _completionReportServices;
@@ -42,7 +42,7 @@ namespace CRE.Controllers
             ICoProponentServices coProponentServices,
             IEthicsApplicationFormsServices ethicsApplicationFormsServices,
             IInitialReviewServices initialReviewServices,
-            ApplicationDbContext context,
+            CREdbContext context,
             IEthicsClearanceServices ethicsClearanceServices, 
             ICompletionCertificateServices completionCertificateServices,
             ICompletionReportServices completionReportServices)

@@ -16,9 +16,9 @@ namespace CRE.Services
     public class EthicsEvaluationServices : IEthicsEvaluationServices
     {
         private readonly IConfiguration _configuration;
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public EthicsEvaluationServices(ApplicationDbContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public EthicsEvaluationServices(CREdbContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;

@@ -11,9 +11,9 @@ namespace CRE.Services
 {
     public class NonFundedResearchInfoServices : INonFundedResearchInfoServices
     {
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
 
-        public NonFundedResearchInfoServices(ApplicationDbContext context)
+        public NonFundedResearchInfoServices(CREdbContext context)
         {
             _context = context;
         }

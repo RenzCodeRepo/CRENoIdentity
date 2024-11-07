@@ -26,7 +26,7 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
     options.Password.RequiredLength = 6;
     options.SignIn.RequireConfirmedAccount = false;
 })
-.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddEntityFrameworkStores<CREdbContext>()
 .AddDefaultTokenProviders();
 
 // Configure authentication cookie settings
@@ -61,7 +61,7 @@ builder.Services.AddScoped<IAppUserServices, AppUserServices>();
 builder.Services.AddHttpContextAccessor(); // Add this line
 
 // Configure the database context
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<CREdbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });

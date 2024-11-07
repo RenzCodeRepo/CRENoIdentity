@@ -8,9 +8,9 @@ namespace CRE.Services
 {
     public class ReceiptInfoServices : IReceiptInfoServices
     {
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
 
-        public ReceiptInfoServices(ApplicationDbContext context)
+        public ReceiptInfoServices(CREdbContext context)
         {
             _context = context;
         }

@@ -9,9 +9,9 @@ namespace CRE.Controllers
     public class EthicsEvaluationController : Controller
     {
         private readonly IEthicsEvaluationServices _ethicsEvaluationServices;
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
 
-        public EthicsEvaluationController(IEthicsEvaluationServices ethicsEvaluationService, ApplicationDbContext context)
+        public EthicsEvaluationController(IEthicsEvaluationServices ethicsEvaluationService, CREdbContext context)
         {
             _context = context;
             _ethicsEvaluationServices = ethicsEvaluationService;

@@ -9,8 +9,8 @@ namespace CRE.Services
 {
     public class InitialReviewServices : IInitialReviewServices
     {
-        private readonly ApplicationDbContext _context;
-        public InitialReviewServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public InitialReviewServices(CREdbContext context)
         {
             _context = context;
         }

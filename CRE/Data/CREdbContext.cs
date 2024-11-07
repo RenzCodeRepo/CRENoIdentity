@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CRE.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
+    public class CREdbContext : IdentityDbContext<AppUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public CREdbContext(DbContextOptions<CREdbContext> options) : base(options)
         {
 
         }

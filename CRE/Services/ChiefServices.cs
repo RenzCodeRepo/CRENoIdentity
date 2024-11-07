@@ -5,8 +5,8 @@ namespace CRE.Services
 {
     public class ChiefServices : IChiefServices
     {
-        private readonly ApplicationDbContext _context;
-        public ChiefServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public ChiefServices(CREdbContext context)
         {
             _context = context;
         }

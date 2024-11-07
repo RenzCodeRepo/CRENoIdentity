@@ -11,9 +11,9 @@ namespace CRE.Services
 {
     public class EthicsApplicationLogServices : IEthicsApplicationLogServices
     {
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
 
-        public EthicsApplicationLogServices(ApplicationDbContext context)
+        public EthicsApplicationLogServices(CREdbContext context)
         {
             _context = context;
         }

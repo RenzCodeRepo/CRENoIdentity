@@ -5,8 +5,8 @@ namespace CRE.Services
 {
     public class EthicsEvaluatorServices : IEthicsEvaluatorServices
     {
-        private readonly ApplicationDbContext _context;
-        public EthicsEvaluatorServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public EthicsEvaluatorServices(CREdbContext context)
         {
             _context = context;
         }

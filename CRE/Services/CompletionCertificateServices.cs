@@ -7,8 +7,8 @@ namespace CRE.Services
 {
     public class CompletionCertificateServices : ICompletionCertificateServices
     {
-        private readonly ApplicationDbContext _context;
-        public CompletionCertificateServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public CompletionCertificateServices(CREdbContext context)
         {
             _context = context;
         }

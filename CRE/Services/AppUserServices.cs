@@ -7,8 +7,8 @@ namespace CRE.Services
 {
     public class AppUserServices : IAppUserServices
     {
-        private readonly ApplicationDbContext _context;
-        public AppUserServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public AppUserServices(CREdbContext context)
         {
             _context = context;
         }

@@ -7,8 +7,8 @@ namespace CRE.Services
 {
     public class CoProponentServices : ICoProponentServices
     {
-        private readonly ApplicationDbContext _context;
-        public CoProponentServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public CoProponentServices(CREdbContext context)
         {
             _context = context;
         }

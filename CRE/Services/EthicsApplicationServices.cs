@@ -8,8 +8,8 @@ namespace CRE.Services
 {
     public class EthicsApplicationServices : IEthicsApplicationServices
     {
-        private readonly ApplicationDbContext _context;
-        public EthicsApplicationServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public EthicsApplicationServices(CREdbContext context)
         {
             _context = context;
         }

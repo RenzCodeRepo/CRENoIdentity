@@ -8,9 +8,9 @@ namespace CRE.Services
 {
     public class ChairpersonServices : IChairpersonServices
     {
-        private readonly ApplicationDbContext _context;
+        private readonly CREdbContext _context;
 
-        public ChairpersonServices(ApplicationDbContext context)
+        public ChairpersonServices(CREdbContext context)
         {
             _context = context;
         }

@@ -5,8 +5,8 @@ namespace CRE.Services
 {
     public class ExpertiseServices: IExpertiseServices
     {
-        private readonly ApplicationDbContext _context;
-        public ExpertiseServices(ApplicationDbContext context)
+        private readonly CREdbContext _context;
+        public ExpertiseServices(CREdbContext context)
         {
             _context = context;
         }
