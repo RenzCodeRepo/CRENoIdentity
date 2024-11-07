@@ -243,7 +243,7 @@ p {
     font-family: 'Montserrat', sans-serif;
     color: #333333;
     margin-bottom: 0.75rem;
-
+    line-height: 1.6;
 }
 
     p strong {
@@ -262,7 +262,6 @@ ul {
         font-family: 'Montserrat', sans-serif;
         color: #333333;
         padding: 0.5rem 0;
-        border-bottom: 1px solid #f0f0f0;
     }
 
 /* Form Styles */
