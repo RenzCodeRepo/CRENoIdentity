@@ -490,85 +490,303 @@
         height: 300px;
     }
 
+
+/* Form Container */
+#issueApplicationForm {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 20px 0;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 16px;
+    }
+
+/* Select Input Styling */
+#applicationDecision {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    #applicationDecision:focus {
+        border-color: #850000;
+        box-shadow: 0 0 0 0.2rem rgba(133, 0, 0, 0.25);
+        outline: none;
+    }
+
+/* Textarea Styling */
+#remarks {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 150px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    #remarks:focus {
+        border-color: #850000;
+        box-shadow: 0 0 0 0.2rem rgba(133, 0, 0, 0.25);
+        outline: none;
+    }
+
+/* File Upload Styling */
+#uploadedFile {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    font-size: 14px;
+    background-color: #fff;
+    margin-top: 0.5rem;
+}
+
+    #uploadedFile:disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+/* Helper Text */
+.form-text {
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 0.25rem;
+}
+
+/* Submit Buttons */
+#formSubmitButton, #returnForAmendmentButton {
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    border: none;
+}
+
+#formSubmitButton {
+    background-color: #0d6b4a;
+    color: white;
+}
+
+    #formSubmitButton:hover {
+        background-color: #28a745;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+#returnForAmendmentButton {
+    background-color: #850000;
+    color: white;
+}
+
+    #returnForAmendmentButton:hover {
+        background-color: #cc0000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+/* Badge Styling */
 .badge {
     display: inline-block;
-    padding: 0.5em 0.85em; /* Increased padding */
-    font-size: 0.95em; /* Increased font size */
+    padding: 0.5em 0.85em;
+    font-size: 0.95em;
     font-weight: 600;
-    line-height: 1.2; /* Increased line height */
+    line-height: 1.2;
     text-align: center;
     white-space: nowrap;
     vertical-align: baseline;
-    border-radius: 0.5rem; /* Slightly larger border radius */
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
     transition: all 0.2s ease-in-out;
-    font-family: system-ui, -apple-system, sans-serif;
-    letter-spacing: 0.01em; /* Added slight letter spacing */
 }
 
-    .badge:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15); /* Increased shadow */
-    }
+.bg-success {
+    background-color: #28a745;
+    color: white;
+}
 
-/* Warning badge */
 .bg-warning {
     background-color: #ffc107;
-    color: #000;
-    border: 1.5px solid rgba(0, 0, 0, 0.05); /* Slightly thicker border */
+    color: black;
 }
 
-    .bg-warning:hover {
-        background-color: #ffca2c;
-    }
-
-/* Danger badge */
 .bg-danger {
     background-color: #dc3545;
     color: white;
-    border: 1.5px solid rgba(0, 0, 0, 0.05); /* Slightly thicker border */
 }
 
-    .bg-danger:hover {
-        background-color: #bb2d3b;
-    }
-
-/* Optional: Add animation for new badges */
-@keyframes badgeAppear {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Button Group Spacing */
+.mt-3 {
+    margin-top: 1rem;
+}/* Form Container */
+#issueApplicationForm {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin: 20px 0;
+    font-family: 'Montserrat', sans-serif;
 }
 
+/* Form Groups */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 16px;
+    }
+
+/* Select Input Styling */
+#applicationDecision {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    #applicationDecision:focus {
+        border-color: #850000;
+        box-shadow: 0 0 0 0.2rem rgba(133, 0, 0, 0.25);
+        outline: none;
+    }
+
+/* Textarea Styling */
+#remarks {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 150px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    #remarks:focus {
+        border-color: #850000;
+        box-shadow: 0 0 0 0.2rem rgba(133, 0, 0, 0.25);
+        outline: none;
+    }
+
+/* File Upload Styling */
+#uploadedFile {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 10px;
+    font-size: 14px;
+    background-color: #fff;
+    margin-top: 0.5rem;
+}
+
+    #uploadedFile:disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+/* Helper Text */
+.form-text {
+    color: #6c757d;
+    font-size: 12px;
+    margin-top: 0.25rem;
+}
+
+/* Submit Buttons */
+#formSubmitButton, #returnForAmendmentButton {
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-right: 10px;
+    border: none;
+}
+
+#formSubmitButton {
+    background-color: #0d6b4a;
+    color: white;
+}
+
+    #formSubmitButton:hover {
+        background-color: #28a745;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+#returnForAmendmentButton {
+    background-color: #850000;
+    color: white;
+}
+
+    #returnForAmendmentButton:hover {
+        background-color: #cc0000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+/* Badge Styling */
 .badge {
-    animation: badgeAppear 0.3s ease-out forwards;
+    display: inline-block;
+    padding: 0.5em 0.85em;
+    font-size: 0.95em;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease-in-out;
 }
 
-/* Optional: Add subtle border glow for emphasis */
+.bg-success {
+    background-color: #28a745;
+    color: white;
+}
+
 .bg-warning {
-    box-shadow: 0 0 0 rgba(255, 193, 7, 0);
-    transition: box-shadow 0.3s ease-in-out;
+    background-color: #ffc107;
+    color: black;
 }
-
-    .bg-warning:hover {
-        box-shadow: 0 0 10px rgba(255, 193, 7, 0.4); /* Increased glow */
-    }
 
 .bg-danger {
-    box-shadow: 0 0 0 rgba(220, 53, 69, 0);
-    transition: box-shadow 0.3s ease-in-out;
+    background-color: #dc3545;
+    color: white;
 }
 
-    .bg-danger:hover {
-        box-shadow: 0 0 10px rgba(220, 53, 69, 0.4); /* Increased glow */
-    }
-
-/* Optional: Add margin between badges */
-.badge + .badge {
-    margin-left: 0.75rem; /* Increased margin between badges */
+/* Button Group Spacing */
+.mt-3 {
+    margin-top: 1rem;
 }

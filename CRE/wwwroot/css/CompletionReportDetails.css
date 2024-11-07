@@ -251,18 +251,7 @@ p {
         font-weight: 600;
     }
 
-/* List Styles */
-ul {
-    list-style-type: none;
-    padding-left: 0;
-    margin-bottom: 2rem;
-}
 
-    ul li {
-        font-family: 'Montserrat', sans-serif;
-        color: #333333;
-        padding: 0.5rem 0;
-    }
 
 /* Form Styles */
 .form-group {
